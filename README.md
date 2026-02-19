@@ -71,11 +71,11 @@ CS162-Bulk-Buddy/
 
 ## Team
 
-Bo Shih - PM/Design
-Ekene - Backend/Deployment
-Jonathan - Frontend
-Tara - PM/Design
-Temilola - Backend/DB
+- Bo Shih - PM/Design
+- Ekene - Backend/Deployment
+- Jonathan - Frontend
+- Tara - PM/Design
+- Temilola - Backend/DB
 
 
 ## License
