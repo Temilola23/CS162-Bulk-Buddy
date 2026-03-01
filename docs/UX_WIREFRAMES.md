@@ -15,7 +15,7 @@ This document captures low-fidelity UX flows and text-based wireframes for the B
 2. Sign up as a new user with **address required** (street/city/state/zip) → system geocodes to lat/lng, default role is Shopper.
 3. View Trip Feed → **automatically shows nearby trips within radius (default: 5 miles), sorted by distance** → see distance to each trip.
 4. Open Trip Detail → see driver info, pickup time/location, and available items.
-5. Select items and claim portions → see running subtotal and remaining capacity.
+5. Select items and claim portions from the **driver’s predefined trip item list only** (V1: shoppers cannot request items outside this list) → see running subtotal and remaining capacity.
 6. Submit claim → status starts as "Claimed".
 7. Track order status progression: **Claimed → Purchased → ReadyForPickup → Completed**.
 8. View "My Orders" → see all claimed items with current status and pickup details.
@@ -24,8 +24,8 @@ This document captures low-fidelity UX flows and text-based wireframes for the B
 
 1. Sign up as Shopper (default role) with address.
 2. Navigate to Profile/Settings → click "Apply to become a Driver".
-3. Submit driver application → status is "pending".
-4. Wait for admin approval → status changes to "approved" or "rejected".
+3. Submit driver application (per FR-3: license number, expiration date, proof image as applicable) → status is "pending".
+4. Wait for **admin** (designated system role per PRD, not a regular driver) to review; status changes to "approved" or "rejected". See Section 4 for admin/verification details.
 5. Once approved, click "Post Trip" from navbar or dashboard.
 6. Fill trip form: store (e.g., Costco), date/time, pickup location text, capacity_total.
 7. Add planned bulk items: name, unit, total_share.
@@ -107,6 +107,8 @@ These are low-fidelity, ASCII-style wireframes to give layout guidance. Frontend
 ```
 
 ### 3.3 Trip Feed (Nearby Trips)
+
+**Layout (FR-2, AC-2):** Use a **card-based layout**. Each card = one trip. Cards show: store name, pickup time, pickup location, driver name, capacity left, trip status, and **distance from the user**. Sorted by distance (nearest first). Clicking the card or a "View details" button navigates to Trip Detail. This keeps the feed scannable and supports nearby-first logic.
 
 ```
 ---------------- Bulk Buddy ----------------
@@ -268,6 +270,8 @@ These are low-fidelity, ASCII-style wireframes to give layout guidance. Frontend
 
 ### 3.8 Driver Application (Profile/Settings)
 
+**Admin & verification (FR-3):** The **admin** is a designated system role (per PRD roles table), not a regular driver. Approval criteria: license number, expiration date, and proof image as defined in FR-3. **Status meanings:** *Pending* = application submitted, awaiting admin review; *Approved* = user can create and manage trips; *Rejected* = user remains Shopper only. Only approved drivers get "Post Trip" and trip-management permissions.
+
 ```
 ---------------- Bulk Buddy ----------------
  [Logo] [Trip feed] [My orders] [Profile]
@@ -283,10 +287,11 @@ These are low-fidelity, ASCII-style wireframes to give layout guidance. Frontend
   
   (If not applied yet:)
   [ Apply to become a Driver ]
+  (Application: license, expiration, proof per FR-3)
   
   (If pending:)
-  Your application is under review. You'll be notified
-  when an admin reviews your application.
+  Your application is under review. An admin will review
+  your submission (license/expiration/proof) and notify you.
   
   (If approved:)
   ✓ You're a verified driver! You can now create trips.
@@ -307,6 +312,7 @@ These are low-fidelity, ASCII-style wireframes to give layout guidance. Frontend
 - **Driver verification required**: Users cannot create trips until they apply and are approved as drivers. Show clear messaging about application status.
 - **Claim state progression**: Always show current claim status and the progression path (Claimed → Purchased → ReadyForPickup → Completed). Use visual indicators (progress bar, status badges).
 - **My Orders vs My Trips**: Shoppers see "My Orders" (their claimed items), Drivers see "My Trips" (trips they're managing). Keep these distinct in navigation.
+- **Claimable items in V1**: Shoppers can only claim from the **driver’s predefined item list** for that trip (FR-5). No requesting additional items outside that list in V1.
 - **Oversell prevention**: UI should reflect real-time capacity_left and prevent claiming more than available. Show clear error messages if claim fails due to concurrency.
 - **Clarity for car-less shoppers**: Always surface pickup location, time window, distance, and what they owe as early as possible in the flow.
 - **Accessibility basics**: Use clear labels, sufficient contrast, and avoid relying solely on color to indicate state (e.g., disabled / full trips, claim status).
