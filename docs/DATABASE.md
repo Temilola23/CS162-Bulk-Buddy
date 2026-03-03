@@ -71,7 +71,7 @@ erDiagram
         int id PK
         int shopper_id FK
         int trip_id FK
-        string status "pending | purchased | ready | completed | cancelled"
+        string status "claimed | purchased | ready_for_pickup | completed | cancelled"
         datetime created_at
         datetime updated_at
     }
@@ -129,8 +129,7 @@ across all orders. Updated atomically in the checkout transaction. The invariant
 Links a shopper to a specific trip. One order per shopper per trip. If the inventory
 aggregation view splits a cart across multiple drivers, it creates one order per trip.
 
-**Status transitions**: `pending` -> `purchased` -> `ready` -> `completed`.
-An order can also be `cancelled` at any point before `completed`.
+**Status transitions** : `claimed` -> `purchased` -> `ready_for_pickup` -> `completed`. No skipping states. An order can also be `cancelled` at any point before `completed`.
 
 ### order_items
 
@@ -142,6 +141,10 @@ shopper claimed. This is the join table between orders and items.
 Tracks the shopper-to-driver upgrade process. Stored separately from users because
 a user can apply multiple times (rejection followed by reapplication), and it keeps
 driver-specific fields out of the users table.
+
+For now we only store a single verification field (`license_info`). License expiration
+date and proof image (or a reference to storage) may be added later after user testing
+and research, so the schema can match how verification is actually done.
 
 ## Indexing Strategy
 

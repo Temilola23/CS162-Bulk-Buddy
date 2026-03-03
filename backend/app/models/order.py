@@ -5,9 +5,9 @@ If a shopper uses the inventory aggregation view and their cart
 spans multiple drivers, the system creates one Order per trip
 (the cart is split at the application layer).
 
-Status transitions follow a strict sequence:
-    pending -> purchased -> ready -> completed
-    pending -> cancelled  (at any point before 'completed')
+Status transitions follow a standard sequence:
+    claimed -> purchased -> ready_for_pickup -> completed
+    claimed -> cancelled  (at any point before 'completed')
 """
 
 from datetime import datetime, timezone
@@ -22,8 +22,8 @@ class Order(db.Model):
         id: Primary key.
         shopper_id: FK to the user who placed this order.
         trip_id: FK to the trip this order is placed against.
-        status: Current state of the order. Follows the transition
-            sequence defined in the module docstring.
+        status: Current state of the order. Standard sequence: claimed,
+            purchased, ready_for_pickup, completed; or cancelled.
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """
@@ -31,7 +31,7 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     VALID_STATUSES = (
-        "pending", "purchased", "ready", "completed", "cancelled"
+        "claimed", "purchased", "ready_for_pickup", "completed", "cancelled"
     )
 
     id = db.Column(db.Integer, primary_key=True)
@@ -42,7 +42,7 @@ class Order(db.Model):
         db.Integer, db.ForeignKey("trips.id"), nullable=False
     )
     status = db.Column(
-        db.String(20), nullable=False, default="pending"
+        db.String(20), nullable=False, default="claimed"
     )
 
     created_at = db.Column(
