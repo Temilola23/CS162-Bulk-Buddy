@@ -11,7 +11,7 @@ transaction as order creation.
 
 ## ER Diagram
 
-![Bulk Buddy ER Diagram](er_diagram.png)
+![Bulk Buddy ER Diagram](/docs/er_diagram.png)
 
 <details>
 <summary>Mermaid source (for GitHub rendering)</summary>
