@@ -208,6 +208,8 @@ __marimo__/
 
 # Project reference documents (local only)
 Reference.pdf
+DESIGN_NOTES.md
+db_schema_plan.md
 
 # Node / Frontend
 node_modules/
