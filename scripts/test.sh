@@ -14,6 +14,6 @@ python -m pytest tests/ -v
 echo "Testing frontend..."
 cd frontend
 # TBD: add frontend test command (e.g., npm test)
-cd ..
+# cd ..
 
 echo "All tests complete."
