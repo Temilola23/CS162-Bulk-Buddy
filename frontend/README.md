@@ -4,25 +4,40 @@ The frontend for Bulk Buddy, built with React.
 
 ## Setup
 
-*Instructions will be added once the frontend framework is initialized.*
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 ## Structure
 
 ```
 frontend/
-├── tests/          # Frontend tests
-└── ...             # React app files (to be initialized)
+├── src/
+│   ├── components/        # Shared React UI pieces
+│   ├── data/              # Mock data for MVP screens
+│   └── pages/             # Route-level screens
+├── index.html
+├── package-lock.json
+├── package.json
+└── vite.config.js
 ```
+
+Design assets and Figma exports are documented under `docs/design/`, not `frontend/public/`.
 
 ## Running Locally
 
-*TBD*
+```bash
+cd frontend
+npm run dev
+```
 
 ## Testing
 
-Run frontend tests:
+Build the frontend:
 
 ```bash
 cd frontend
-# TBD: add test command
+npm run build
 ```
