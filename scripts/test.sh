@@ -7,13 +7,10 @@ echo "Running tests..."
 
 # Backend tests
 echo "Testing backend..."
-cd backend
-python -m pytest tests/ -v
+python -m pytest backend/tests -v
 
 # Frontend tests
 echo "Testing frontend..."
-cd frontend
 # TBD: add frontend test command (e.g., npm test)
-# cd ..
 
 echo "All tests complete."
