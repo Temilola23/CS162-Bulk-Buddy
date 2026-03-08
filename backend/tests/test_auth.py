@@ -74,6 +74,57 @@ class TestSignup:
         assert response.status_code == 400
         assert "email and password required" in response.json["message"]
 
+    def test_signup_missing_address_state(self, client):
+        """Test signup with missing address state."""
+        response = client.post(
+            "/api/signup",
+            json={
+                "first_name": "user",
+                "last_name": "test",
+                "email": "newuser@example.com",
+                "password": "newpassword",
+                "address_street": "test",
+                "address_city": "test",
+                "address_zip": "000",
+            },
+        )
+        assert response.status_code == 400
+        assert "address (street, city, state, zip) required" in response.json["message"]
+
+    def test_signup_missing_address_city(self, client):
+        """Test signup with missing address city."""
+        response = client.post(
+            "/api/signup",
+            json={
+                "first_name": "user",
+                "last_name": "test",
+                "email": "newuser@example.com",
+                "password": "newpassword",
+                "address_street": "test",
+                "address_state": "test",
+                "address_zip": "000",
+            },
+        )
+        assert response.status_code == 400
+        assert "address (street, city, state, zip) required" in response.json["message"]
+
+    def test_signup_missing_address_zip(self, client):
+        """Test signup with missing address zip code."""
+        response = client.post(
+            "/api/signup",
+            json={
+                "first_name": "user",
+                "last_name": "test",
+                "email": "newuser@example.com",
+                "password": "newpassword",
+                "address_street": "test",
+                "address_city": "test",
+                "address_state": "test",
+            },
+        )
+        assert response.status_code == 400
+        assert "address (street, city, state, zip) required" in response.json["message"]
+
     def test_signup_duplicate_email(self, client, test_user):
         """Test signup with existing email."""
         response = client.post(
@@ -83,8 +134,13 @@ class TestSignup:
                 "last_name": "test",
                 "email": test_user["email"],
                 "password": "anotherpassword",
+                "address_street": "test",
+                "address_city": "test",
+                "address_state": "test",
+                "address_zip": "000",
             },
         )
+        print(response.json)
         assert response.status_code == 409
         assert "user already exists" in response.json["message"]
 

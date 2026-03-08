@@ -1,6 +1,9 @@
+"""
+Flask application factory for Bulk Buddy.
+"""
+
 from datetime import timedelta
 from app.extensions import db
-
 from app.routes.auth import auth
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -8,6 +11,16 @@ from flask_login import LoginManager
 
 
 def create_app(test_config=None):
+    """
+    Create and configure the Flask application.
+
+    Args:
+        config: Optional dictionary of configuration overrides.
+
+    Returns:
+        Configured Flask application instance.
+
+    """
     app = Flask(__name__)
 
     # CORS setup

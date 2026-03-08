@@ -54,6 +54,8 @@ def register_user(
         return None, "last name required", 400
     if not email or not password:
         return None, "email and password required", 400
+    if not all([address_street, address_city, address_state, address_zip]):
+        return None, "address (street, city, state, zip) required", 400
 
     # Check if user already exists
     existing_user = User.query.filter_by(email=email).first()
