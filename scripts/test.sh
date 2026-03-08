@@ -8,8 +8,7 @@ echo "Running tests..."
 # Backend tests
 echo "Testing backend..."
 cd backend
-# TBD: add backend test command (e.g., pytest, python manage.py test)
-cd ..
+python -m pytest tests/ -v
 
 # Frontend tests
 echo "Testing frontend..."

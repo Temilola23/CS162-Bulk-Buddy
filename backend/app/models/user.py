@@ -7,11 +7,12 @@ coordinates at registration time avoids repeated geocoding API calls.
 """
 
 from datetime import datetime, timezone
+from flask_login import UserMixin
 
 from ..extensions import db
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """A registered Bulk Buddy user.
 
     Attributes:
@@ -38,15 +39,11 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(
-        db.String(255), unique=True, nullable=False, index=True
-    )
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
-    role = db.Column(
-        db.String(20), nullable=False, default="shopper"
-    )
+    role = db.Column(db.String(20), nullable=False, default="shopper")
 
     # Address fields -- required at registration per FR-1
     address_street = db.Column(db.String(255), nullable=False)
@@ -59,22 +56,18 @@ class User(db.Model):
     longitude = db.Column(db.Float, nullable=True)
 
     created_at = db.Column(
-        db.DateTime, nullable=False,
-        default=lambda: datetime.now(timezone.utc)
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     updated_at = db.Column(
-        db.DateTime, nullable=False,
+        db.DateTime,
+        nullable=False,
         default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Relationships
-    trips = db.relationship(
-        "Trip", back_populates="driver", lazy="dynamic"
-    )
-    orders = db.relationship(
-        "Order", back_populates="shopper", lazy="dynamic"
-    )
+    trips = db.relationship("Trip", back_populates="driver", lazy="dynamic")
+    orders = db.relationship("Order", back_populates="shopper", lazy="dynamic")
     driver_applications = db.relationship(
         "DriverApplication", back_populates="user", lazy="dynamic"
     )
