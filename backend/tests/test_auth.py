@@ -98,8 +98,6 @@ class TestLogin:
             "/api/login",
             json={"email": test_user["email"], "password": test_user["password"]},
         )
-        print(response.status_code)
-        print(response.json)
         assert response.status_code == 200
         assert response.json["message"] == "user logged in successfully"
 

@@ -36,7 +36,7 @@ jobs:
         run: python -m venv .venv
 
       - name: Install requirements.txt
-        run: pip install -r requirements.txt
+        run: cd backend && pip install -r requirements.txt
 
       - name: Run Tests
         run: sudo sh ./scripts/test.sh
