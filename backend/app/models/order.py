@@ -31,28 +31,26 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     VALID_STATUSES = (
-        "claimed", "purchased", "ready_for_pickup", "completed", "cancelled"
+        "claimed",
+        "purchased",
+        "ready_for_pickup",
+        "completed",
+        "cancelled",
     )
 
     id = db.Column(db.Integer, primary_key=True)
-    shopper_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=False
-    )
-    trip_id = db.Column(
-        db.Integer, db.ForeignKey("trips.id"), nullable=False
-    )
-    status = db.Column(
-        db.String(20), nullable=False, default="claimed"
-    )
+    shopper_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="claimed")
 
     created_at = db.Column(
-        db.DateTime, nullable=False,
-        default=lambda: datetime.now(timezone.utc)
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     updated_at = db.Column(
-        db.DateTime, nullable=False,
+        db.DateTime,
+        nullable=False,
         default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Indexes:
@@ -67,8 +65,10 @@ class Order(db.Model):
     shopper = db.relationship("User", back_populates="orders")
     trip = db.relationship("Trip", back_populates="orders")
     order_items = db.relationship(
-        "OrderItem", back_populates="order", lazy="dynamic",
-        cascade="all, delete-orphan"
+        "OrderItem",
+        back_populates="order",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self):
