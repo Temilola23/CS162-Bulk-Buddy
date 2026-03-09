@@ -1,31 +1,14 @@
-"""Order model linking a shopper's checkout to a specific trip.
-
-One Order = one shopper checking out from one driver's trip.
-If a shopper uses the inventory aggregation view and their cart
-spans multiple drivers, the system creates one Order per trip
-(the cart is split at the application layer).
-
-Status transitions follow a standard sequence:
-    claimed -> purchased -> ready_for_pickup -> completed
-    claimed -> cancelled  (at any point before 'completed')
-"""
-
 from datetime import datetime, timezone
 
 from ..extensions import db
 
 
 class Order(db.Model):
-    """A shopper's order against a single trip.
+    """
+    A shopper's order against a single trip.
 
-    Attributes:
-        id: Primary key.
-        shopper_id: FK to the user who placed this order.
-        trip_id: FK to the trip this order is placed against.
-        status: Current state of the order. Standard sequence: claimed,
-            purchased, ready_for_pickup, completed; or cancelled.
-        created_at: Row creation timestamp (UTC).
-        updated_at: Last-modified timestamp (UTC).
+    Status transitions: claimed -> purchased -> ready_for_pickup
+    -> completed (or cancelled at any point before completed).
     """
 
     __tablename__ = "orders"
@@ -39,7 +22,9 @@ class Order(db.Model):
     )
 
     id = db.Column(db.Integer, primary_key=True)
-    shopper_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    shopper_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False
+    )
     trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="claimed")
 

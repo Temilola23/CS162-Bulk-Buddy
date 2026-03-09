@@ -8,13 +8,8 @@ def authenticate_user(email, password, remember=False):
     """
     Authenticate user credentials and create a session.
 
-    Args:
-        email: User's email address.
-        password: Plain text password to verify.
-        remember: If True, extends session cookie expiry.
-
-    Returns:
-        tuple: (User, None, 200) on success, or (None, error_message, status_code) on failure.
+    Returns (User, None, 200) on success or
+    (None, error_message, status_code) on failure.
     """
     user = User.query.filter_by(email=email).first()
 
@@ -41,12 +36,8 @@ def register_user(
     """
     Register a new user account.
 
-    Args:
-        email: User's email address.
-        password: Plain text password (will be hashed).
-
-    Returns:
-        tuple: (User, None, 201) on success, or (None, error_message, status_code) on failure.
+    Returns (User, None, 201) on success or
+    (None, error_message, status_code) on failure.
     """
     if not first_name:
         return None, "first name required", 400
