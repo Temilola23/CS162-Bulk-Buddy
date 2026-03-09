@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from ..extensions import db
+from .enums import TripStatus
 
 
 class Trip(db.Model):
@@ -12,7 +13,7 @@ class Trip(db.Model):
     pickup spot per trip.
 
     Attributes:
-        id: Primary key.
+        trip_id: Primary key.
         driver_id: FK to the user who created this trip.
         store_name: Name of the warehouse store.
         pickup_location_text: Human-readable pickup address.
@@ -20,33 +21,39 @@ class Trip(db.Model):
         pickup_lng: Longitude of the pickup point.
         pickup_time: When the driver will be available for
             handoff.
-        status: One of 'open', 'closed', or 'completed'.
-            - open: accepting claims from shoppers.
-            - closed: no longer accepting claims.
-            - completed: all handoffs done.
+        status: One of TripStatus.OPEN, CLOSED, or COMPLETED.
+            - OPEN: accepting claims from shoppers.
+            - CLOSED: no longer accepting claims.
+            - COMPLETED: all handoffs done.
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "trips"
 
-    id = db.Column(db.Integer, primary_key=True)
+    trip_id = db.Column(db.Integer, primary_key=True)
     driver_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=False
+        db.Integer, db.ForeignKey("users.user_id"), nullable=False
     )
     store_name = db.Column(db.String(150), nullable=False)
     pickup_location_text = db.Column(db.String(255), nullable=False)
 
     # Separate from the driver's home coordinates so the driver can
     # choose a custom pickup spot per trip
-    pickup_lat = db.Column(db.Float, nullable=False)
-    pickup_lng = db.Column(db.Float, nullable=False)
+    pickup_lat = db.Column(db.Float, nullable=True)
+    pickup_lng = db.Column(db.Float, nullable=True)
 
     pickup_time = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="open")
+    status = db.Column(
+        db.Enum(TripStatus, validate_strings=True),
+        nullable=False,
+        default=TripStatus.OPEN,
+    )
 
     created_at = db.Column(
-        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
     updated_at = db.Column(
         db.DateTime,
@@ -63,7 +70,10 @@ class Trip(db.Model):
         db.Index("ix_trips_driver_id", "driver_id"),
         db.Index("ix_trips_status", "status"),
         db.Index(
-            "ix_trips_status_coords", "status", "pickup_lat", "pickup_lng"
+            "ix_trips_status_coords",
+            "status",
+            "pickup_lat",
+            "pickup_lng",
         ),
     )
 
@@ -84,6 +94,6 @@ class Trip(db.Model):
 
     def __repr__(self):
         return (
-            f"<Trip {self.id} {self.store_name} "
+            f"<Trip {self.trip_id} {self.store_name} "
             f"({self.status}) by User {self.driver_id}>"
         )

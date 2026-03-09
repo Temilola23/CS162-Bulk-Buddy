@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from ..extensions import db
+from .enums import ApplicationStatus
 
 
 class DriverApplication(db.Model):
@@ -15,11 +16,11 @@ class DriverApplication(db.Model):
        etc.) out of the users table.
 
     Attributes:
-        id: Primary key.
+        driver_application_id: Primary key.
         user_id: FK to the user submitting the application.
-        status: One of 'pending', 'approved', or 'rejected'.
-            When approved, the user's role is upgraded to
-            'driver'.
+        status: ApplicationStatus enum (PENDING, APPROVED,
+            REJECTED). When approved, the user's role is
+            upgraded to 'driver'.
         license_info: Driver's license number or other
             verification data.
         created_at: Row creation timestamp (UTC).
@@ -28,15 +29,23 @@ class DriverApplication(db.Model):
 
     __tablename__ = "driver_applications"
 
-    VALID_STATUSES = ("pending", "approved", "rejected")
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="pending")
+    driver_application_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.user_id"),
+        nullable=False,
+    )
+    status = db.Column(
+        db.Enum(ApplicationStatus, validate_strings=True),
+        nullable=False,
+        default=ApplicationStatus.PENDING,
+    )
     license_info = db.Column(db.String(255), nullable=True)
 
     created_at = db.Column(
-        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
     updated_at = db.Column(
         db.DateTime,
@@ -53,6 +62,6 @@ class DriverApplication(db.Model):
 
     def __repr__(self):
         return (
-            f"<DriverApplication {self.id} "
+            f"<DriverApplication {self.driver_application_id} "
             f"User {self.user_id} ({self.status})>"
         )

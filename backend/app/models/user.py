@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from flask_login import UserMixin
 
 from ..extensions import db
+from .enums import UserRole
 
 
 class User(UserMixin, db.Model):
@@ -9,7 +10,7 @@ class User(UserMixin, db.Model):
     A registered Bulk Buddy user.
 
     Attributes:
-        id: Primary key.
+        user_id: Primary key.
         email: Unique email used for login.
         password_hash: Hashed password -- never store plaintext.
         first_name: User's first name.
@@ -33,12 +34,16 @@ class User(UserMixin, db.Model):
 
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="shopper")
+    role = db.Column(
+        db.Enum(UserRole, validate_strings=True),
+        nullable=False,
+        default=UserRole.SHOPPER,
+    )
 
     # Address fields -- required at registration per FR-1
     address_street = db.Column(db.String(255), nullable=False)
@@ -61,11 +66,28 @@ class User(UserMixin, db.Model):
     )
 
     # Relationships
-    trips = db.relationship("Trip", back_populates="driver", lazy="dynamic")
-    orders = db.relationship("Order", back_populates="shopper", lazy="dynamic")
+    trips = db.relationship(
+        "Trip",
+        back_populates="driver",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+    orders = db.relationship(
+        "Order",
+        back_populates="shopper",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
     driver_applications = db.relationship(
-        "DriverApplication", back_populates="user", lazy="dynamic"
+        "DriverApplication",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
     )
 
+    def get_id(self):
+        """Override UserMixin to use user_id instead of id."""
+        return str(self.user_id)
+
     def __repr__(self):
-        return f"<User {self.id} {self.email} ({self.role})>"
+        return f"<User {self.user_id} {self.email} ({self.role})>"

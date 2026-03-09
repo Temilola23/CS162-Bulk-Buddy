@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from ..extensions import db
 
 
@@ -9,23 +11,36 @@ class OrderItem(db.Model):
     many units of a specific item a shopper claimed.
 
     Attributes:
-        id: Primary key.
+        order_item_id: Primary key.
         order_id: FK to the parent order.
         item_id: FK to the item being claimed.
         quantity: Number of units claimed. Must be > 0 and
             must not cause the item's claimed_quantity to
             exceed its total_quantity (enforced at the
             application layer inside a database transaction).
+        created_at: Row creation timestamp (UTC).
     """
 
     __tablename__ = "order_items"
 
-    id = db.Column(db.Integer, primary_key=True)
+    order_item_id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(
-        db.Integer, db.ForeignKey("orders.id"), nullable=False
+        db.Integer,
+        db.ForeignKey("orders.order_id"),
+        nullable=False,
     )
-    item_id = db.Column(db.Integer, db.ForeignKey("items.id"), nullable=False)
+    item_id = db.Column(
+        db.Integer,
+        db.ForeignKey("items.item_id"),
+        nullable=False,
+    )
     quantity = db.Column(db.Integer, nullable=False)
+
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
 
     # Indexes:
     # - order_id: fetch all line items for an order (checkout summary)
@@ -41,7 +56,7 @@ class OrderItem(db.Model):
 
     def __repr__(self):
         return (
-            f"<OrderItem {self.id} "
+            f"<OrderItem {self.order_item_id} "
             f"qty={self.quantity} of Item {self.item_id} "
             f"in Order {self.order_id}>"
         )

@@ -59,7 +59,7 @@ def test_user(app):
         db.session.add(user)
         db.session.commit()
         return {
-            "user_id": user.id,
+            "user_id": user.user_id,
             "email": user.email,
             "password": "password123",
         }

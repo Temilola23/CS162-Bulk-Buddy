@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from ..extensions import db
+from .enums import OrderStatus
 
 
 class Order(db.Model):
@@ -12,37 +13,39 @@ class Order(db.Model):
     creates one Order per trip.
 
     Status transitions:
-        claimed -> purchased -> ready_for_pickup -> completed
-        claimed -> cancelled (at any point before 'completed')
+        CLAIMED -> PURCHASED -> READY_FOR_PICKUP -> COMPLETED
+        CLAIMED -> CANCELLED (at any point before COMPLETED)
 
     Attributes:
-        id: Primary key.
+        order_id: Primary key.
         shopper_id: FK to the user who placed this order.
         trip_id: FK to the trip this order is placed against.
-        status: Current state of the order.
+        status: Current state of the order (OrderStatus enum).
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "orders"
 
-    VALID_STATUSES = (
-        "claimed",
-        "purchased",
-        "ready_for_pickup",
-        "completed",
-        "cancelled",
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, primary_key=True)
     shopper_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=False
+        db.Integer, db.ForeignKey("users.user_id"), nullable=False
     )
-    trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="claimed")
+    trip_id = db.Column(
+        db.Integer,
+        db.ForeignKey("trips.trip_id"),
+        nullable=False,
+    )
+    status = db.Column(
+        db.Enum(OrderStatus, validate_strings=True),
+        nullable=False,
+        default=OrderStatus.CLAIMED,
+    )
 
     created_at = db.Column(
-        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
     updated_at = db.Column(
         db.DateTime,
@@ -71,6 +74,6 @@ class Order(db.Model):
 
     def __repr__(self):
         return (
-            f"<Order {self.id} by User {self.shopper_id} "
+            f"<Order {self.order_id} by User {self.shopper_id} "
             f"on Trip {self.trip_id} ({self.status})>"
         )
