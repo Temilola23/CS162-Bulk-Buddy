@@ -1,6 +1,3 @@
-"""Tests for authentication routes."""
-
-
 class TestSignup:
     """Tests for POST /api/signup."""
 
@@ -56,7 +53,11 @@ class TestSignup:
         """Test signup with missing email."""
         response = client.post(
             "/api/signup",
-            json={"first_name": "user", "last_name": "test", "password": "newpassword"},
+            json={
+                "first_name": "user",
+                "last_name": "test",
+                "password": "newpassword",
+            },
         )
         assert response.status_code == 400
         assert "email and password required" in response.json["message"]
@@ -89,7 +90,10 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "address (street, city, state, zip) required" in response.json["message"]
+        assert (
+            "address (street, city, state, zip) required"
+            in response.json["message"]
+        )
 
     def test_signup_missing_address_city(self, client):
         """Test signup with missing address city."""
@@ -106,7 +110,10 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "address (street, city, state, zip) required" in response.json["message"]
+        assert (
+            "address (street, city, state, zip) required"
+            in response.json["message"]
+        )
 
     def test_signup_missing_address_zip(self, client):
         """Test signup with missing address zip code."""
@@ -123,7 +130,10 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "address (street, city, state, zip) required" in response.json["message"]
+        assert (
+            "address (street, city, state, zip) required"
+            in response.json["message"]
+        )
 
     def test_signup_duplicate_email(self, client, test_user):
         """Test signup with existing email."""
@@ -140,7 +150,6 @@ class TestSignup:
                 "address_zip": "000",
             },
         )
-        print(response.json)
         assert response.status_code == 409
         assert "user already exists" in response.json["message"]
 
@@ -152,7 +161,10 @@ class TestLogin:
         """Test successful login."""
         response = client.post(
             "/api/login",
-            json={"email": test_user["email"], "password": test_user["password"]},
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"],
+            },
         )
         assert response.status_code == 200
         assert response.json["message"] == "user logged in successfully"

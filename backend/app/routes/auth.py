@@ -14,7 +14,9 @@ def login():
         password = data.get("password")
         remember = bool(data.get("remember"))  # Extends session cookie expiry
 
-        user, error, status = auth_service.authenticate_user(email, password, remember)
+        user, error, status = auth_service.authenticate_user(
+            email, password, remember
+        )
         if error:
             return jsonify({"message": error}), status
 

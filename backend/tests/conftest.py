@@ -51,7 +51,11 @@ def test_user(app):
         )
         db.session.add(user)
         db.session.commit()
-        return {"user_id": user.id, "email": user.email, "password": "password123"}
+        return {
+            "user_id": user.id,
+            "email": user.email,
+            "password": "password123",
+        }
 
 
 @pytest.fixture

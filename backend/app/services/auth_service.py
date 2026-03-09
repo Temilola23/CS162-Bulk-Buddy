@@ -14,7 +14,8 @@ def authenticate_user(email, password, remember=False):
         remember: If True, extends session cookie expiry.
 
     Returns:
-        tuple: (User, None, 200) on success, or (None, error_message, status_code) on failure.
+        tuple: (User, None, 200) on success, or
+            (None, error_message, status_code) on failure.
     """
     user = User.query.filter_by(email=email).first()
 
@@ -42,11 +43,18 @@ def register_user(
     Register a new user account.
 
     Args:
+        first_name: User's first name.
+        last_name: User's last name.
         email: User's email address.
         password: Plain text password (will be hashed).
+        address_street: Street portion of address.
+        address_city: City portion of address.
+        address_state: State/province portion of address.
+        address_zip: ZIP / postal code.
 
     Returns:
-        tuple: (User, None, 201) on success, or (None, error_message, status_code) on failure.
+        tuple: (User, None, 201) on success, or
+            (None, error_message, status_code) on failure.
     """
     if not first_name:
         return None, "first name required", 400

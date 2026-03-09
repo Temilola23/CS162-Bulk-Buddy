@@ -1,11 +1,3 @@
-"""User model for authentication, roles, and location data.
-
-Every person on the platform is a User. The `role` field determines
-what actions they can perform (shopper, driver, or admin). The address
-and lat/lng fields support the distance-sorted trip feed -- storing
-coordinates at registration time avoids repeated geocoding API calls.
-"""
-
 from datetime import datetime, timezone
 from flask_login import UserMixin
 
@@ -13,25 +5,28 @@ from ..extensions import db
 
 
 class User(UserMixin, db.Model):
-    """A registered Bulk Buddy user.
+    """
+    A registered Bulk Buddy user.
 
     Attributes:
         id: Primary key.
         email: Unique email used for login.
-        password_hash: Bcrypt (or similar) hash -- never store plaintext.
+        password_hash: Hashed password -- never store plaintext.
         first_name: User's first name.
         last_name: User's last name.
-        role: One of 'shopper', 'driver', or 'admin'. Defaults to
-            'shopper'; upgraded to 'driver' after an approved
+        role: One of 'shopper', 'driver', or 'admin'. Defaults
+            to 'shopper'; upgraded to 'driver' after an approved
             DriverApplication.
         address_street: Street portion of the user's address.
         address_city: City portion.
         address_state: State/province portion.
         address_zip: ZIP / postal code.
         latitude: Geocoded latitude from the address, stored at
-            registration time so the nearby-trip query is a simple
-            coordinate comparison rather than a geocoding call.
-        longitude: Geocoded longitude, same rationale as latitude.
+            registration time so the nearby-trip query is a
+            simple coordinate comparison rather than a geocoding
+            call.
+        longitude: Geocoded longitude, same rationale as
+            latitude.
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """

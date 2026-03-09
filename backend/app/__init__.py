@@ -1,7 +1,3 @@
-"""
-Flask application factory for Bulk Buddy.
-"""
-
 from datetime import timedelta
 from app.extensions import db
 from app.routes.auth import auth
@@ -15,11 +11,11 @@ def create_app(test_config=None):
     Create and configure the Flask application.
 
     Args:
-        config: Optional dictionary of configuration overrides.
+        test_config: Optional dictionary of configuration
+            overrides.
 
     Returns:
         Configured Flask application instance.
-
     """
     app = Flask(__name__)
 
@@ -36,7 +32,9 @@ def create_app(test_config=None):
 
     # Session configuration
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
-    app.config["SESSION_COOKIE_SECURE"] = False  # Set True in production with HTTPS
+    app.config["SESSION_COOKIE_SECURE"] = (
+        False  # Set True in production with HTTPS
+    )
     app.config["SESSION_COOKIE_HTTPONLY"] = True  # Prevent XSS
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # CSRF protection
     app.config["SESSION_COOKIE_DOMAIN"] = None  # Allow any domain in dev
