@@ -7,8 +7,25 @@ class Trip(db.Model):
     """
     A driver's upcoming trip to a warehouse store.
 
-    Has its own pickup coordinates (may differ from driver's
-    home address). Statuses: open, closed, completed.
+    Has its own pickup coordinates rather than inheriting the
+    driver's address, because the driver may choose a different
+    pickup spot per trip.
+
+    Attributes:
+        id: Primary key.
+        driver_id: FK to the user who created this trip.
+        store_name: Name of the warehouse store.
+        pickup_location_text: Human-readable pickup address.
+        pickup_lat: Latitude of the pickup point.
+        pickup_lng: Longitude of the pickup point.
+        pickup_time: When the driver will be available for
+            handoff.
+        status: One of 'open', 'closed', or 'completed'.
+            - open: accepting claims from shoppers.
+            - closed: no longer accepting claims.
+            - completed: all handoffs done.
+        created_at: Row creation timestamp (UTC).
+        updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "trips"

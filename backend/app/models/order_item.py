@@ -7,6 +7,15 @@ class OrderItem(db.Model):
 
     Join table between Orders and Items. Each row records how
     many units of a specific item a shopper claimed.
+
+    Attributes:
+        id: Primary key.
+        order_id: FK to the parent order.
+        item_id: FK to the item being claimed.
+        quantity: Number of units claimed. Must be > 0 and
+            must not cause the item's claimed_quantity to
+            exceed its total_quantity (enforced at the
+            application layer inside a database transaction).
     """
 
     __tablename__ = "order_items"

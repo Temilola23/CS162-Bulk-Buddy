@@ -7,9 +7,24 @@ class Item(db.Model):
     """
     A bulk product a driver plans to buy on a trip.
 
-    claimed_quantity is an intentional denormalization (avoids
-    join+aggregate on every trip card). Updated atomically with
-    OrderItem creation.
+    claimed_quantity is an intentional denormalization: its true
+    value could be derived from SUM(order_items.quantity), but
+    storing it directly avoids a join + aggregate on every trip
+    card render. Updated atomically inside the same transaction
+    that creates an OrderItem.
+
+    Attributes:
+        id: Primary key.
+        trip_id: FK to the trip this item belongs to.
+        name: Product name (e.g. 'Paper Towels 12-pack').
+        unit: Unit of measurement (e.g. 'pack', 'lb').
+        total_quantity: How many units the driver can
+            accommodate.
+        claimed_quantity: How many units have been claimed.
+            Invariant: claimed_quantity <= total_quantity.
+            Enforced at the application layer.
+        price_per_unit: Cost per unit for payment splitting.
+        created_at: Row creation timestamp (UTC).
     """
 
     __tablename__ = "items"

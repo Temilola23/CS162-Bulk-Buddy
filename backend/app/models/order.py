@@ -7,8 +7,21 @@ class Order(db.Model):
     """
     A shopper's order against a single trip.
 
-    Status transitions: claimed -> purchased -> ready_for_pickup
-    -> completed (or cancelled at any point before completed).
+    One Order = one shopper checking out from one driver's trip.
+    If a shopper's cart spans multiple drivers, the system
+    creates one Order per trip.
+
+    Status transitions:
+        claimed -> purchased -> ready_for_pickup -> completed
+        claimed -> cancelled (at any point before 'completed')
+
+    Attributes:
+        id: Primary key.
+        shopper_id: FK to the user who placed this order.
+        trip_id: FK to the trip this order is placed against.
+        status: Current state of the order.
+        created_at: Row creation timestamp (UTC).
+        updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "orders"

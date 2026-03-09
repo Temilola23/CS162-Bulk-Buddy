@@ -7,9 +7,23 @@ class DriverApplication(db.Model):
     """
     A request from a shopper to become a verified driver.
 
-    Separate table from User so users can reapply after
-    rejection, and driver-specific fields stay out of the
-    users table.
+    Kept as a separate table rather than columns on User
+    because:
+    1. A user might apply, get rejected, and reapply -- each
+       attempt is its own row with its own timestamp/status.
+    2. Keeps nullable driver-specific fields (license info,
+       etc.) out of the users table.
+
+    Attributes:
+        id: Primary key.
+        user_id: FK to the user submitting the application.
+        status: One of 'pending', 'approved', or 'rejected'.
+            When approved, the user's role is upgraded to
+            'driver'.
+        license_info: Driver's license number or other
+            verification data.
+        created_at: Row creation timestamp (UTC).
+        updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "driver_applications"

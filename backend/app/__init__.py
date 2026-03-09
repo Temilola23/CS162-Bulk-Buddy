@@ -9,6 +9,13 @@ from flask_login import LoginManager
 def create_app(test_config=None):
     """
     Create and configure the Flask application.
+
+    Args:
+        test_config: Optional dictionary of configuration
+            overrides.
+
+    Returns:
+        Configured Flask application instance.
     """
     app = Flask(__name__)
 
