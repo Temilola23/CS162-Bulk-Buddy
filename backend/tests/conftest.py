@@ -30,6 +30,13 @@ def client(app):
 
 
 @pytest.fixture
+def db_session(app):
+    """Provide the database session for direct model operations."""
+    with app.app_context():
+        yield db
+
+
+@pytest.fixture
 def runner(app):
     """A test runner for the app's Click commands."""
     return app.test_cli_runner()

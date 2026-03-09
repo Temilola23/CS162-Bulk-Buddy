@@ -41,5 +41,5 @@ jobs:
       - name: Check formatting with Black
         run: python3 -m black --check --line-length 79 backend/
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: sh ./scripts/test.sh
