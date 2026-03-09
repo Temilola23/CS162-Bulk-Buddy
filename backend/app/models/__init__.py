@@ -4,6 +4,12 @@ from .item import Item
 from .order import Order
 from .order_item import OrderItem
 from .driver_application import DriverApplication
+from .enums import (
+    UserRole,
+    TripStatus,
+    OrderStatus,
+    ApplicationStatus,
+)
 
 __all__ = [
     "User",
@@ -12,4 +18,8 @@ __all__ = [
     "Order",
     "OrderItem",
     "DriverApplication",
+    "UserRole",
+    "TripStatus",
+    "OrderStatus",
+    "ApplicationStatus",
 ]

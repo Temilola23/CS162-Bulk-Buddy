@@ -14,7 +14,7 @@ class Item(db.Model):
     that creates an OrderItem.
 
     Attributes:
-        id: Primary key.
+        item_id: Primary key.
         trip_id: FK to the trip this item belongs to.
         name: Product name (e.g. 'Paper Towels 12-pack').
         unit: Unit of measurement (e.g. 'pack', 'lb').
@@ -25,12 +25,17 @@ class Item(db.Model):
             Enforced at the application layer.
         price_per_unit: Cost per unit for payment splitting.
         created_at: Row creation timestamp (UTC).
+        updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "items"
 
-    id = db.Column(db.Integer, primary_key=True)
-    trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable=False)
+    item_id = db.Column(db.Integer, primary_key=True)
+    trip_id = db.Column(
+        db.Integer,
+        db.ForeignKey("trips.trip_id"),
+        nullable=False,
+    )
     name = db.Column(db.String(200), nullable=False)
     unit = db.Column(db.String(50), nullable=False)
     total_quantity = db.Column(db.Integer, nullable=False)
@@ -38,7 +43,15 @@ class Item(db.Model):
     price_per_unit = db.Column(db.Float, nullable=True)
 
     created_at = db.Column(
-        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Index on trip_id -- the most common query is "items for this trip"
@@ -57,7 +70,7 @@ class Item(db.Model):
 
     def __repr__(self):
         return (
-            f"<Item {self.id} '{self.name}' "
+            f"<Item {self.item_id} '{self.name}' "
             f"{self.claimed_quantity}/{self.total_quantity} "
             f"on Trip {self.trip_id}>"
         )
