@@ -37,7 +37,7 @@ class Order(db.Model):
         nullable=False,
     )
     status = db.Column(
-        db.Enum(OrderStatus),
+        db.Enum(OrderStatus, validate_strings=True),
         nullable=False,
         default=OrderStatus.CLAIMED,
     )

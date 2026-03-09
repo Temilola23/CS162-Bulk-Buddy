@@ -1,4 +1,5 @@
 from datetime import timedelta
+from sqlalchemy import event
 from app.extensions import db
 from app.routes.auth import auth
 from flask import Flask, jsonify
@@ -46,8 +47,16 @@ def create_app(test_config=None):
     # Initialize db with app
     db.init_app(app)
 
-    # Create tables
+    # Enable FK enforcement for SQLite
     with app.app_context():
+
+        @event.listens_for(db.engine, "connect")
+        def set_sqlite_pragma(dbapi_conn, connection_record):
+            cursor = dbapi_conn.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
+        # Create tables
         db.create_all()
 
     # Configure Flask-login

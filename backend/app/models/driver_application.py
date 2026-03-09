@@ -36,7 +36,7 @@ class DriverApplication(db.Model):
         nullable=False,
     )
     status = db.Column(
-        db.Enum(ApplicationStatus),
+        db.Enum(ApplicationStatus, validate_strings=True),
         nullable=False,
         default=ApplicationStatus.PENDING,
     )

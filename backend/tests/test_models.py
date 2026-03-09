@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime, timezone
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, StatementError
 
 from app.models import User, Trip, Item, Order, OrderItem, DriverApplication
 from app.models.enums import (
@@ -70,6 +70,31 @@ class TestUser:
         with pytest.raises(IntegrityError):
             _make_user(db_session, email=None)
 
+    def test_user_invalid_role_rejected(self, db_session):
+        """Setting an invalid role should raise StatementError."""
+        user = _make_user(db_session, email="badrole@example.com")
+        user.role = "superadmin"
+        with pytest.raises(StatementError):
+            db_session.session.commit()
+
+    def test_user_requires_first_name(self, db_session):
+        """User without first_name should raise IntegrityError."""
+        with pytest.raises(IntegrityError):
+            _make_user(
+                db_session,
+                email="nofirst@example.com",
+                first_name=None,
+            )
+
+    def test_user_requires_password_hash(self, db_session):
+        """User without password_hash should raise IntegrityError."""
+        with pytest.raises(IntegrityError):
+            _make_user(
+                db_session,
+                email="nopw@example.com",
+                password_hash=None,
+            )
+
     def test_user_repr(self, db_session):
         """User __repr__ should include user_id and email."""
         user = _make_user(db_session, email="repr@example.com")
@@ -132,6 +157,32 @@ class TestTrip:
 
         assert db_session.session.get(Item, item.item_id) is None
 
+    def test_trip_invalid_status_rejected(self, db_session):
+        """Setting an invalid status should raise StatementError."""
+        driver = _make_user(db_session, email="driver6@example.com")
+        trip = _make_trip(db_session, driver)
+        trip.status = "archived"
+        with pytest.raises(StatementError):
+            db_session.session.commit()
+
+    def test_trip_requires_store_name(self, db_session):
+        """Trip without store_name should raise IntegrityError."""
+        driver = _make_user(db_session, email="driver7@example.com")
+        with pytest.raises(IntegrityError):
+            _make_trip(db_session, driver, store_name=None)
+
+    def test_trip_requires_driver(self, db_session):
+        """Trip with non-existent driver should raise error."""
+        with pytest.raises(IntegrityError):
+            trip = Trip(
+                driver_id=99999,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime(2026, 6, 1, 10, 0, tzinfo=timezone.utc),
+            )
+            db_session.session.add(trip)
+            db_session.session.commit()
+
 
 class TestItem:
     """Tests for the Item model."""
@@ -179,6 +230,32 @@ class TestItem:
         db_session.session.commit()
         assert item.available_quantity == 7
 
+    def test_item_requires_name(self, db_session):
+        """Item without name should raise IntegrityError."""
+        driver = _make_user(db_session, email="idriver4@example.com")
+        trip = _make_trip(db_session, driver)
+        with pytest.raises(IntegrityError):
+            item = Item(
+                trip_id=trip.trip_id,
+                name=None,
+                unit="pack",
+                total_quantity=10,
+            )
+            db_session.session.add(item)
+            db_session.session.commit()
+
+    def test_item_requires_valid_trip(self, db_session):
+        """Item with non-existent trip should raise error."""
+        with pytest.raises(IntegrityError):
+            item = Item(
+                trip_id=99999,
+                name="Ghost Item",
+                unit="pack",
+                total_quantity=10,
+            )
+            db_session.session.add(item)
+            db_session.session.commit()
+
 
 class TestOrder:
     """Tests for the Order model."""
@@ -225,6 +302,34 @@ class TestOrder:
             order.status = status
             db_session.session.commit()
             assert order.status == status
+
+    def test_order_invalid_status_rejected(self, db_session):
+        """Setting an invalid order status should raise error."""
+        driver = _make_user(db_session, email="odriver4@example.com")
+        shopper = _make_user(db_session, email="oshopper4@example.com")
+        trip = _make_trip(db_session, driver)
+        order = Order(
+            shopper_id=shopper.user_id,
+            trip_id=trip.trip_id,
+        )
+        db_session.session.add(order)
+        db_session.session.commit()
+
+        order.status = "shipped"
+        with pytest.raises(StatementError):
+            db_session.session.commit()
+
+    def test_order_requires_shopper(self, db_session):
+        """Order with non-existent shopper should raise error."""
+        driver = _make_user(db_session, email="odriver5@example.com")
+        trip = _make_trip(db_session, driver)
+        with pytest.raises(IntegrityError):
+            order = Order(
+                shopper_id=99999,
+                trip_id=trip.trip_id,
+            )
+            db_session.session.add(order)
+            db_session.session.commit()
 
 
 class TestOrderItem:
@@ -311,3 +416,27 @@ class TestDriverApplication:
         db_session.session.add(app)
         db_session.session.commit()
         assert app.status == ApplicationStatus.PENDING
+
+    def test_application_invalid_status_rejected(self, db_session):
+        """
+        Setting an invalid application status should raise
+        StatementError.
+        """
+        user = _make_user(db_session, email="applicant3@example.com")
+        app = DriverApplication(user_id=user.user_id)
+        db_session.session.add(app)
+        db_session.session.commit()
+
+        app.status = "waitlisted"
+        with pytest.raises(StatementError):
+            db_session.session.commit()
+
+    def test_application_requires_user(self, db_session):
+        """
+        DriverApplication with non-existent user should raise
+        IntegrityError.
+        """
+        with pytest.raises(IntegrityError):
+            app = DriverApplication(user_id=99999)
+            db_session.session.add(app)
+            db_session.session.commit()

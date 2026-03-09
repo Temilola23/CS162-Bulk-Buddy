@@ -45,7 +45,7 @@ class Trip(db.Model):
 
     pickup_time = db.Column(db.DateTime, nullable=False)
     status = db.Column(
-        db.Enum(TripStatus),
+        db.Enum(TripStatus, validate_strings=True),
         nullable=False,
         default=TripStatus.OPEN,
     )

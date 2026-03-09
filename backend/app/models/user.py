@@ -40,7 +40,9 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     role = db.Column(
-        db.Enum(UserRole), nullable=False, default=UserRole.SHOPPER
+        db.Enum(UserRole, validate_strings=True),
+        nullable=False,
+        default=UserRole.SHOPPER,
     )
 
     # Address fields -- required at registration per FR-1
