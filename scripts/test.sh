@@ -8,7 +8,7 @@ echo "Running tests..."
 # Backend tests
 echo "Testing backend..."
 cd backend
-python3 -m pytest tests/ -v
+python3 -m pytest tests/ -v --cov=app --cov-fail-under=85
 
 # Frontend tests
 echo "Testing frontend..."
