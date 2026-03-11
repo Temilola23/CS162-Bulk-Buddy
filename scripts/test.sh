@@ -8,6 +8,7 @@ echo "Running tests..."
 # Backend tests
 echo "Testing backend..."
 cd backend
+pip install -r requirements.txt
 python3 -m pytest tests/ -v --cov=app --cov-fail-under=85
 
 # Frontend tests
