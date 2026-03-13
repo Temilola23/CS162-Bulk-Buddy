@@ -21,7 +21,10 @@ class TestDriverApplicationRoute:
         )
 
         assert response.status_code == 201
-        assert response.json["message"] == "driver application created successfully"
+        assert (
+            response.json["message"]
+            == "driver application created successfully"
+        )
 
         with app.app_context():
             application = DriverApplication.query.one()
@@ -41,7 +44,10 @@ class TestDriverApplicationRoute:
         )
 
         assert response.status_code == 409
-        assert response.json["message"] == "Driver application already pending review"
+        assert (
+            response.json["message"]
+            == "Driver application already pending review"
+        )
 
         with app.app_context():
             assert db.session.query(DriverApplication).count() == 1
@@ -70,7 +76,9 @@ class TestDriverApplicationRoute:
         with app.app_context():
             assert db.session.query(DriverApplication).count() == 2
 
-    def test_apply_rejects_user_who_is_already_a_driver(self, client, app, test_user):
+    def test_apply_rejects_user_who_is_already_a_driver(
+        self, client, app, test_user
+    ):
         """Approved drivers cannot create driver applications."""
         with app.app_context():
             user = db.session.get(User, test_user["user_id"])

@@ -88,7 +88,11 @@ def register_user(
         db.session.rollback()
         error_type = type(e).__name__
         error_message = str(e)
-        return None, f"Failed to register user {error_type}:{error_message}", 500
+        return (
+            None,
+            f"Failed to register user {error_type}:{error_message}",
+            500,
+        )
 
     return new_user, None, 201
 
@@ -107,4 +111,8 @@ def logout_current_user():
     except Exception as e:
         error_type = type(e).__name__
         error_message = str(e)
-        return None, f"Failed to log out user. {error_type}:{error_message}", 500
+        return (
+            None,
+            f"Failed to log out user. {error_type}:{error_message}",
+            500,
+        )
