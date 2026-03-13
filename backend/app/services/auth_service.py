@@ -81,12 +81,30 @@ def register_user(
         address_state=address_state,
         address_zip=address_zip,
     )
-    db.session.add(new_user)
-    db.session.commit()
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        error_type = type(e).__name__
+        error_message = str(e)
+        return None, f"Failed to register user {error_type}:{error_message}", 500
 
     return new_user, None, 201
 
 
 def logout_current_user():
-    """Log out the current user by clearing the session cookie."""
-    logout_user()
+    """
+    Log out the current user by clearing the session cookie.
+
+    Returns:
+        tuple: (None, None, 200) on success, or
+            (None, error_message, status_code) on failure.
+    """
+    try:
+        logout_user()
+        return None, None, 200
+    except Exception as e:
+        error_type = type(e).__name__
+        error_message = str(e)
+        return None, f"Failed to log out user. {error_type}:{error_message}", 500
