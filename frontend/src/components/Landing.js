@@ -85,6 +85,7 @@ export default function Landing() {
   const swipeCurrent = useRef(null);
 
   useEffect(() => {
+    // Auto-advance the hero so the landing page continues to feel active.
     const slideTimer = setInterval(() => {
       setActiveSlide((current) => (current + 1) % slides.length);
     }, 6000);
@@ -94,6 +95,7 @@ export default function Landing() {
 
   useEffect(() => {
     function handleScroll() {
+      // Reuse the same scroll value for both the glossy header state and the progress bar.
       const scrollTop =
         window.pageYOffset ||
         document.documentElement.scrollTop ||
@@ -153,6 +155,7 @@ export default function Landing() {
     const deltaY = swipeStart.current.y - swipeCurrent.current.y;
     const swipeThreshold = 45;
 
+    // Only treat the gesture as a slide change when the movement is mostly horizontal.
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
       if (deltaX > 0) {
         goToNextSlide();

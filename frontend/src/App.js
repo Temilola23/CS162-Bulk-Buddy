@@ -5,6 +5,7 @@ import TripFeed from './components/TripFeed';
 import './App.css';
 
 function App() {
+  // Keep routing lightweight for now by mapping views directly from the URL path.
   const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
 
   if (pathname === '/login') {

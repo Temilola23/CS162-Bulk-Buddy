@@ -3,6 +3,7 @@ import './Login.css';
 export default function Login() {
   function handleSubmit(event) {
     event.preventDefault();
+    // Temporary auth flow: any submission routes into the shopper UI.
     window.location.assign('/trip-feed');
   }
 

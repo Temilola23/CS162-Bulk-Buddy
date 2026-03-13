@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import './TripFeed.css';
 
+/**
+ * Builds a lightweight avatar image from initials so the mock feed can render
+ * profile photos without depending on uploaded assets.
+ */
 function createAvatarImage(name, backgroundColor) {
   const initials = name
     .split(' ')
@@ -87,6 +91,9 @@ function toRadians(value) {
   return (value * Math.PI) / 180;
 }
 
+/**
+ * Uses the Haversine formula to estimate shopper-to-pickup distance in miles.
+ */
 function getDistanceMiles(start, end) {
   const earthRadiusMiles = 3958.8;
   const latDelta = toRadians(end.lat - start.lat);
@@ -102,6 +109,10 @@ function getDistanceMiles(start, end) {
   return earthRadiusMiles * c;
 }
 
+/**
+ * Trips can omit a dedicated pickup point, so the driver's area becomes the
+ * fallback location for sorting and display.
+ */
 function getPickupLocation(trip) {
   if (trip.pickupLocation) {
     return trip.pickupLocation;
@@ -127,6 +138,7 @@ export default function TripFeed() {
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const trips = useMemo(() => {
+    // Precompute the display location and distance once so the UI can stay focused on rendering.
     return tripSeed
       .map((trip) => {
         const resolvedPickupLocation = getPickupLocation(trip);
@@ -154,6 +166,7 @@ export default function TripFeed() {
       return;
     }
 
+    // Reset the quantity inputs whenever the shopper switches to a different driver's trip.
     setDraftQuantities((current) => {
       const next = {};
       selectedTrip.items.forEach((item) => {
@@ -165,6 +178,7 @@ export default function TripFeed() {
 
   useEffect(() => {
     function handleScroll() {
+      // Drive the sticky header state and the car progress bar from the same page scroll value.
       const scrollTop =
         window.pageYOffset ||
         document.documentElement.scrollTop ||
@@ -219,6 +233,7 @@ export default function TripFeed() {
       return;
     }
 
+    // Keep the cart scoped to a single trip so checkout always refers to one pickup plan.
     const replaceExistingTrip = cart && cart.tripId !== selectedTrip.id && cart.items.length > 0;
 
     setCart((currentCart) => {
