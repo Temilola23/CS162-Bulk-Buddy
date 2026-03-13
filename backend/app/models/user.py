@@ -1,51 +1,48 @@
-"""User model for authentication, roles, and location data.
-
-Every person on the platform is a User. The `role` field determines
-what actions they can perform (shopper, driver, or admin). The address
-and lat/lng fields support the distance-sorted trip feed -- storing
-coordinates at registration time avoids repeated geocoding API calls.
-"""
-
 from datetime import datetime, timezone
+from flask_login import UserMixin
 
 from ..extensions import db
+from .enums import UserRole
 
 
-class User(db.Model):
-    """A registered Bulk Buddy user.
+class User(UserMixin, db.Model):
+    """
+    A registered Bulk Buddy user.
 
     Attributes:
-        id: Primary key.
+        user_id: Primary key.
         email: Unique email used for login.
-        password_hash: Bcrypt (or similar) hash -- never store plaintext.
+        password_hash: Hashed password -- never store plaintext.
         first_name: User's first name.
         last_name: User's last name.
-        role: One of 'shopper', 'driver', or 'admin'. Defaults to
-            'shopper'; upgraded to 'driver' after an approved
+        role: One of 'shopper', 'driver', or 'admin'. Defaults
+            to 'shopper'; upgraded to 'driver' after an approved
             DriverApplication.
         address_street: Street portion of the user's address.
         address_city: City portion.
         address_state: State/province portion.
         address_zip: ZIP / postal code.
         latitude: Geocoded latitude from the address, stored at
-            registration time so the nearby-trip query is a simple
-            coordinate comparison rather than a geocoding call.
-        longitude: Geocoded longitude, same rationale as latitude.
+            registration time so the nearby-trip query is a
+            simple coordinate comparison rather than a geocoding
+            call.
+        longitude: Geocoded longitude, same rationale as
+            latitude.
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(
-        db.String(255), unique=True, nullable=False, index=True
-    )
+    user_id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     role = db.Column(
-        db.String(20), nullable=False, default="shopper"
+        db.Enum(UserRole, validate_strings=True),
+        nullable=False,
+        default=UserRole.SHOPPER,
     )
 
     # Address fields -- required at registration per FR-1
@@ -59,25 +56,38 @@ class User(db.Model):
     longitude = db.Column(db.Float, nullable=True)
 
     created_at = db.Column(
-        db.DateTime, nullable=False,
-        default=lambda: datetime.now(timezone.utc)
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     updated_at = db.Column(
-        db.DateTime, nullable=False,
+        db.DateTime,
+        nullable=False,
         default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Relationships
     trips = db.relationship(
-        "Trip", back_populates="driver", lazy="dynamic"
+        "Trip",
+        back_populates="driver",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
     )
     orders = db.relationship(
-        "Order", back_populates="shopper", lazy="dynamic"
+        "Order",
+        back_populates="shopper",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
     )
     driver_applications = db.relationship(
-        "DriverApplication", back_populates="user", lazy="dynamic"
+        "DriverApplication",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
     )
 
+    def get_id(self):
+        """Override UserMixin to use user_id instead of id."""
+        return str(self.user_id)
+
     def __repr__(self):
-        return f"<User {self.id} {self.email} ({self.role})>"
+        return f"<User {self.user_id} {self.email} ({self.role})>"

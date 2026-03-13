@@ -1,58 +1,57 @@
-"""Order model linking a shopper's checkout to a specific trip.
-
-One Order = one shopper checking out from one driver's trip.
-If a shopper uses the inventory aggregation view and their cart
-spans multiple drivers, the system creates one Order per trip
-(the cart is split at the application layer).
-
-Status transitions follow a standard sequence:
-    claimed -> purchased -> ready_for_pickup -> completed
-    claimed -> cancelled  (at any point before 'completed')
-"""
-
 from datetime import datetime, timezone
 
 from ..extensions import db
+from .enums import OrderStatus
 
 
 class Order(db.Model):
-    """A shopper's order against a single trip.
+    """
+    A shopper's order against a single trip.
+
+    One Order = one shopper checking out from one driver's trip.
+    If a shopper's cart spans multiple drivers, the system
+    creates one Order per trip.
+
+    Status transitions:
+        CLAIMED -> PURCHASED -> READY_FOR_PICKUP -> COMPLETED
+        CLAIMED -> CANCELLED (at any point before COMPLETED)
 
     Attributes:
-        id: Primary key.
+        order_id: Primary key.
         shopper_id: FK to the user who placed this order.
         trip_id: FK to the trip this order is placed against.
-        status: Current state of the order. Standard sequence: claimed,
-            purchased, ready_for_pickup, completed; or cancelled.
+        status: Current state of the order (OrderStatus enum).
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """
 
     __tablename__ = "orders"
 
-    VALID_STATUSES = (
-        "claimed", "purchased", "ready_for_pickup", "completed", "cancelled"
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, primary_key=True)
     shopper_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=False
+        db.Integer, db.ForeignKey("users.user_id"), nullable=False
     )
     trip_id = db.Column(
-        db.Integer, db.ForeignKey("trips.id"), nullable=False
+        db.Integer,
+        db.ForeignKey("trips.trip_id"),
+        nullable=False,
     )
     status = db.Column(
-        db.String(20), nullable=False, default="claimed"
+        db.Enum(OrderStatus, validate_strings=True),
+        nullable=False,
+        default=OrderStatus.CLAIMED,
     )
 
     created_at = db.Column(
-        db.DateTime, nullable=False,
-        default=lambda: datetime.now(timezone.utc)
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
     updated_at = db.Column(
-        db.DateTime, nullable=False,
+        db.DateTime,
+        nullable=False,
         default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Indexes:
@@ -67,12 +66,14 @@ class Order(db.Model):
     shopper = db.relationship("User", back_populates="orders")
     trip = db.relationship("Trip", back_populates="orders")
     order_items = db.relationship(
-        "OrderItem", back_populates="order", lazy="dynamic",
-        cascade="all, delete-orphan"
+        "OrderItem",
+        back_populates="order",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self):
         return (
-            f"<Order {self.id} by User {self.shopper_id} "
+            f"<Order {self.order_id} by User {self.shopper_id} "
             f"on Trip {self.trip_id} ({self.status})>"
         )
