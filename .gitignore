@@ -226,3 +226,10 @@ build/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Design assets
+# Some environments have global gitignore rules that ignore folders named `Logo/`.
+# Explicitly include our project logo assets.
+!docs/design/Logo/
+!docs/design/Logo/**
+docs/design/Logo/.DS_Store
