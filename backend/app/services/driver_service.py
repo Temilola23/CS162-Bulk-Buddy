@@ -41,6 +41,8 @@ def create_driver_application(user_id, license_info=None):
         error_message = str(e)
         return (
             None,
-            f"Failed to create driver application {error_type}:{error_message}",
+            f"""
+            Failed to create driver application
+            {error_type}:{error_message}""",
             500,
         )

@@ -7,9 +7,8 @@ echo "Running linters..."
 
 # Backend linting
 echo "Linting backend..."
-cd backend
 # TBD: add backend linter (e.g., ruff check ., flake8)
-cd ..
+python3 -m black --line-length 79 backend/   
 
 # Frontend linting
 echo "Linting frontend..."
