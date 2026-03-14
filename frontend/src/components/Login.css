@@ -1,0 +1,124 @@
+.login-page {
+  min-height: 100vh;
+  width: min(730px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 46px 0 72px;
+  display: grid;
+  align-content: start;
+  gap: 34px;
+}
+
+.login-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #4d216a;
+  font-size: clamp(2.1rem, 6vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.login-brand-logo {
+  width: clamp(56px, 8vw, 78px);
+  height: clamp(56px, 8vw, 78px);
+  object-fit: contain;
+}
+
+.login-card {
+  margin: 0 auto;
+  width: min(450px, 100%);
+  border-radius: 24px;
+  border: 1px solid rgba(77, 33, 106, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  padding: clamp(28px, 4vw, 42px);
+  display: grid;
+  gap: 22px;
+}
+
+.login-kicker {
+  margin: 0;
+  width: fit-content;
+  color: #4d216a;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.login-card h1 {
+  margin: 0;
+  color: #2f1840;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.12;
+}
+
+.login-lede {
+  margin: 0;
+  color: #5f5370;
+  font-size: 1.04rem;
+  line-height: 1.6;
+}
+
+.login-form {
+  margin-top: 8px;
+  display: grid;
+  gap: 18px;
+}
+
+.login-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.login-form span {
+  color: #3e1f56;
+  font-weight: 700;
+}
+
+.login-form input {
+  min-height: 52px;
+  border-radius: 12px;
+  border: 1px solid rgba(77, 33, 106, 0.2);
+  padding: 0 14px;
+  font: inherit;
+  color: #2a163d;
+  background: #fff;
+}
+
+.login-form input:focus {
+  outline: 2px solid rgba(77, 33, 106, 0.22);
+  outline-offset: 2px;
+}
+
+.login-submit {
+  margin-top: 10px;
+  min-height: 50px;
+  border-radius: 999px;
+  border: 1px solid #4d216a;
+  background: #4d216a;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.login-switch {
+  margin: 10px 0 0;
+  color: #5f5370;
+}
+
+.login-switch a {
+  color: #4d216a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    width: min(760px, calc(100vw - 24px));
+    padding-top: 24px;
+  }
+}
