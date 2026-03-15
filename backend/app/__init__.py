@@ -3,6 +3,7 @@ from sqlalchemy import event
 from app.extensions import db
 from app.routes.auth import auth
 from app.routes.driver import driver
+from app.routes.trip import trip
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -78,6 +79,7 @@ def create_app(test_config=None):
     # Register blueprints
     app.register_blueprint(auth)
     app.register_blueprint(driver)
+    app.register_blueprint(trip)
 
     # Add security headers to all responses
     @app.after_request
