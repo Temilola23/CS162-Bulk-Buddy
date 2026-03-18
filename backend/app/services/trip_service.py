@@ -41,13 +41,33 @@ def create_trip(driver_id, data):
         )
 
     try:
+        parsed_pickup_time = datetime.fromisoformat(pickup_time)
+    except (ValueError, TypeError):
+        return (
+            None,
+            "pickup_time must be a valid ISO 8601 datetime",
+            400,
+        )
+
+    for item_data in items_data:
+        required = ("name", "unit", "total_quantity")
+        missing = [f for f in required if f not in item_data]
+        if missing:
+            return (
+                None,
+                f"Each item requires: name, unit, total_quantity. "
+                f"Missing: {', '.join(missing)}",
+                400,
+            )
+
+    try:
         trip = Trip(
             driver_id=driver_id,
             store_name=store_name,
             pickup_location_text=pickup_location_text,
             pickup_lat=data.get("pickup_lat"),
             pickup_lng=data.get("pickup_lng"),
-            pickup_time=datetime.fromisoformat(pickup_time),
+            pickup_time=parsed_pickup_time,
         )
         db.session.add(trip)
         db.session.flush()
@@ -138,7 +158,14 @@ def update_trip(trip_id, driver_id, data):
     if "pickup_lng" in data:
         trip.pickup_lng = data["pickup_lng"]
     if "pickup_time" in data:
-        trip.pickup_time = datetime.fromisoformat(data["pickup_time"])
+        try:
+            trip.pickup_time = datetime.fromisoformat(data["pickup_time"])
+        except (ValueError, TypeError):
+            return (
+                None,
+                "pickup_time must be a valid ISO 8601 datetime",
+                400,
+            )
 
     # Update items if provided
     if "items" in data:

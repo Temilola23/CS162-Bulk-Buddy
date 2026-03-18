@@ -130,6 +130,33 @@ class TestCreateTrip:
 
         assert response.status_code == 400
 
+    def test_invalid_pickup_time_rejected(self, client, app):
+        """Invalid pickup_time returns 400, not 500."""
+        with app.app_context():
+            driver = _make_driver(db)
+            _login(client, driver.email)
+
+        payload = _trip_payload()
+        payload["pickup_time"] = "not-a-datetime"
+        response = client.post("/api/trips", json=payload)
+
+        assert response.status_code == 400
+        assert "ISO 8601" in response.json["message"]
+
+    def test_item_missing_required_fields_rejected(self, client, app):
+        """Items missing name, unit, or total_quantity return 400."""
+        with app.app_context():
+            driver = _make_driver(db)
+            _login(client, driver.email)
+
+        payload = _trip_payload()
+        payload["items"] = [{"name": "Paper Towels"}]
+        response = client.post("/api/trips", json=payload)
+
+        assert response.status_code == 400
+        assert "unit" in response.json["message"]
+        assert "total_quantity" in response.json["message"]
+
 
 # ── List / Get Trips ─────────────────────────────────────────
 
@@ -327,6 +354,29 @@ class TestEditTrip:
         )
 
         assert response.status_code == 409
+
+    def test_invalid_pickup_time_on_update_rejected(self, client, app):
+        """Invalid pickup_time on update returns 400."""
+        with app.app_context():
+            driver = _make_driver(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+            )
+            db.session.add(trip)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, driver.email)
+
+        response = client.put(
+            f"/api/trips/{trip_id}",
+            json={"pickup_time": "bad-datetime"},
+        )
+
+        assert response.status_code == 400
+        assert "ISO 8601" in response.json["message"]
 
     def test_cannot_reduce_quantity_below_claimed(self, client, app):
         """Cannot decrease total_quantity below claimed_quantity."""
