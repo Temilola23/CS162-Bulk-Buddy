@@ -8,128 +8,7 @@
   gap: 22px;
 }
 
-.trip-feed-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  width: 100%;
-  border-bottom: 1px solid transparent;
-  background: #fff;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-  transition: background 220ms ease, border-color 220ms ease, backdrop-filter 220ms ease, box-shadow 220ms ease;
-}
-
-.trip-feed-scroll-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -14px;
-  pointer-events: none;
-}
-
-.trip-feed-scroll-progress-inner {
-  width: min(1120px, calc(100vw - 32px));
-  margin: 0 auto;
-}
-
-.trip-feed-scroll-progress-track {
-  position: relative;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(77, 33, 106, 0.18);
-}
-
-.trip-feed-scroll-progress-fill {
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #4d216a, #8b4db0);
-  transition: width 120ms linear;
-}
-
-.trip-feed-scroll-progress-car {
-  position: absolute;
-  top: 50%;
-  left: 2%;
-  transform: translate(-50%, -50%);
-  transition: left 120ms linear;
-}
-
-.trip-scroll-car-icon {
-  width: 50px;
-  height: 50px;
-  display: block;
-}
-
-/* .trip-feed-header.is-scrolled {
-  border-bottom-color: rgba(77, 33, 106, 0.24);
-  background: linear-gradient(140deg, rgba(255, 255, 255, 0.48), rgba(39, 39, 39, 0.3));
-  backdrop-filter: saturate(155%) blur(5px);
-  -webkit-backdrop-filter: saturate(155%) blur(5px);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-} */
-
-.trip-feed-header-inner {
-  width: min(1120px, calc(100vw - 32px));
-  margin: 0 auto;
-  min-height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.trip-feed-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: #3e1c55;
-  text-decoration: none;
-  font-size: clamp(1.75rem, 3vw, 2.1rem);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
-.trip-feed-brand img {
-  width: 65px;
-  height: 65px;
-  object-fit: contain;
-}
-
-.trip-feed-header-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.trip-feed-header-meta p {
-  margin: 0;
-  color: #5f5370;
-}
-
-.trip-feed-header-meta a {
-  min-height: 35px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 2px solid #4d216a;
-  background: #fff;
-  color: #4d216a;
-  text-decoration: none;
-  font-weight: 700;
-}
-
-.trip-feed-header-meta a:hover {
-  background: #4d216a;
-  color: #fff;
-  box-shadow: rgba(77, 33, 106, 0.14) 0px 1px 3px, rgba(77, 33, 106, 0.1) 0px 1px 2px;
-}
-
 .trip-feed-intro {
-  border-radius: 22px; /* make this centred */
   padding: 24px;
   display: grid;
   gap: 10px;
@@ -220,7 +99,7 @@
   width: 100%;
   border-radius: 16px;
   border: none;
-  box-shadow: rgba(77, 33, 106, 0.14) 0px 1px 3px, rgba(77, 33, 106, 0.1) 0px 1px 2px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px 1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   background: #fff;
   padding: 12px;
   text-align: left;
@@ -303,8 +182,7 @@
 
 .trip-detail-meta-grid article {
   border-radius: 14px;
-  /* border: 1px solid rgba(77, 33, 106, 0.14); */
-  box-shadow: rgba(77, 33, 106, 0.14) 0px 1px 3px, rgba(77, 33, 106, 0.1) 0px 1px 2px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px 1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   background: rgba(77, 33, 106, 0.05);
   padding: 12px;
   display: grid;
@@ -341,7 +219,7 @@
 
 .trip-item-card {
   border-radius: 14px;
-  box-shadow: rgba(77, 33, 106, 0.14) 0px 1px 3px, rgba(77, 33, 106, 0.1) 0px 1px 2px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px 1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   background: #fff;
   padding: 12px;
   display: grid;
@@ -505,21 +383,6 @@
     width: min(1180px, calc(100vw - 24px));
     padding-top: 96px;
     gap: 14px;
-  }
-
-  .trip-feed-scroll-progress-inner {
-    width: min(1120px, calc(100vw - 24px));
-  }
-
-  .trip-feed-header-inner {
-    min-height: 72px;
-    padding: 10px 0;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .trip-feed-header-meta p {
-    display: none;
   }
 
   .trip-feed-layout {

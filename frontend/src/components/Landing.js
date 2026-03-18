@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import HeaderScrollProgress from './HeaderScrollProgress';
+import usePageScrollProgress from './usePageScrollProgress';
 import './Landing.css';
 
+// Static slide content keeps the landing hero easy to adjust without touching
+// the carousel behavior itself.
 const slides = [
   {
     image: '/images/carousel1.jpg',
@@ -40,6 +44,7 @@ const slides = [
   },
 ];
 
+// These cards mirror the copy shown beneath the landing hero.
 const howItWorksSteps = [
   {
     title: "Drivers post store trips",
@@ -78,8 +83,7 @@ const howItWorksSteps = [
 
 export default function Landing() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const { isScrolled, scrollProgress } = usePageScrollProgress();
   const currentYear = new Date().getFullYear();
   const swipeStart = useRef(null);
   const swipeCurrent = useRef(null);
@@ -93,32 +97,6 @@ export default function Landing() {
     return () => clearInterval(slideTimer);
   }, []);
 
-  useEffect(() => {
-    function handleScroll() {
-      // Reuse the same scroll value for both the glossy header state and the progress bar.
-      const scrollTop =
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0;
-      const documentHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-      );
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-      const maxScrollable = Math.max(0, documentHeight - viewportHeight);
-      const progress = maxScrollable > 0 ? (scrollTop / maxScrollable) * 100 : 0;
-
-      setIsScrolled(scrollTop > 0);
-      setScrollProgress(Math.min(100, Math.max(0, progress)));
-    }
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const currentSlide = slides[activeSlide];
 
   function goToPreviousSlide() {
@@ -130,6 +108,7 @@ export default function Landing() {
   }
 
   function handleTouchStart(event) {
+    // Track the first touch point so mobile users can swipe through slides.
     const touch = event.touches[0];
     swipeStart.current = { x: touch.clientX, y: touch.clientY };
     swipeCurrent.current = { x: touch.clientX, y: touch.clientY };
@@ -168,9 +147,6 @@ export default function Landing() {
     swipeCurrent.current = null;
   }
 
-  const progressFillStyle = { width: `${scrollProgress}%` };
-  const carStyle = { left: `${Math.min(98, Math.max(2, scrollProgress))}%` };
-
   return (
     <div className="landing">
       <header className={`landing-header ${isScrolled ? 'is-scrolled' : ''}`.trim()}>
@@ -198,29 +174,7 @@ export default function Landing() {
             </a>
           </nav>
         </div>
-        <div aria-hidden="true" className="landing-scroll-progress">
-          <div className="landing-scroll-progress-inner">
-            <div className="landing-scroll-progress-track">
-              <div className="landing-scroll-progress-fill" style={progressFillStyle} />
-              <span className="landing-scroll-progress-car" style={carStyle}>
-                <svg
-                  aria-hidden="true"
-                  className="landing-scroll-car-icon"
-                  fill="none"
-                  viewBox="0 0 64 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 20h4l4-8h24l6 8h6a4 4 0 0 1 4 4v2H4v-2a4 4 0 0 1 4-4Z"
-                    fill="#4d216a"
-                  />
-                  <circle cx="18" cy="26" fill="#2b0f3d" r="4" />
-                  <circle cx="44" cy="26" fill="#2b0f3d" r="4" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
+        <HeaderScrollProgress scrollProgress={scrollProgress} />
       </header>
 
       <main
@@ -229,6 +183,7 @@ export default function Landing() {
         onTouchMove={handleTouchMove}
         onTouchStart={handleTouchStart}
       >
+        {/* Translate the whole slide track instead of mounting/unmounting each slide. */}
         <div className="landing-main-track" style={{ transform: `translateX(-${activeSlide * 100}%)` }}>
           {slides.map((slide) => (
             <article
@@ -248,7 +203,17 @@ export default function Landing() {
           onClick={goToPreviousSlide}
           type="button"
         >
-          <img alt="" aria-hidden="true" className="carousel-arrow-icon" src="/images/left-arrow.png" />
+          <span aria-hidden="true" className="carousel-arrow-icon carousel-arrow-icon-left">
+            <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M1.25 1.5 6 6.25l4.75-4.75"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+              />
+            </svg>
+          </span>
         </button>
 
         <button
@@ -257,12 +222,17 @@ export default function Landing() {
           onClick={goToNextSlide}
           type="button"
         >
-          <img
-            alt=""
-            aria-hidden="true"
-            className="carousel-arrow-icon carousel-arrow-icon-right"
-            src="/images/left-arrow.png"
-          />
+          <span aria-hidden="true" className="carousel-arrow-icon carousel-arrow-icon-right">
+            <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M1.25 1.5 6 6.25l4.75-4.75"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+              />
+            </svg>
+          </span>
         </button>
 
         <section className="landing-description">

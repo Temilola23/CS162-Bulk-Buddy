@@ -28,48 +28,6 @@
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 
-.landing-scroll-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -14px;
-  pointer-events: none;
-}
-
-.landing-scroll-progress-inner {
-  width: min(1120px, calc(100vw - 32px));
-  margin: 0 auto;
-}
-
-.landing-scroll-progress-track {
-  position: relative;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(77, 33, 106, 0.18);
-}
-
-.landing-scroll-progress-fill {
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #4d216a, #8b4db0);
-  transition: width 120ms linear;
-}
-
-.landing-scroll-progress-car {
-  position: absolute;
-  top: 50%;
-  left: 2%;
-  transform: translate(-50%, -50%);
-  transition: left 120ms linear;
-}
-
-.landing-scroll-car-icon {
-  width: 50px;
-  height: 50px;
-  display: block;
-}
-
 .landing-header-inner {
   width: min(1120px, calc(100vw - 32px));
   margin: 0 auto;
@@ -215,13 +173,26 @@
 }
 
 .carousel-arrow-icon {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.carousel-arrow-icon svg {
+  width: 16px;
+  height: 12px;
+  display: block;
+}
+
+.carousel-arrow-icon-left {
+  transform: rotate(90deg);
 }
 
 .carousel-arrow-icon-right {
-  transform: rotate(180deg);
+  transform: rotate(-90deg);
 }
 
 .carousel-arrow-left {
@@ -633,10 +604,6 @@
 
   .landing-main {
     min-height: 520px;
-  }
-
-  .landing-scroll-progress-inner {
-    width: min(1120px, calc(100vw - 24px));
   }
 
   .landing-description {

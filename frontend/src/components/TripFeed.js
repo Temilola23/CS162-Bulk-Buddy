@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import ShopperHeader from './ShopperHeader';
+import usePageScrollProgress from './usePageScrollProgress';
 import './TripFeed.css';
 
 /**
@@ -130,12 +132,12 @@ function formatDistance(distanceMiles) {
 }
 
 export default function TripFeed() {
+  // The feed keeps a temporary draft quantity per item before anything is added to cart.
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [draftQuantities, setDraftQuantities] = useState({});
   const [cart, setCart] = useState(null);
   const [checkoutMessage, setCheckoutMessage] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const { isScrolled, scrollProgress } = usePageScrollProgress();
 
   const trips = useMemo(() => {
     // Precompute the display location and distance once so the UI can stay focused on rendering.
@@ -176,32 +178,6 @@ export default function TripFeed() {
     });
   }, [selectedTrip]);
 
-  useEffect(() => {
-    function handleScroll() {
-      // Drive the sticky header state and the car progress bar from the same page scroll value.
-      const scrollTop =
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0;
-      const documentHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-      );
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-      const maxScrollable = Math.max(0, documentHeight - viewportHeight);
-      const progress = maxScrollable > 0 ? (scrollTop / maxScrollable) * 100 : 0;
-
-      setIsScrolled(scrollTop > 0);
-      setScrollProgress(Math.min(100, Math.max(0, progress)));
-    }
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const selectedQuantityCount = selectedTrip
     ? selectedTrip.items.reduce((sum, item) => sum + (draftQuantities[item.id] || 0), 0)
     : 0;
@@ -212,6 +188,7 @@ export default function TripFeed() {
     : 0;
 
   function setItemQuantity(itemId, nextValue, maxValue) {
+    // Clamp quantities so the UI never drifts outside the current available stock.
     const clampedValue = Math.max(0, Math.min(maxValue, nextValue));
     setDraftQuantities((current) => ({ ...current, [itemId]: clampedValue }));
   }
@@ -295,46 +272,13 @@ export default function TripFeed() {
     setCart(null);
   }
 
-  const progressFillStyle = { width: `${scrollProgress}%` };
-  const carStyle = { left: `${Math.min(98, Math.max(2, scrollProgress))}%` };
-
   return (
     <main className="trip-feed-page">
-      <header className={`trip-feed-header ${isScrolled ? 'is-scrolled' : ''}`.trim()}>
-        <div className="trip-feed-header-inner">
-          <a className="trip-feed-brand" href="/">
-            <img alt="Bulk Buddy logo" src="/images/logo-main1.png" />
-            <span>Bulk Buddy</span>
-          </a>
-          <div className="trip-feed-header-meta">
-            <p>{shopperLocation.label}</p>
-            <a href="/">Log out</a>
-          </div>
-        </div>
-        <div aria-hidden="true" className="trip-feed-scroll-progress">
-          <div className="trip-feed-scroll-progress-inner">
-            <div className="trip-feed-scroll-progress-track">
-              <div className="trip-feed-scroll-progress-fill" style={progressFillStyle} />
-              <span className="trip-feed-scroll-progress-car" style={carStyle}>
-                <svg
-                  aria-hidden="true"
-                  className="trip-scroll-car-icon"
-                  fill="none"
-                  viewBox="0 0 64 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 20h4l4-8h24l6 8h6a4 4 0 0 1 4 4v2H4v-2a4 4 0 0 1 4-4Z"
-                    fill="#4d216a"
-                  />
-                  <circle cx="18" cy="26" fill="#2b0f3d" r="4" />
-                  <circle cx="44" cy="26" fill="#2b0f3d" r="4" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ShopperHeader
+        activePage="trip-feed"
+        isScrolled={isScrolled}
+        scrollProgress={scrollProgress}
+      />
 
       <section className="trip-feed-intro">
         <p className="trip-feed-kicker">Trip feed</p>
@@ -376,6 +320,7 @@ export default function TripFeed() {
         <section className="trip-detail-panel">
           {selectedTrip ? (
             <>
+              {/* Feed detail stays inline for now so shoppers can compare trips quickly. */}
               <header className="trip-detail-header">
                 <div className="trip-detail-driver">
                   <img
@@ -472,7 +417,7 @@ export default function TripFeed() {
         </section>
 
         <aside className="trip-cart-panel">
-          <h2>Cart <i class="fa-solid fa-cart-arrow-down"></i></h2>
+          <h2>Cart</h2>
           {cart && cart.items.length > 0 ? (
             <>
               <div className="cart-driver-row">
