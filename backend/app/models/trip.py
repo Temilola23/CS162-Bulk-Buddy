@@ -92,6 +92,37 @@ class Trip(db.Model):
         cascade="all, delete-orphan",
     )
 
+    def to_dict(self, include_items=False):
+        """
+        Convert this Trip to a JSON-serializable dictionary.
+
+        Args:
+            include_items (bool): When True, includes a nested
+                list of item dicts under the ``items`` key.
+                Defaults to False.
+
+        Returns:
+            dict: Trip fields including trip_id, driver_id,
+                store_name, pickup_location_text, pickup_lat,
+                pickup_lng, pickup_time, status, created_at,
+                and updated_at.  Optionally includes items.
+        """
+        data = {
+            "trip_id": self.trip_id,
+            "driver_id": self.driver_id,
+            "store_name": self.store_name,
+            "pickup_location_text": self.pickup_location_text,
+            "pickup_lat": self.pickup_lat,
+            "pickup_lng": self.pickup_lng,
+            "pickup_time": self.pickup_time.isoformat(),
+            "status": self.status.value,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+        if include_items:
+            data["items"] = [i.to_dict() for i in self.items]
+        return data
+
     def __repr__(self):
         return (
             f"<Trip {self.trip_id} {self.store_name} "
