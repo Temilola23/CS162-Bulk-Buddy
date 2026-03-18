@@ -11,7 +11,16 @@ from werkzeug.security import generate_password_hash
 
 
 def _make_driver(db_session):
-    """Create and return a driver user."""
+    """
+    Create and return a persisted driver user.
+
+    Args:
+        db_session: The SQLAlchemy database instance used
+            to add and commit the new user.
+
+    Returns:
+        User: A committed User with role DRIVER.
+    """
     driver = User(
         first_name="Driver",
         last_name="Test",
@@ -29,7 +38,16 @@ def _make_driver(db_session):
 
 
 def _make_shopper(db_session):
-    """Create and return a shopper user."""
+    """
+    Create and return a persisted shopper user.
+
+    Args:
+        db_session: The SQLAlchemy database instance used
+            to add and commit the new user.
+
+    Returns:
+        User: A committed User with role SHOPPER.
+    """
     shopper = User(
         first_name="Shopper",
         last_name="Test",
@@ -47,7 +65,15 @@ def _make_shopper(db_session):
 
 
 def _login(client, email, password="password123"):
-    """Log in a user via the auth route."""
+    """
+    Log in a user via the auth endpoint.
+
+    Args:
+        client: The Flask test client.
+        email (str): The user's email address.
+        password (str): The user's password.  Defaults to
+            ``"password123"``.
+    """
     client.post(
         "/api/login",
         json={"email": email, "password": password},
@@ -55,7 +81,13 @@ def _login(client, email, password="password123"):
 
 
 def _trip_payload():
-    """Return a valid trip creation payload."""
+    """
+    Return a valid trip creation payload.
+
+    Returns:
+        dict: A JSON-serializable dictionary with all
+            required fields for ``POST /api/me/trips``.
+    """
     return {
         "store_name": "Costco",
         "pickup_location_text": "123 Main St, SF",
@@ -85,7 +117,7 @@ def _trip_payload():
 
 
 class TestCreateTrip:
-    """Tests for POST /api/trips."""
+    """Tests for POST /api/me/trips."""
 
     def test_driver_can_create_trip_with_items(self, client, app):
         """Driver creates a trip and items are persisted."""
@@ -93,7 +125,7 @@ class TestCreateTrip:
             driver = _make_driver(db)
             _login(client, driver.email)
 
-        response = client.post("/api/trips", json=_trip_payload())
+        response = client.post("/api/me/trips", json=_trip_payload())
 
         assert response.status_code == 201
         assert "trip" in response.json
@@ -110,13 +142,13 @@ class TestCreateTrip:
             shopper = _make_shopper(db)
             _login(client, shopper.email)
 
-        response = client.post("/api/trips", json=_trip_payload())
+        response = client.post("/api/me/trips", json=_trip_payload())
 
         assert response.status_code == 403
 
     def test_unauthenticated_cannot_create_trip(self, client):
         """Unauthenticated users should receive 401."""
-        response = client.post("/api/trips", json=_trip_payload())
+        response = client.post("/api/me/trips", json=_trip_payload())
 
         assert response.status_code == 401
 
@@ -126,7 +158,7 @@ class TestCreateTrip:
             driver = _make_driver(db)
             _login(client, driver.email)
 
-        response = client.post("/api/trips", json={})
+        response = client.post("/api/me/trips", json={})
 
         assert response.status_code == 400
 
@@ -138,7 +170,7 @@ class TestCreateTrip:
 
         payload = _trip_payload()
         payload["pickup_time"] = "not-a-datetime"
-        response = client.post("/api/trips", json=payload)
+        response = client.post("/api/me/trips", json=payload)
 
         assert response.status_code == 400
         assert "ISO 8601" in response.json["message"]
@@ -151,7 +183,7 @@ class TestCreateTrip:
 
         payload = _trip_payload()
         payload["items"] = [{"name": "Paper Towels"}]
-        response = client.post("/api/trips", json=payload)
+        response = client.post("/api/me/trips", json=payload)
 
         assert response.status_code == 400
         assert "unit" in response.json["message"]
@@ -269,7 +301,7 @@ class TestMyTrips:
 
 
 class TestEditTrip:
-    """Tests for PUT /api/trips/<id>."""
+    """Tests for PUT /api/me/trips/<id>."""
 
     def test_driver_can_update_own_open_trip(self, client, app):
         """Driver can edit their OPEN trip details."""
@@ -287,7 +319,7 @@ class TestEditTrip:
             _login(client, driver.email)
 
         response = client.put(
-            f"/api/trips/{trip_id}",
+            f"/api/me/trips/{trip_id}",
             json={"store_name": "Sam's Club"},
         )
 
@@ -326,7 +358,7 @@ class TestEditTrip:
             _login(client, driver2.email)
 
         response = client.put(
-            f"/api/trips/{trip_id}",
+            f"/api/me/trips/{trip_id}",
             json={"store_name": "Sam's Club"},
         )
 
@@ -349,7 +381,7 @@ class TestEditTrip:
             _login(client, driver.email)
 
         response = client.put(
-            f"/api/trips/{trip_id}",
+            f"/api/me/trips/{trip_id}",
             json={"store_name": "Sam's Club"},
         )
 
@@ -371,7 +403,7 @@ class TestEditTrip:
             _login(client, driver.email)
 
         response = client.put(
-            f"/api/trips/{trip_id}",
+            f"/api/me/trips/{trip_id}",
             json={"pickup_time": "bad-datetime"},
         )
 
@@ -404,7 +436,7 @@ class TestEditTrip:
             _login(client, driver.email)
 
         response = client.put(
-            f"/api/trips/{trip_id}",
+            f"/api/me/trips/{trip_id}",
             json={
                 "items": [
                     {
@@ -422,7 +454,7 @@ class TestEditTrip:
 
 
 class TestCloseTrip:
-    """Tests for PATCH /api/trips/<id>/close."""
+    """Tests for PATCH /api/me/trips/<id>/close."""
 
     def test_close_open_trip(self, client, app):
         """Driver can close an OPEN trip."""
@@ -439,7 +471,7 @@ class TestCloseTrip:
             trip_id = trip.trip_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/close")
+        response = client.patch(f"/api/me/trips/{trip_id}/close")
 
         assert response.status_code == 200
 
@@ -463,13 +495,13 @@ class TestCloseTrip:
             trip_id = trip.trip_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/close")
+        response = client.patch(f"/api/me/trips/{trip_id}/close")
 
         assert response.status_code == 409
 
 
 class TestCompleteTrip:
-    """Tests for PATCH /api/trips/<id>/complete."""
+    """Tests for PATCH /api/me/trips/<id>/complete."""
 
     def test_complete_closed_trip(self, client, app):
         """Driver can complete a CLOSED trip."""
@@ -487,7 +519,7 @@ class TestCompleteTrip:
             trip_id = trip.trip_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/complete")
+        response = client.patch(f"/api/me/trips/{trip_id}/complete")
 
         assert response.status_code == 200
 
@@ -511,13 +543,13 @@ class TestCompleteTrip:
             trip_id = trip.trip_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/complete")
+        response = client.patch(f"/api/me/trips/{trip_id}/complete")
 
         assert response.status_code == 409
 
 
 class TestCancelTrip:
-    """Tests for PATCH /api/trips/<id>/cancel."""
+    """Tests for PATCH /api/me/trips/<id>/cancel."""
 
     def test_cancel_open_trip_cascades_orders(self, client, app):
         """Cancelling an OPEN trip sets its orders to CANCELLED."""
@@ -542,7 +574,7 @@ class TestCancelTrip:
             order_id = order.order_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/cancel")
+        response = client.patch(f"/api/me/trips/{trip_id}/cancel")
 
         assert response.status_code == 200
 
@@ -577,7 +609,7 @@ class TestCancelTrip:
             order_id = order.order_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/cancel")
+        response = client.patch(f"/api/me/trips/{trip_id}/cancel")
 
         assert response.status_code == 200
 
@@ -601,6 +633,6 @@ class TestCancelTrip:
             trip_id = trip.trip_id
             _login(client, driver.email)
 
-        response = client.patch(f"/api/trips/{trip_id}/cancel")
+        response = client.patch(f"/api/me/trips/{trip_id}/cancel")
 
         assert response.status_code == 409

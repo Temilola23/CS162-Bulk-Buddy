@@ -39,25 +39,27 @@ or car.
 │  │  /api/login     POST   Authenticate + create session     │  │
 │  │  /api/logout    POST   End session                       │  │
 │  │                                                          │  │
-│  │  /api/trips     GET    Browse nearby open trips (planned)│  │
-│  │  /api/trips     POST   Create trip + items     (planned) │  │
-│  │  /api/trips/:id PATCH  Edit/close/complete     (planned) │  │
-│  │  /api/trips/:id/claims  POST  Claim items      (planned) │  │
-│  │  /api/claims/:id/status PATCH Update status    (planned) │  │
-│  │  /api/me/trips  GET    Driver's trips          (planned) │  │
-│  │  /api/me/claims GET    Shopper's orders        (planned) │  │
-│  │  /api/driver/apply      POST  Apply to drive   (planned) │  │
+│  │  /api/trips          GET   Browse open trips (feed)      │  │
+│  │  /api/trips/:id      GET   Get trip with items           │  │
+│  │  /api/me/trips       GET   Driver's trips (all statuses) │  │
+│  │  /api/me/trips       POST  Create trip with items        │  │
+│  │  /api/me/trips/:id   PUT   Edit an OPEN trip             │  │
+│  │  /api/me/trips/:id/close    PATCH  Close trip            │  │
+│  │  /api/me/trips/:id/complete PATCH  Complete trip         │  │
+│  │  /api/me/trips/:id/cancel   PATCH  Cancel + cascade      │  │
+│  │  /api/driver/apply   POST  Apply to become driver        │  │
 │  │                                                          │  │
-│  │  /health        GET    Health check                      │  │
+│  │  /health             GET   Health check                  │  │
 │  └───────────────────────┬──────────────────────────────────┘  │
 │                          │                                     │
 │  ┌───────────────────────▼──────────────────────────────────┐  │
 │  │                   Services Layer                         │  │
 │  │                                                          │  │
 │  │  auth_service     authenticate, register, logout         │  │
-│  │  trip_service     create, list, close, complete (planned)│  │
+│  │  trip_service     create, list, edit, close,             │  │
+│  │                   complete, cancel                       │  │
+│  │  driver_service   apply to become driver                 │  │
 │  │  order_service    claim items, update status    (planned)│  │
-│  │  driver_service   apply, approve, reject        (planned)│  │
 │  │                                                          │  │
 │  │  Responsibilities:                                       │  │
 │  │  - Input validation (clear error messages)               │  │
@@ -256,9 +258,14 @@ foreign keys) as a safety net
 
 ```
 OPEN ──▶ CLOSED ──▶ COMPLETED
-  │
-  └── Driver closes trip when heading to store
-       └── Driver marks completed after all pickups done
+  │         │
+  │         └──▶ CANCELLED (cascades orders to CANCELLED)
+  └──▶ CANCELLED (cascades orders to CANCELLED)
+
+  OPEN:      accepting claims from shoppers
+  CLOSED:    no new claims; driver heading to store
+  COMPLETED: all pickups done
+  CANCELLED: driver cancelled; all orders also cancelled
 ```
 
 ### Order Status
@@ -282,12 +289,21 @@ PENDING ──▶ APPROVED (user role → DRIVER)
 ### Implemented
 
 
-| Method | Path          | Auth | Description            |
-| ------ | ------------- | ---- | ---------------------- |
-| POST   | `/api/signup` | No   | Register new user      |
-| POST   | `/api/login`  | No   | Log in, create session |
-| POST   | `/api/logout` | Yes  | End session            |
-| GET    | `/health`     | No   | Health check           |
+| Method | Path                            | Auth   | Description                   |
+| ------ | ------------------------------- | ------ | ----------------------------- |
+| POST   | `/api/signup`                   | No     | Register new user             |
+| POST   | `/api/login`                    | No     | Log in, create session        |
+| POST   | `/api/logout`                   | Yes    | End session                   |
+| GET    | `/health`                       | No     | Health check                  |
+| GET    | `/api/trips`                    | Yes    | Browse open trips (feed)      |
+| GET    | `/api/trips/:id`                | Yes    | Get trip with items           |
+| GET    | `/api/me/trips`                 | Driver | Driver's trips (all statuses) |
+| POST   | `/api/me/trips`                 | Driver | Create trip with items        |
+| PUT    | `/api/me/trips/:id`             | Driver | Edit an OPEN trip             |
+| PATCH  | `/api/me/trips/:id/close`       | Driver | Close trip (OPEN->CLOSED)     |
+| PATCH  | `/api/me/trips/:id/complete`    | Driver | Complete trip (CLOSED->DONE)  |
+| PATCH  | `/api/me/trips/:id/cancel`      | Driver | Cancel trip + cascade orders  |
+| POST   | `/api/driver/apply`             | Yes    | Apply to become driver        |
 
 
 ### Planned
@@ -295,14 +311,9 @@ PENDING ──▶ APPROVED (user role → DRIVER)
 
 | Method | Path                                 | Auth    | Description              |
 | ------ | ------------------------------------ | ------- | ------------------------ |
-| GET    | `/api/trips`                         | Yes     | Browse nearby open trips |
-| POST   | `/api/trips`                         | Driver  | Create trip with items   |
-| PATCH  | `/api/trips/:id`                     | Driver  | Edit/close/complete trip |
 | POST   | `/api/trips/:id/claims`              | Shopper | Claim items              |
 | PATCH  | `/api/claims/:id/status`             | Driver  | Update order status      |
-| GET    | `/api/me/trips`                      | Driver  | Driver's trips           |
-| GET    | `/api/me/claims`                     | Shopper | Shopper's orders         |
-| POST   | `/api/driver/apply`                  | Shopper | Apply to become driver   |
+| GET    | `/api/me/orders`                     | Shopper | Shopper's orders         |
 | PATCH  | `/api/admin/driver-applications/:id` | Admin   | Review application       |
 
 
