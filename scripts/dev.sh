@@ -6,16 +6,23 @@ set -e
 echo "Starting Bulk Buddy development environment..."
 
 # Start backend on port 5001 (port 5000 conflicts with macOS AirPlay)
-echo "Starting backend on http://127.0.0.1:5001 ..."
+echo "Setting up backend..."
 cd backend
 source .venv/bin/activate
+pip install -q -r requirements.txt
+export FLASK_APP=app:create_app
+
+echo "Starting backend on http://127.0.0.1:5001 ..."
 flask run --port 5001 &
 BACKEND_PID=$!
 cd ..
 
 # Start frontend (CRA proxy forwards /api requests to backend)
-echo "Starting frontend on http://localhost:3000 ..."
+echo "Setting up frontend..."
 cd frontend
+npm install --silent
+
+echo "Starting frontend on http://localhost:3000 ..."
 npm start &
 FRONTEND_PID=$!
 cd ..
