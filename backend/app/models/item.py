@@ -68,6 +68,25 @@ class Item(db.Model):
         """Units still available for shoppers to claim."""
         return self.total_quantity - self.claimed_quantity
 
+    def to_dict(self):
+        """
+        Convert this Item to a JSON-serializable dictionary.
+
+        Returns:
+            dict: Item fields including item_id, name, unit,
+                total_quantity, claimed_quantity,
+                available_quantity, and price_per_unit.
+        """
+        return {
+            "item_id": self.item_id,
+            "name": self.name,
+            "unit": self.unit,
+            "total_quantity": self.total_quantity,
+            "claimed_quantity": self.claimed_quantity,
+            "available_quantity": self.available_quantity,
+            "price_per_unit": self.price_per_unit,
+        }
+
     def __repr__(self):
         return (
             f"<Item {self.item_id} '{self.name}' "

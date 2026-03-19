@@ -54,7 +54,7 @@ const howItWorksSteps = [
   {
     title: 'Shoppers claim portions of bulk items',
     description:
-      'Choose from the driver’s listed items, claim only what you need, and is available.',
+      'Choose from the driver’s listed items, claim only what you need, and what is available.',
   },
   {
     title: 'Meet at pickup location and pay your share',
