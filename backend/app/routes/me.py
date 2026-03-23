@@ -58,7 +58,9 @@ def list_orders():
 @me.route("/me/orders", methods=["POST"])
 @login_required
 def create_order_route():
-    order, error, status = create_order(current_user.user_id, request.get_json() or {})
+    order, error, status = create_order(
+        current_user.user_id, request.get_json() or {}
+    )
     if error:
         return jsonify({"message": error}), status
 

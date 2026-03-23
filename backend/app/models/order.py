@@ -77,8 +77,10 @@ class Order(db.Model):
         Convert this Order to a JSON-serializable dictionary.
 
         Args:
-            include_trip (bool): When True, includes nested trip data with driver.
-            include_order_items (bool): When True, includes nested claimed items.
+            include_trip (bool): When True, includes nested trip data with
+            driver.
+            include_order_items (bool): When True, includes nested claimed
+            items.
 
         Returns:
             dict: Order identity, status, and timestamp fields.
