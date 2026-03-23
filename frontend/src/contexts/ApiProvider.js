@@ -11,7 +11,8 @@ const ApiContext = createContext();
  *
  */
 export default function ApiProvider({ children }) {
-  const api = new ApiClient();
+  // wrap api client in useMemo to avoid multiple instantiations
+  const api = useMemo(() => new ApiClient(), []); 
 
   return (
     <ApiContext.Provider value={api}>
@@ -26,5 +27,9 @@ export default function ApiProvider({ children }) {
  * @returns {ApiClient} The shared API client for making backend requests
  */
 export function useApi() {
-  return useContext(ApiContext);
+  const context = useContext(ApiContext);
+  if (context === undefined) {
+    throw new Error("useApi must be used within an ApiProvider");
+  }
+  return context;
 }
