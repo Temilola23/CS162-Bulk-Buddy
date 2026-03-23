@@ -1,0 +1,48 @@
+.header-scroll-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -14px;
+  pointer-events: none;
+}
+
+.header-scroll-progress-inner {
+  width: min(1120px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+
+.header-scroll-progress-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(77, 33, 106, 0.18);
+}
+
+.header-scroll-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4d216a, #8b4db0);
+  transition: width 120ms linear;
+}
+
+.header-scroll-progress-car {
+  position: absolute;
+  top: 50%;
+  left: 2%;
+  transform: translate(-50%, -50%);
+  transition: left 120ms linear;
+}
+
+.header-scroll-car-icon {
+  width: 50px;
+  height: 50px;
+  display: block;
+  margin-top: -8px;
+}
+
+@media (max-width: 768px) {
+  .header-scroll-progress-inner {
+    width: min(1120px, calc(100vw - 24px));
+  }
+}

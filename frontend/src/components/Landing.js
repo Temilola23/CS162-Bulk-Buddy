@@ -1,175 +1,40 @@
-import { useEffect, useRef, useState } from 'react';
+import HeaderScrollProgress from './HeaderScrollProgress';
+import { howItWorksSteps, landingSlides } from '../data/landingContent';
+import useLandingPageState from '../hooks/useLandingPageState';
 import './Landing.css';
-
-const slides = [
-  {
-    image: '/images/carousel1.jpg',
-    imageAlt: 'Friends sharing a grocery run plan',
-    tag: 'For shoppers without cars',
-    title: 'Split bulk groceries. Save more together.',
-    description:
-      "Connect with drivers already heading to Costco or Sam's Club, claim only what you need, and meet at a nearby pickup point that actually works for your week.",
-    primaryLabel: 'Get Started',
-    primaryHref: '/register',
-    secondaryLabel: 'How it works',
-    secondaryHref: '#how-it-works',
-  },
-  {
-    image: '/images/carousel2.jpg',
-    imageAlt: 'Rows of groceries inside a warehouse store',
-    tag: 'Plan smarter grocery hauls',
-    title: 'Browse shareable warehouse items before checkout.',
-    description:
-      'See what is being purchased, claim only your portion, and avoid overbuying giant packs that do not fit your week or budget.',
-    primaryLabel: 'Browse Nearby Trips',
-    primaryHref: '/trip-feed',
-    secondaryLabel: 'See claim flow',
-    secondaryHref: '#how-it-works',
-  },
-  {
-    image: '/images/carousel3.jpg',
-    imageAlt: 'People collecting grocery orders at pickup',
-    tag: 'Fast and clear pickup',
-    title: 'Meet once, collect quickly, and head home.',
-    description:
-      'Track claim status updates and pickup windows so everyone knows exactly when orders are ready and where to meet.',
-    primaryLabel: 'Start Claiming Shares',
-    primaryHref: '/register',
-    secondaryLabel: 'Review pickup steps',
-    secondaryHref: '#how-it-works',
-  },
-];
-
-const howItWorksSteps = [
-  {
-    title: "Drivers post store trips",
-    description:
-      'Verified drivers publish trip time, pickup location, and item shares so nearby shoppers can join.',
-  },
-  {
-    title: 'Shoppers claim portions of bulk items',
-    description:
-      'Choose from the driver’s listed items, claim only what you need, and what is available.',
-  },
-  {
-    title: 'Meet at pickup location and pay your share',
-    description:
-      'Track claim status updates, then collect your groceries at the agreed spot and settle your portion.',
-  },
-];
 
 // const faqItems = [
 //   {
-//     question: 'How do payments work?',
+//     question: '*************',
 //     answer:
-//       'In V1, shoppers and drivers coordinate payment directly at pickup. You can still see claim status updates before meeting.',
+//       '*************',
 //   },
 //   {
-//     question: 'Can I request items not listed in the trip?',
+//     question: '*************',
 //     answer:
-//       'No. Shoppers can claim only from the driver’s predefined item list so quantities stay clear and overselling is prevented.',
+//       '*************',
 //   },
 //   {
-//     question: 'What if I miss the pickup window?',
+//     question: '*************',
 //     answer:
-//       'Use trip notes and status updates to coordinate quickly with the driver. Pickup details remain visible in your orders view.',
+//       '*************',
 //   },
 // ];
 
 export default function Landing() {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const currentYear = new Date().getFullYear();
-  const swipeStart = useRef(null);
-  const swipeCurrent = useRef(null);
-
-  useEffect(() => {
-    // Auto-advance the hero so the landing page continues to feel active.
-    const slideTimer = setInterval(() => {
-      setActiveSlide((current) => (current + 1) % slides.length);
-    }, 6000);
-
-    return () => clearInterval(slideTimer);
-  }, []);
-
-  useEffect(() => {
-    function handleScroll() {
-      // Reuse the same scroll value for both the glossy header state and the progress bar.
-      const scrollTop =
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0;
-      const documentHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-      );
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-      const maxScrollable = Math.max(0, documentHeight - viewportHeight);
-      const progress = maxScrollable > 0 ? (scrollTop / maxScrollable) * 100 : 0;
-
-      setIsScrolled(scrollTop > 0);
-      setScrollProgress(Math.min(100, Math.max(0, progress)));
-    }
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const currentSlide = slides[activeSlide];
-
-  function goToPreviousSlide() {
-    setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
-  }
-
-  function goToNextSlide() {
-    setActiveSlide((current) => (current + 1) % slides.length);
-  }
-
-  function handleTouchStart(event) {
-    const touch = event.touches[0];
-    swipeStart.current = { x: touch.clientX, y: touch.clientY };
-    swipeCurrent.current = { x: touch.clientX, y: touch.clientY };
-  }
-
-  function handleTouchMove(event) {
-    if (!swipeStart.current) {
-      return;
-    }
-
-    const touch = event.touches[0];
-    swipeCurrent.current = { x: touch.clientX, y: touch.clientY };
-  }
-
-  function handleTouchEnd() {
-    if (!swipeStart.current || !swipeCurrent.current) {
-      swipeStart.current = null;
-      swipeCurrent.current = null;
-      return;
-    }
-
-    const deltaX = swipeStart.current.x - swipeCurrent.current.x;
-    const deltaY = swipeStart.current.y - swipeCurrent.current.y;
-    const swipeThreshold = 45;
-
-    // Only treat the gesture as a slide change when the movement is mostly horizontal.
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
-      if (deltaX > 0) {
-        goToNextSlide();
-      } else {
-        goToPreviousSlide();
-      }
-    }
-
-    swipeStart.current = null;
-    swipeCurrent.current = null;
-  }
-
-  const progressFillStyle = { width: `${scrollProgress}%` };
-  const carStyle = { left: `${Math.min(98, Math.max(2, scrollProgress))}%` };
+  const {
+    isScrolled,
+    scrollProgress,
+    activeSlide,
+    setActiveSlide,
+    goToPreviousSlide,
+    goToNextSlide,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    currentYear,
+    currentSlide,
+  } = useLandingPageState();
 
   return (
     <div className="landing">
@@ -198,29 +63,7 @@ export default function Landing() {
             </a>
           </nav>
         </div>
-        <div aria-hidden="true" className="landing-scroll-progress">
-          <div className="landing-scroll-progress-inner">
-            <div className="landing-scroll-progress-track">
-              <div className="landing-scroll-progress-fill" style={progressFillStyle} />
-              <span className="landing-scroll-progress-car" style={carStyle}>
-                <svg
-                  aria-hidden="true"
-                  className="landing-scroll-car-icon"
-                  fill="none"
-                  viewBox="0 0 64 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 20h4l4-8h24l6 8h6a4 4 0 0 1 4 4v2H4v-2a4 4 0 0 1 4-4Z"
-                    fill="#4d216a"
-                  />
-                  <circle cx="18" cy="26" fill="#2b0f3d" r="4" />
-                  <circle cx="44" cy="26" fill="#2b0f3d" r="4" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
+        <HeaderScrollProgress scrollProgress={scrollProgress} />
       </header>
 
       <main
@@ -229,8 +72,9 @@ export default function Landing() {
         onTouchMove={handleTouchMove}
         onTouchStart={handleTouchStart}
       >
+        {/* Translate the whole slide track instead of mounting/unmounting each slide. */}
         <div className="landing-main-track" style={{ transform: `translateX(-${activeSlide * 100}%)` }}>
-          {slides.map((slide) => (
+          {landingSlides.map((slide) => (
             <article
               aria-label={slide.imageAlt}
               className="landing-slide"
@@ -248,7 +92,17 @@ export default function Landing() {
           onClick={goToPreviousSlide}
           type="button"
         >
-          <img alt="" aria-hidden="true" className="carousel-arrow-icon" src="/images/left-arrow.png" />
+          <span aria-hidden="true" className="carousel-arrow-icon carousel-arrow-icon-left">
+            <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M1.25 1.5 6 6.25l4.75-4.75"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+              />
+            </svg>
+          </span>
         </button>
 
         <button
@@ -257,12 +111,17 @@ export default function Landing() {
           onClick={goToNextSlide}
           type="button"
         >
-          <img
-            alt=""
-            aria-hidden="true"
-            className="carousel-arrow-icon carousel-arrow-icon-right"
-            src="/images/left-arrow.png"
-          />
+          <span aria-hidden="true" className="carousel-arrow-icon carousel-arrow-icon-right">
+            <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M1.25 1.5 6 6.25l4.75-4.75"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+              />
+            </svg>
+          </span>
         </button>
 
         <section className="landing-description">
@@ -280,7 +139,7 @@ export default function Landing() {
         </section>
 
         <div aria-label="Carousel navigation" className="landing-indicators" role="tablist">
-          {slides.map((slide, index) => (
+          {landingSlides.map((slide, index) => (
             <button
               aria-label={`Show slide ${index + 1}`}
               aria-selected={activeSlide === index}

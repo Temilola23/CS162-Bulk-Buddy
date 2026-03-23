@@ -1,3 +1,122 @@
 .app-root {
   min-height: 100vh;
+  opacity: 1;
+  transition: opacity 420ms ease;
+}
+
+.app-root.is-loading {
+  opacity: 0;
+}
+
+.app-root.is-ready {
+  opacity: 1;
+}
+
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(560px 300px at 0% 0%, rgba(155, 34, 230, 0.14), transparent 72%),
+    radial-gradient(560px 300px at 100% 0%, rgba(47, 111, 115, 0.12), transparent 72%),
+    #f1e8f6;
+  transition:
+    opacity 460ms ease,
+    visibility 460ms ease;
+}
+
+.app-loader.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.app-loader-scene {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.app-loader-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  animation: app-loader-bounce 0.8s ease-in-out infinite alternate;
+}
+
+.app-loader-car {
+  width: 102px;
+  height: 40px;
+}
+
+.app-loader-car__body {
+  animation: app-loader-shake 0.2s ease-in-out infinite alternate;
+}
+
+.app-loader-car__line {
+  transform-origin: center right;
+  stroke-dasharray: 22;
+  animation: app-loader-line 0.8s ease-in-out infinite;
+  animation-fill-mode: both;
+}
+
+.app-loader-car__line--top {
+  animation-delay: 0s;
+}
+
+.app-loader-car__line--middle {
+  animation-delay: 0.2s;
+}
+
+.app-loader-car__line--bottom {
+  animation-delay: 0.4s;
+}
+
+@keyframes app-loader-shake {
+  0% {
+    transform: translateY(-1%);
+  }
+
+  100% {
+    transform: translateY(3%);
+  }
+}
+
+@keyframes app-loader-bounce {
+  0% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes app-loader-line {
+  0% {
+    stroke-dashoffset: 22;
+  }
+
+  25% {
+    stroke-dashoffset: 22;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+
+  51% {
+    stroke-dashoffset: 0;
+  }
+
+  80% {
+    stroke-dashoffset: -22;
+  }
+
+  100% {
+    stroke-dashoffset: -22;
+  }
 }

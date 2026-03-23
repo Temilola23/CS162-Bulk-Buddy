@@ -1,3 +1,4 @@
+// Load performance helpers only when someone actually wants to collect metrics.
 const reportWebVitals = onPerfEntry => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
     import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
