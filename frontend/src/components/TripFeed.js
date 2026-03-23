@@ -1,276 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
 import ShopperHeader from './ShopperHeader';
 import usePageScrollProgress from './usePageScrollProgress';
+import useTripFeedState from '../hooks/useTripFeedState';
 import './TripFeed.css';
 
-/**
- * Builds a lightweight avatar image from initials so the mock feed can render
- * profile photos without depending on uploaded assets.
- */
-function createAvatarImage(name, backgroundColor) {
-  const initials = name
-    .split(' ')
-    .map((segment) => segment[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-      <rect width="96" height="96" fill="${backgroundColor}" rx="48" />
-      <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" font-size="35" font-family="Geologica, sans-serif" font-weight="700">
-        ${initials}
-      </text>
-    </svg>
-  `;
-
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-}
-
-const shopperLocation = {
-  label: 'Mission District, San Francisco',
-  lat: 37.7599,
-  lng: -122.4148,
-};
-
-const tripSeed = [
-  {
-    id: 'costco-mission',
-    driver: {
-      name: 'James Olaitan',
-      photo: createAvatarImage('James Olaitan', '#4d216a'),
-      rating: 4.9,
-      vehicle: 'Gray Honda CR-V',
-      locationLabel: 'Mission District, Valencia St',
-    },
-    driverLocation: { lat: 37.7598, lng: -122.421 },
-    pickupLocation: null,
-    pickupTime: 'Saturday, March 14 • 5:30 PM',
-    items: [
-      { id: 'rice', name: 'Kirkland Rice 25lb', availableQty: 3, unit: 'shares', unitPrice: 6.25 },
-      { id: 'chicken', name: 'Chicken Breasts', availableQty: 2, unit: 'shares', unitPrice: 8.5 },
-      { id: 'eggs', name: 'Organic Eggs 24-pack', availableQty: 4, unit: 'shares', unitPrice: 3.75 },
-    ],
-  },
-  {
-    id: 'sams-soma',
-    driver: {
-      name: 'Chikamso Adireje',
-      photo: createAvatarImage('Chikamso Adireje', '#2f6f73'),
-      rating: 4.8,
-      vehicle: 'White Toyota Corolla',
-      locationLabel: 'SoMa, 4th & King',
-    },
-    driverLocation: { lat: 37.7767, lng: -122.3948 },
-    pickupLocation: { label: 'Yerba Buena Gardens pickup point', lat: 37.784, lng: -122.4024 },
-    pickupTime: 'Sunday, March 15 • 11:00 AM',
-    items: [
-      { id: 'yogurt', name: 'Greek Yogurt Variety Pack', availableQty: 5, unit: 'cups', unitPrice: 1.8 },
-      { id: 'avocados', name: 'Avocado Bag', availableQty: 3, unit: 'shares', unitPrice: 4.4 },
-      { id: 'spinach', name: 'Baby Spinach Clamshell', availableQty: 4, unit: 'shares', unitPrice: 2.1 },
-    ],
-  },
-  {
-    id: 'costco-sunset',
-    driver: {
-      name: 'Johnbosco Ochije',
-      photo: createAvatarImage('Johnbosco Ochije', '#6f3b8f'),
-      rating: 4.7,
-      vehicle: 'Blue Subaru Outback',
-      locationLabel: 'Inner Sunset, 9th Ave',
-    },
-    driverLocation: { lat: 37.7641, lng: -122.4661 },
-    pickupLocation: null,
-    pickupTime: 'Monday, March 16 • 6:15 PM',
-    items: [
-      { id: 'salmon', name: 'Atlantic Salmon Fillets', availableQty: 2, unit: 'shares', unitPrice: 12.75 },
-      { id: 'broccoli', name: 'Broccoli Florets', availableQty: 6, unit: 'bags', unitPrice: 2.65 },
-      { id: 'bananas', name: 'Organic Bananas', availableQty: 8, unit: 'bundles', unitPrice: 1.4 },
-    ],
-  },
-];
-
-function toRadians(value) {
-  return (value * Math.PI) / 180;
-}
-
-/**
- * Uses the Haversine formula to estimate shopper-to-pickup distance in miles.
- */
-function getDistanceMiles(start, end) {
-  const earthRadiusMiles = 3958.8;
-  const latDelta = toRadians(end.lat - start.lat);
-  const lngDelta = toRadians(end.lng - start.lng);
-  const startLat = toRadians(start.lat);
-  const endLat = toRadians(end.lat);
-
-  const a =
-    Math.sin(latDelta / 2) * Math.sin(latDelta / 2) +
-    Math.cos(startLat) * Math.cos(endLat) * Math.sin(lngDelta / 2) * Math.sin(lngDelta / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return earthRadiusMiles * c;
-}
-
-/**
- * Trips can omit a dedicated pickup point, so the driver's area becomes the
- * fallback location for sorting and display.
- */
-function getPickupLocation(trip) {
-  if (trip.pickupLocation) {
-    return trip.pickupLocation;
-  }
-
-  return {
-    lat: trip.driverLocation.lat,
-    lng: trip.driverLocation.lng,
-    label: trip.driver.locationLabel,
-  };
-}
-
-function formatDistance(distanceMiles) {
-  return `${distanceMiles.toFixed(1)} miles away`;
-}
-
 export default function TripFeed() {
-  // The feed keeps a temporary draft quantity per item before anything is added to cart.
-  const [selectedTripId, setSelectedTripId] = useState(null);
-  const [draftQuantities, setDraftQuantities] = useState({});
-  const [cart, setCart] = useState(null);
-  const [checkoutMessage, setCheckoutMessage] = useState('');
   const { isScrolled, scrollProgress } = usePageScrollProgress();
-
-  const trips = useMemo(() => {
-    // Precompute the display location and distance once so the UI can stay focused on rendering.
-    return tripSeed
-      .map((trip) => {
-        const resolvedPickupLocation = getPickupLocation(trip);
-        const distanceMiles = getDistanceMiles(shopperLocation, resolvedPickupLocation);
-
-        return {
-          ...trip,
-          resolvedPickupLocation,
-          distanceMiles,
-        };
-      })
-      .sort((left, right) => left.distanceMiles - right.distanceMiles);
-  }, []);
-
-  const selectedTrip = trips.find((trip) => trip.id === selectedTripId) || trips[0] || null;
-
-  useEffect(() => {
-    if (!selectedTripId && trips[0]) {
-      setSelectedTripId(trips[0].id);
-    }
-  }, [selectedTripId, trips]);
-
-  useEffect(() => {
-    if (!selectedTrip) {
-      return;
-    }
-
-    // Reset the quantity inputs whenever the shopper switches to a different driver's trip.
-    setDraftQuantities((current) => {
-      const next = {};
-      selectedTrip.items.forEach((item) => {
-        next[item.id] = current[item.id] ?? 0;
-      });
-      return next;
-    });
-  }, [selectedTrip]);
-
-  const selectedQuantityCount = selectedTrip
-    ? selectedTrip.items.reduce((sum, item) => sum + (draftQuantities[item.id] || 0), 0)
-    : 0;
-
-  const cartLineCount = cart ? cart.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
-  const cartSubtotal = cart
-    ? cart.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
-    : 0;
-
-  function setItemQuantity(itemId, nextValue, maxValue) {
-    // Clamp quantities so the UI never drifts outside the current available stock.
-    const clampedValue = Math.max(0, Math.min(maxValue, nextValue));
-    setDraftQuantities((current) => ({ ...current, [itemId]: clampedValue }));
-  }
-
-  function handleAddToCart() {
-    if (!selectedTrip) {
-      return;
-    }
-
-    const chosenItems = selectedTrip.items
-      .map((item) => ({
-        ...item,
-        quantity: draftQuantities[item.id] || 0,
-      }))
-      .filter((item) => item.quantity > 0);
-
-    if (chosenItems.length === 0) {
-      setCheckoutMessage('Select at least one quantity before adding to cart.');
-      return;
-    }
-
-    // Keep the cart scoped to a single trip so checkout always refers to one pickup plan.
-    const replaceExistingTrip = cart && cart.tripId !== selectedTrip.id && cart.items.length > 0;
-
-    setCart((currentCart) => {
-      const isSameTrip = currentCart && currentCart.tripId === selectedTrip.id;
-      const mergedItems = new Map(
-        (isSameTrip ? currentCart.items : []).map((item) => [item.id, { ...item }]),
-      );
-
-      chosenItems.forEach((item) => {
-        const existingLine = mergedItems.get(item.id);
-
-        if (existingLine) {
-          existingLine.quantity = Math.min(existingLine.quantity + item.quantity, item.availableQty);
-          return;
-        }
-
-        mergedItems.set(item.id, {
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          unit: item.unit,
-        });
-      });
-
-      return {
-        tripId: selectedTrip.id,
-        driverName: selectedTrip.driver.name,
-        driverPhoto: selectedTrip.driver.photo,
-        pickupTime: selectedTrip.pickupTime,
-        pickupLabel: selectedTrip.resolvedPickupLocation.label,
-        items: Array.from(mergedItems.values()),
-      };
-    });
-
-    setDraftQuantities((current) => {
-      const next = { ...current };
-      chosenItems.forEach((item) => {
-        next[item.id] = 0;
-      });
-      return next;
-    });
-
-    if (replaceExistingTrip) {
-      setCheckoutMessage('Cart moved to this driver trip so checkout stays on one pickup plan.');
-      return;
-    }
-
-    setCheckoutMessage('Items added to cart.');
-  }
-
-  function handleCheckout() {
-    if (!cart || cart.items.length === 0) {
-      setCheckoutMessage('Your cart is empty.');
-      return;
-    }
-
-    setCheckoutMessage(`Checkout complete for ${cartLineCount} items. Pickup details saved.`);
-    setCart(null);
-  }
+  const {
+    trips,
+    selectedTrip,
+    setSelectedTripId,
+    draftQuantities,
+    selectedQuantityCount,
+    cart,
+    cartLineCount,
+    cartSubtotal,
+    checkoutMessage,
+    setItemQuantity,
+    handleAddToCart,
+    handleCheckout,
+  } = useTripFeedState();
 
   return (
     <main className="trip-feed-page">
@@ -308,7 +56,7 @@ export default function TripFeed() {
                     <img alt={`${trip.driver.name} profile`} className="driver-avatar driver-avatar-small" src={trip.driver.photo} />
                     <strong>{trip.driver.name}</strong>
                   </div>
-                  <span>{formatDistance(trip.distanceMiles)}</span>
+                  <span>{trip.distanceLabel}</span>
                 </div>
                 <p>{trip.pickupTime}</p>
                 <p>Pickup: {trip.resolvedPickupLocation.label}</p>
@@ -330,7 +78,7 @@ export default function TripFeed() {
                   />
                   <h2>{selectedTrip.driver.name}</h2>
                 </div>
-                <p>{formatDistance(selectedTrip.distanceMiles)}</p>
+                <p>{selectedTrip.distanceLabel}</p>
               </header>
 
               <div className="trip-detail-meta-grid">
@@ -418,27 +166,51 @@ export default function TripFeed() {
 
         <aside className="trip-cart-panel">
           <h2>Cart</h2>
-          {cart && cart.items.length > 0 ? (
+          {cart.length > 0 ? (
             <>
-              <div className="cart-driver-row">
-                <img alt={`${cart.driverName} profile`} className="driver-avatar driver-avatar-small" src={cart.driverPhoto} />
-                <p className="cart-trip-meta">Driver {cart.driverName}</p>
+              <div className="cart-group-list">
+                {cart.map((tripGroup) => {
+                  const tripSubtotal = tripGroup.items.reduce(
+                    (sum, item) => sum + item.quantity * item.unitPrice,
+                    0,
+                  );
+
+                  return (
+                    <section className="cart-group" key={tripGroup.tripId}>
+                      <div className="cart-driver-row">
+                        <img
+                          alt={`${tripGroup.driverName} profile`}
+                          className="driver-avatar driver-avatar-small"
+                          src={tripGroup.driverPhoto}
+                        />
+                        <p className="cart-trip-meta">Driver {tripGroup.driverName}</p>
+                      </div>
+                      <p className="cart-trip-meta">
+                        {tripGroup.pickupTime} • {tripGroup.pickupLabel}
+                      </p>
+                      <ul className="cart-list">
+                        {tripGroup.items.map((item) => (
+                          <li key={item.id}>
+                            <span>
+                              {item.name} x {item.quantity}
+                            </span>
+                            <strong>${(item.quantity * item.unitPrice).toFixed(2)}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="cart-group-total">
+                        <span>Driver subtotal</span>
+                        <strong>${tripSubtotal.toFixed(2)}</strong>
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
-              <p className="cart-trip-meta">
-                {cart.pickupTime} • {cart.pickupLabel}
-              </p>
-              <ul className="cart-list">
-                {cart.items.map((item) => (
-                  <li key={item.id}>
-                    <span>
-                      {item.name} x {item.quantity}
-                    </span>
-                    <strong>${(item.quantity * item.unitPrice).toFixed(2)}</strong>
-                  </li>
-                ))}
-              </ul>
               <div className="cart-total-row">
-                <span>Total ({cartLineCount} items)</span>
+                <span>
+                  Total ({cartLineCount} items across {cart.length}{' '}
+                  {cart.length === 1 ? 'driver' : 'drivers'})
+                </span>
                 <strong>${cartSubtotal.toFixed(2)}</strong>
               </div>
             </>

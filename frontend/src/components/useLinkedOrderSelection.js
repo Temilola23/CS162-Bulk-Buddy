@@ -170,7 +170,6 @@ export default function useLinkedOrderSelection(orders, fallbackBucket = '') {
         : orders.filter((order) => order.bucket === selection.bucket),
     [orders, selection.bucket, options.scope],
   );
-  const availableDates = useMemo(() => getUniqueDates(scopedOrders), [scopedOrders]);
   const ordersForDate = useMemo(
     () => scopedOrders.filter((order) => order.date === selection.date),
     [scopedOrders, selection.date],
@@ -244,11 +243,9 @@ export default function useLinkedOrderSelection(orders, fallbackBucket = '') {
     setActiveBucket,
     selectedDate: selection.date,
     setSelectedDate,
-    activeOrderId: selection.orderId,
     setActiveOrderId,
     activeOrderIndex,
     setActiveOrderIndex,
-    availableDates,
     ordersForDate,
     activeOrder,
   };

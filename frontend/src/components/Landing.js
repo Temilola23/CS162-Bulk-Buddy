@@ -1,151 +1,40 @@
-import { useEffect, useRef, useState } from 'react';
 import HeaderScrollProgress from './HeaderScrollProgress';
 import usePageScrollProgress from './usePageScrollProgress';
+import { howItWorksSteps, landingSlides } from '../data/landingContent';
+import useLandingCarousel from '../hooks/useLandingCarousel';
 import './Landing.css';
-
-// Static slide content keeps the landing hero easy to adjust without touching
-// the carousel behavior itself.
-const slides = [
-  {
-    image: '/images/carousel1.jpg',
-    imageAlt: 'Friends sharing a grocery run plan',
-    tag: 'For shoppers without cars',
-    title: 'Split bulk groceries. Save more together.',
-    description:
-      "Connect with drivers already heading to Costco or Sam's Club, claim only what you need, and meet at a nearby pickup point that actually works for your week.",
-    primaryLabel: 'Get Started',
-    primaryHref: '/register',
-    secondaryLabel: 'How it works',
-    secondaryHref: '#how-it-works',
-  },
-  {
-    image: '/images/carousel2.jpg',
-    imageAlt: 'Rows of groceries inside a warehouse store',
-    tag: 'Plan smarter grocery hauls',
-    title: 'Browse shareable warehouse items before checkout.',
-    description:
-      'See what is being purchased, claim only your portion, and avoid overbuying giant packs that do not fit your week or budget.',
-    primaryLabel: 'Browse Nearby Trips',
-    primaryHref: '/trip-feed',
-    secondaryLabel: 'See claim flow',
-    secondaryHref: '#how-it-works',
-  },
-  {
-    image: '/images/carousel3.jpg',
-    imageAlt: 'People collecting grocery orders at pickup',
-    tag: 'Fast and clear pickup',
-    title: 'Meet once, collect quickly, and head home.',
-    description:
-      'Track claim status updates and pickup windows so everyone knows exactly when orders are ready and where to meet.',
-    primaryLabel: 'Start Claiming Shares',
-    primaryHref: '/register',
-    secondaryLabel: 'Review pickup steps',
-    secondaryHref: '#how-it-works',
-  },
-];
-
-// These cards mirror the copy shown beneath the landing hero.
-const howItWorksSteps = [
-  {
-    title: "Drivers post store trips",
-    description:
-      'Verified drivers publish trip time, pickup location, and item shares so nearby shoppers can join.',
-  },
-  {
-    title: 'Shoppers claim portions of bulk items',
-    description:
-      'Choose from the driver’s listed items, claim only what you need, and what is available.',
-  },
-  {
-    title: 'Meet at pickup location and pay your share',
-    description:
-      'Track claim status updates, then collect your groceries at the agreed spot and settle your portion.',
-  },
-];
 
 // const faqItems = [
 //   {
-//     question: 'How do payments work?',
+//     question: '*************',
 //     answer:
-//       'In V1, shoppers and drivers coordinate payment directly at pickup. You can still see claim status updates before meeting.',
+//       '*************',
 //   },
 //   {
-//     question: 'Can I request items not listed in the trip?',
+//     question: '*************',
 //     answer:
-//       'No. Shoppers can claim only from the driver’s predefined item list so quantities stay clear and overselling is prevented.',
+//       '*************',
 //   },
 //   {
-//     question: 'What if I miss the pickup window?',
+//     question: '*************',
 //     answer:
-//       'Use trip notes and status updates to coordinate quickly with the driver. Pickup details remain visible in your orders view.',
+//       '*************',
 //   },
 // ];
 
 export default function Landing() {
-  const [activeSlide, setActiveSlide] = useState(0);
   const { isScrolled, scrollProgress } = usePageScrollProgress();
+  const {
+    activeSlide,
+    setActiveSlide,
+    goToPreviousSlide,
+    goToNextSlide,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  } = useLandingCarousel(landingSlides.length);
   const currentYear = new Date().getFullYear();
-  const swipeStart = useRef(null);
-  const swipeCurrent = useRef(null);
-
-  useEffect(() => {
-    // Auto-advance the hero so the landing page continues to feel active.
-    const slideTimer = setInterval(() => {
-      setActiveSlide((current) => (current + 1) % slides.length);
-    }, 6000);
-
-    return () => clearInterval(slideTimer);
-  }, []);
-
-  const currentSlide = slides[activeSlide];
-
-  function goToPreviousSlide() {
-    setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
-  }
-
-  function goToNextSlide() {
-    setActiveSlide((current) => (current + 1) % slides.length);
-  }
-
-  function handleTouchStart(event) {
-    // Track the first touch point so mobile users can swipe through slides.
-    const touch = event.touches[0];
-    swipeStart.current = { x: touch.clientX, y: touch.clientY };
-    swipeCurrent.current = { x: touch.clientX, y: touch.clientY };
-  }
-
-  function handleTouchMove(event) {
-    if (!swipeStart.current) {
-      return;
-    }
-
-    const touch = event.touches[0];
-    swipeCurrent.current = { x: touch.clientX, y: touch.clientY };
-  }
-
-  function handleTouchEnd() {
-    if (!swipeStart.current || !swipeCurrent.current) {
-      swipeStart.current = null;
-      swipeCurrent.current = null;
-      return;
-    }
-
-    const deltaX = swipeStart.current.x - swipeCurrent.current.x;
-    const deltaY = swipeStart.current.y - swipeCurrent.current.y;
-    const swipeThreshold = 45;
-
-    // Only treat the gesture as a slide change when the movement is mostly horizontal.
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
-      if (deltaX > 0) {
-        goToNextSlide();
-      } else {
-        goToPreviousSlide();
-      }
-    }
-
-    swipeStart.current = null;
-    swipeCurrent.current = null;
-  }
+  const currentSlide = landingSlides[activeSlide];
 
   return (
     <div className="landing">
@@ -185,7 +74,7 @@ export default function Landing() {
       >
         {/* Translate the whole slide track instead of mounting/unmounting each slide. */}
         <div className="landing-main-track" style={{ transform: `translateX(-${activeSlide * 100}%)` }}>
-          {slides.map((slide) => (
+          {landingSlides.map((slide) => (
             <article
               aria-label={slide.imageAlt}
               className="landing-slide"
@@ -250,7 +139,7 @@ export default function Landing() {
         </section>
 
         <div aria-label="Carousel navigation" className="landing-indicators" role="tablist">
-          {slides.map((slide, index) => (
+          {landingSlides.map((slide, index) => (
             <button
               aria-label={`Show slide ${index + 1}`}
               aria-selected={activeSlide === index}

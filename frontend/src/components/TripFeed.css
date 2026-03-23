@@ -296,6 +296,19 @@
   align-content: start;
 }
 
+.cart-group-list {
+  display: grid;
+  gap: 14px;
+  margin: 8px 0 12px;
+}
+
+.cart-group {
+  border-radius: 16px;
+  border: 1px solid rgba(77, 33, 106, 0.14);
+  background: rgba(77, 33, 106, 0.04);
+  padding: 12px;
+}
+
 .cart-driver-row {
   display: inline-flex;
   align-items: center;
@@ -324,7 +337,7 @@
 
 .cart-list {
   list-style: none;
-  margin: 8px 0 12px;
+  margin: 8px 0 10px;
   padding: 0;
   display: grid;
   gap: 8px;
@@ -356,6 +369,16 @@
   align-items: center;
   justify-content: space-between;
   color: #331949;
+}
+
+.cart-group-total {
+  border-top: 1px solid rgba(77, 33, 106, 0.14);
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #4d216a;
+  font-weight: 700;
 }
 
 .cart-empty {

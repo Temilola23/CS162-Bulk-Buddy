@@ -1,49 +1,11 @@
-import { useState } from 'react';
 import ShopperHeader from './ShopperHeader';
 import usePageScrollProgress from './usePageScrollProgress';
-import { shopperProfile } from '../data/shopperProfile';
+import useSettingsForm from '../hooks/useSettingsForm';
 import './Settings.css';
-
-// Seed the settings page from the shared shopper profile so the prototype
-// starts with the same account details shown elsewhere in the app.
-function getInitialSettings() {
-  return {
-    displayName: shopperProfile.name,
-    email: shopperProfile.email,
-    nearbyRadius: shopperProfile.nearbyRadius,
-    address: shopperProfile.address,
-    orderUpdates: true,
-    pickupReminders: true,
-    driverMessages: true,
-    newTripsNearby: false,
-  };
-}
 
 export default function Settings() {
   const { isScrolled, scrollProgress } = usePageScrollProgress();
-  const [settings, setSettings] = useState(getInitialSettings);
-  const [saveMessage, setSaveMessage] = useState('');
-
-  function handleInputChange(event) {
-    const { name, value, type, checked } = event.target;
-
-    // One handler covers text fields, selects, and checkboxes by switching on
-    // the native input type rather than splitting the form into many setters.
-    setSettings((current) => ({
-      ...current,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-
-    // Clear the optimistic save message as soon as the form becomes dirty again.
-    setSaveMessage('');
-  }
-
-  function handleSave(event) {
-    event.preventDefault();
-
-    // Settings stay local for now because the prototype still has no backend.
-    setSaveMessage('Changes saved locally.');
-  }
+  const { settings, saveMessage, handleInputChange, handleSave } = useSettingsForm();
 
   return (
     <main className="settings-page">

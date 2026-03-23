@@ -1,8 +1,13 @@
-import { useMemo, useState } from 'react';
 import ShopperHeader from './ShopperHeader';
-import useLinkedOrderSelection from './useLinkedOrderSelection';
 import usePageScrollProgress from './usePageScrollProgress';
-import { shopperOrders, tripRules } from '../data/shopperOrders';
+import useTripDetailState from '../hooks/useTripDetailState';
+import { statusSteps, tripRules } from '../data/shopperOrders';
+import { formatCalendarDate } from '../utils/dateFormatting';
+import {
+  formatStatus,
+  getStatusMarkerPosition,
+  getStatusProgress,
+} from '../utils/orderStatus';
 import './TripDetail.css';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -10,44 +15,8 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const calendarDateFormatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'long',
-  month: 'long',
-  day: 'numeric',
-});
-
-// Keep per-order draft claim quantities separate so switching between linked
-// orders does not overwrite the shopper's in-progress edits.
-function getInitialQuantitiesByOrder() {
-  return shopperOrders.reduce((orderAccumulator, order) => {
-    orderAccumulator[order.id] = order.items.reduce((itemAccumulator, item) => {
-      itemAccumulator[item.id] = item.defaultQuantity;
-      return itemAccumulator;
-    }, {});
-
-    return orderAccumulator;
-  }, {});
-}
-
-// Past orders start as completed in the mock state, while active ones start
-// at the picked-up step for the summary slider.
-function getInitialClaimStates() {
-  return shopperOrders.reduce((accumulator, order) => {
-    accumulator[order.id] = order.bucket === 'past' ? 'completed' : 'picked-up';
-    return accumulator;
-  }, {});
-}
-
 function formatShareCount(count) {
   return `${count} ${count === 1 ? 'share' : 'shares'}`;
-}
-
-function formatCalendarDate(dateValue) {
-  if (!dateValue) {
-    return 'Choose a date';
-  }
-
-  return calendarDateFormatter.format(new Date(`${dateValue}T12:00:00`));
 }
 
 function ChevronIcon() {
@@ -74,61 +43,15 @@ export default function TripDetail() {
     setActiveOrderId,
     setActiveOrderIndex,
     ordersForDate,
-  } = useLinkedOrderSelection(shopperOrders, { scope: 'all' });
-  const [quantitiesByOrder, setQuantitiesByOrder] = useState(getInitialQuantitiesByOrder);
-  const [claimStatesByOrder, setClaimStatesByOrder] = useState(getInitialClaimStates);
-  const activeClaimState = activeOrder ? claimStatesByOrder[activeOrder.id] || 'picked-up' : null;
-  const canViewPreviousOrder = activeOrderIndex > 0;
-  const canViewNextOrder = activeOrderIndex < ordersForDate.length - 1;
-
-  const summary = useMemo(() => {
-    if (!activeOrder) {
-      return { totalQuantity: 0, subtotal: 0 };
-    }
-
-    // Recompute the summary from the draft quantities for the currently linked order.
-    const activeQuantities = quantitiesByOrder[activeOrder.id] || {};
-
-    return activeOrder.items.reduce(
-      (accumulator, item) => {
-        const selectedQuantity = activeQuantities[item.id] || 0;
-
-        accumulator.totalQuantity += selectedQuantity;
-        accumulator.subtotal += selectedQuantity * item.pricePerShare;
-
-        return accumulator;
-      },
-      { totalQuantity: 0, subtotal: 0 },
-    );
-  }, [activeOrder, quantitiesByOrder]);
-
-  function updateQuantity(itemId, nextQuantity, maxQuantity) {
-    if (!activeOrder) {
-      return;
-    }
-
-    // Prevent over-claiming beyond the currently available share count.
-    const boundedQuantity = Math.max(0, Math.min(maxQuantity, nextQuantity));
-
-    setQuantitiesByOrder((current) => ({
-      ...current,
-      [activeOrder.id]: {
-        ...current[activeOrder.id],
-        [itemId]: boundedQuantity,
-      },
-    }));
-  }
-
-  function updateClaimState(nextState) {
-    if (!activeOrder) {
-      return;
-    }
-
-    setClaimStatesByOrder((current) => ({
-      ...current,
-      [activeOrder.id]: nextState,
-    }));
-  }
+    quantitiesByOrder,
+    activeClaimState,
+    canViewPreviousOrder,
+    canViewNextOrder,
+    summary,
+    orderStatusStepIndex,
+    updateQuantity,
+    updateClaimState,
+  } = useTripDetailState();
 
   return (
     <main className="trip-detail-page">
@@ -146,6 +69,47 @@ export default function TripDetail() {
           saved on that day.
         </p>
       </section>
+
+      {activeOrder ? (
+        <section className="trip-detail-status-overview" aria-label="Order status">
+          <div className="trip-detail-status-overview-head">
+            <p className="trip-detail-status-kicker">Order status</p>
+            <span className="trip-detail-status-pill">
+              Current: {formatStatus(orderStatusStepIndex)}
+            </span>
+          </div>
+
+          <div className="trip-detail-status-track" role="list">
+            {statusSteps.map((step, index) => (
+              <span
+                className={`trip-detail-status-step ${
+                  index <= orderStatusStepIndex ? 'is-reached' : ''
+                } ${index === orderStatusStepIndex ? 'is-current' : ''}`.trim()}
+                key={step}
+                role="listitem"
+              >
+                {step}
+              </span>
+            ))}
+          </div>
+
+          <div aria-hidden="true" className="trip-detail-status-line">
+            <span
+              className="trip-detail-status-line-fill"
+              style={{ width: getStatusProgress(orderStatusStepIndex) }}
+            />
+            {statusSteps.map((step, index) => (
+              <span
+                className={`trip-detail-status-line-marker ${
+                  index <= orderStatusStepIndex ? 'is-reached' : ''
+                } ${index === orderStatusStepIndex ? 'is-current' : ''}`.trim()}
+                key={step}
+                style={{ left: getStatusMarkerPosition(index) }}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="trip-detail-calendar-panel" aria-label="Order calendar">
         <div className="trip-detail-calendar-copy">
@@ -212,7 +176,6 @@ export default function TripDetail() {
 
       {activeOrder ? (
         <>
-          {/* Once a linked order is resolved, the rest of the page is just a detailed view of that order. */}
           <section className="trip-detail-meta-grid" aria-label="Trip overview">
             <article className="trip-detail-meta-card">
               <p className="trip-detail-meta-label">Pickup</p>
@@ -285,9 +248,7 @@ export default function TripDetail() {
                             aria-label={`Decrease quantity for ${item.name}`}
                             className="trip-detail-stepper-button"
                             disabled={selectedQuantity === 0}
-                            onClick={() =>
-                              updateQuantity(item.id, selectedQuantity - 1, available)
-                            }
+                            onClick={() => updateQuantity(item.id, selectedQuantity - 1, available)}
                             type="button"
                           >
                             -
@@ -297,9 +258,7 @@ export default function TripDetail() {
                             aria-label={`Increase quantity for ${item.name}`}
                             className="trip-detail-stepper-button"
                             disabled={selectedQuantity >= available}
-                            onClick={() =>
-                              updateQuantity(item.id, selectedQuantity + 1, available)
-                            }
+                            onClick={() => updateQuantity(item.id, selectedQuantity + 1, available)}
                             type="button"
                           >
                             +

@@ -1,37 +1,17 @@
-import { useState } from 'react';
 import ShopperHeader from './ShopperHeader';
 import usePageScrollProgress from './usePageScrollProgress';
 import { shopperProfile } from '../data/shopperProfile';
+import useDriverApplicationForm from '../hooks/useDriverApplicationForm';
 import './Profile.css';
-
-function getInitialApplicationForm() {
-  return {
-    licenseNumber: '',
-    expirationDate: '',
-  };
-}
 
 export default function Profile() {
   const { isScrolled, scrollProgress } = usePageScrollProgress();
-  const [applicationForm, setApplicationForm] = useState(getInitialApplicationForm);
-  const [applicationSubmitted, setApplicationSubmitted] = useState(false);
-
-  function handleFieldChange(event) {
-    const { name, value } = event.target;
-
-    setApplicationForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  }
-
-  function handleApplicationSubmit(event) {
-    event.preventDefault();
-
-    // The first view stays editable. Once submitted, the card flips into the
-    // pending-review state so Post Trip remains visibly locked.
-    setApplicationSubmitted(true);
-  }
+  const {
+    applicationForm,
+    applicationSubmitted,
+    handleFieldChange,
+    handleApplicationSubmit,
+  } = useDriverApplicationForm();
 
   return (
     <main className="profile-page">

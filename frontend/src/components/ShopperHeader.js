@@ -1,41 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
 import HeaderScrollProgress from './HeaderScrollProgress';
-import { shopperOrders } from '../data/shopperOrders';
 import { shopperProfile } from '../data/shopperProfile';
-import { getLinkedOrderHref } from './useLinkedOrderSelection';
+import useShopperHeaderState from '../hooks/useShopperHeaderState';
 import './ShopperHeader.css';
 
 export default function ShopperHeader({ activePage, isScrolled, scrollProgress }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const profileMenuRef = useRef(null);
-  // Build order-aware links on each render so navigating between shopper pages
-  // keeps the currently selected date and order aligned.
-  const navItems = [
-    { id: 'trip-feed', label: 'Trip Feed', href: '/trip-feed' },
-    {
-      id: 'my-orders',
-      label: 'My Orders',
-      href: getLinkedOrderHref('/my-orders', shopperOrders, 'upcoming'),
-    },
-    {
-      id: 'trip-detail',
-      label: 'Trip Detail',
-      href: getLinkedOrderHref('/trip-detail', shopperOrders, { scope: 'all' }),
-    },
-  ];
-
-  useEffect(() => {
-    function handlePointerDown(event) {
-      // Close the profile menu when the next click happens outside the menu shell.
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
-        setMenuOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handlePointerDown);
-
-    return () => document.removeEventListener('mousedown', handlePointerDown);
-  }, []);
+  const { menuOpen, profileMenuRef, navItems, toggleMenu } = useShopperHeaderState();
 
   return (
     <header className={`shopper-header ${isScrolled ? 'is-scrolled' : ''}`.trim()}>
@@ -62,7 +31,7 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
             aria-expanded={menuOpen}
             aria-haspopup="menu"
             className={`shopper-profile-trigger ${menuOpen ? 'is-open' : ''}`.trim()}
-            onClick={() => setMenuOpen((current) => !current)}
+            onClick={toggleMenu}
             type="button"
           >
             <span aria-hidden="true" className="shopper-profile-avatar">

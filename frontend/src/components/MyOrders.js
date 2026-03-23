@@ -1,34 +1,11 @@
 import ShopperHeader from './ShopperHeader';
-import useLinkedOrderSelection, { buildLinkedOrderHref } from './useLinkedOrderSelection';
+import { buildLinkedOrderHref } from './useLinkedOrderSelection';
 import usePageScrollProgress from './usePageScrollProgress';
-import { shopperOrders, statusSteps } from '../data/shopperOrders';
+import { statusSteps } from '../data/shopperOrders';
+import useMyOrdersState from '../hooks/useMyOrdersState';
+import { formatCalendarDate } from '../utils/dateFormatting';
+import { formatStatus, getStatusMarkerPosition, getStatusProgress } from '../utils/orderStatus';
 import './MyOrders.css';
-
-const calendarDateFormatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'long',
-  month: 'long',
-  day: 'numeric',
-});
-
-function formatStatus(stepIndex) {
-  return statusSteps[stepIndex].toUpperCase();
-}
-
-function formatCalendarDate(dateValue) {
-  if (!dateValue) {
-    return 'Choose a date';
-  }
-
-  return calendarDateFormatter.format(new Date(`${dateValue}T12:00:00`));
-}
-
-function getStatusProgress(stepIndex) {
-  return `${((stepIndex + 1) / statusSteps.length) * 100}%`;
-}
-
-function getStatusMarkerPosition(stepIndex) {
-  return `${((stepIndex + 1) / statusSteps.length) * 100}%`;
-}
 
 function ChevronIcon() {
   return (
@@ -57,10 +34,10 @@ export default function MyOrders() {
     setActiveOrderId,
     setActiveOrderIndex,
     ordersForDate,
-  } = useLinkedOrderSelection(shopperOrders, 'upcoming');
-  // The day switcher behaves like a small carousel over the orders on the chosen date.
-  const canViewPreviousOrder = activeOrderIndex > 0;
-  const canViewNextOrder = activeOrderIndex < ordersForDate.length - 1;
+    canViewPreviousOrder,
+    canViewNextOrder,
+    orderStatusStepIndex,
+  } = useMyOrdersState();
 
   return (
     <main className="my-orders-page">
@@ -179,6 +156,42 @@ export default function MyOrders() {
               </a>
             </div>
 
+            <div className="order-group-status">
+              <span className="order-item-status-pill">
+                Current: {formatStatus(orderStatusStepIndex)}
+              </span>
+
+              <div className="order-status-track" role="list">
+                {statusSteps.map((step, index) => (
+                  <span
+                    className={`order-status-step ${
+                      index <= orderStatusStepIndex ? 'is-reached' : ''
+                    } ${index === orderStatusStepIndex ? 'is-current' : ''}`.trim()}
+                    key={step}
+                    role="listitem"
+                  >
+                    {step}
+                  </span>
+                ))}
+              </div>
+
+              <div aria-hidden="true" className="order-status-line">
+                <span
+                  className="order-status-line-fill"
+                  style={{ width: getStatusProgress(orderStatusStepIndex) }}
+                />
+                {statusSteps.map((step, index) => (
+                  <span
+                    className={`order-status-line-marker ${
+                      index <= orderStatusStepIndex ? 'is-reached' : ''
+                    } ${index === orderStatusStepIndex ? 'is-current' : ''}`.trim()}
+                    key={step}
+                    style={{ left: getStatusMarkerPosition(index) }}
+                  />
+                ))}
+              </div>
+            </div>
+
             <div className="order-item-list">
               {activeOrder.items.map((item) => (
                 <article className="order-item-card" key={item.id}>
@@ -187,40 +200,6 @@ export default function MyOrders() {
                       <h3>{item.name}</h3>
                       <p>{item.quantityLabel}</p>
                     </div>
-                    <span className="order-item-status-pill">
-                      Current: {formatStatus(item.currentStep)}
-                    </span>
-                  </div>
-
-                  <div className="order-status-track" role="list">
-                    {statusSteps.map((step, index) => (
-                      <span
-                        className={`order-status-step ${
-                          index <= item.currentStep ? 'is-reached' : ''
-                        } ${index === item.currentStep ? 'is-current' : ''}`.trim()}
-                        key={step}
-                        role="listitem"
-                      >
-                        {step}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div aria-hidden="true" className="order-status-line">
-                    {/* The progress line mirrors the status pills with a continuous fill. */}
-                    <span
-                      className="order-status-line-fill"
-                      style={{ width: getStatusProgress(item.currentStep) }}
-                    />
-                    {statusSteps.map((step, index) => (
-                      <span
-                        className={`order-status-line-marker ${
-                          index <= item.currentStep ? 'is-reached' : ''
-                        } ${index === item.currentStep ? 'is-current' : ''}`.trim()}
-                        key={step}
-                        style={{ left: getStatusMarkerPosition(index) }}
-                      />
-                    ))}
                   </div>
                 </article>
               ))}
