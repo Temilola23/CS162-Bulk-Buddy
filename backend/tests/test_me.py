@@ -240,7 +240,9 @@ class TestMyOrdersRoutes:
         assert len(response.json["orders"]) == 1
         assert response.json["orders"][0]["shopper_id"] == shopper_id
         assert (
-            response.json["orders"][0]["trip"]["driver"]["email"] == driver_email
+            response.json["orders"][0]["trip"]["driver"]["email"] == (
+                driver_email
+            )
         )
 
     def test_create_order_success(self, client, app):
