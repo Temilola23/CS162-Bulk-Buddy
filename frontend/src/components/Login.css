@@ -105,6 +105,18 @@
   cursor: pointer;
 }
 
+.login-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.login-error-message {
+  margin: -4px 0 0;
+  color: #b42318;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .login-switch {
   margin: 10px 0 0;
   color: #5f5370;

@@ -49,6 +49,8 @@ export default function TripDetail() {
     canViewNextOrder,
     summary,
     orderStatusStepIndex,
+    isOrdersLoading,
+    ordersError,
     updateQuantity,
     updateClaimState,
   } = useTripDetailPageState();
@@ -70,7 +72,21 @@ export default function TripDetail() {
         </p>
       </section>
 
-      {activeOrder ? (
+      {isOrdersLoading ? (
+        <section className="trip-detail-empty-state">
+          <h2>Loading orders</h2>
+          <p>Fetching your trip details.</p>
+        </section>
+      ) : null}
+
+      {ordersError ? (
+        <section className="trip-detail-empty-state">
+          <h2>Unable to load trip detail</h2>
+          <p>{ordersError}</p>
+        </section>
+      ) : null}
+
+      {!isOrdersLoading && !ordersError && activeOrder ? (
         <section className="trip-detail-status-overview" aria-label="Order status">
           <div className="trip-detail-status-overview-head">
             <p className="trip-detail-status-kicker">Order status</p>
@@ -174,7 +190,7 @@ export default function TripDetail() {
         </button>
       </section>
 
-      {activeOrder ? (
+      {!isOrdersLoading && !ordersError && activeOrder ? (
         <>
           <section className="trip-detail-meta-grid" aria-label="Trip overview">
             <article className="trip-detail-meta-card">
@@ -333,12 +349,12 @@ export default function TripDetail() {
             </aside>
           </section>
         </>
-      ) : (
+      ) : !isOrdersLoading && !ordersError ? (
         <section className="trip-detail-empty-state">
           <h2>No orders on this date</h2>
           <p>Choose another day from the calendar to load the order tabs and trip details.</p>
         </section>
-      )}
+      ) : null}
     </main>
   );
 }

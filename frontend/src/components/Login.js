@@ -1,8 +1,8 @@
-import usePrototypeAuthRedirect from '../hooks/usePrototypeAuthRedirect';
+import useLoginForm from '../hooks/useLoginForm';
 import './Login.css';
 
 export default function Login() {
-  const handleSubmit = usePrototypeAuthRedirect('/trip-feed');
+  const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useLoginForm('/trip-feed');
 
   return (
     <main className="login-page">
@@ -21,16 +21,30 @@ export default function Login() {
         <form className="login-form" onSubmit={handleSubmit}>
           <label>
             <span>Email</span>
-            <input placeholder="Enter your email" type="text" />
+            <input
+              name="email"
+              onChange={handleFieldChange}
+              placeholder="Enter your email"
+              type="email"
+              value={form.email}
+            />
           </label>
 
           <label>
             <span>Password</span>
-            <input placeholder="Enter your password" type="password" />
+            <input
+              name="password"
+              onChange={handleFieldChange}
+              placeholder="Enter your password"
+              type="password"
+              value={form.password}
+            />
           </label>
 
-          <button className="login-submit" type="submit">
-            Log in
+          {errorMessage ? <p className="login-error-message">{errorMessage}</p> : null}
+
+          <button className="login-submit" disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Logging in...' : 'Log in'}
           </button>
         </form>
 

@@ -31,7 +31,7 @@ def list_open():
     """
     trips = get_open_trips()
     return (
-        jsonify({"trips": [t.to_dict() for t in trips]}),
+        jsonify({"trips": [t.to_dict(include_driver=True) for t in trips]}),
         200,
     )
 
@@ -57,7 +57,7 @@ def get_one(trip_id):
         return jsonify({"message": "Trip not found"}), 404
 
     return (
-        jsonify({"trip": trip_obj.to_dict(include_items=True)}),
+        jsonify({"trip": trip_obj.to_dict(include_items=True, include_driver=True)}),
         200,
     )
 

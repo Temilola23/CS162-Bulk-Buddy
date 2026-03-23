@@ -1,4 +1,4 @@
-const BASE_API_URL = 'http://localhost:5000';
+const BASE_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 /**
  * HTTP client for communicating with the Backend API.
@@ -6,7 +6,7 @@ const BASE_API_URL = 'http://localhost:5000';
  */
 export default class ApiClient {
   constructor() {
-    this.base_url =  BASE_API_URL + '/api';
+    this.base_url = `${BASE_API_URL}/api`;
   }
 
   /**
@@ -27,33 +27,48 @@ export default class ApiClient {
 
     let response;
     try {
+      const headers = {
+        Accept: 'application/json',
+        ...options.headers,
+      };
+
+      if (options.body !== undefined && options.body !== null) {
+        headers['Content-Type'] = 'application/json';
+      }
+
       response = await fetch(this.base_url + options.url + query, {
         method: options.method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...options.headers,
-        },
+        headers,
         credentials: 'include',
         body: options.body ? JSON.stringify(options.body) : null,
       });
     }
     catch (error) {
-      response = {
+      return {
         ok: false,
         status: 500,
-        json: async () => { return {
-          code: 500,
+        body: {
           message: 'The server is unresponsive',
           description: error.toString(),
-        }; }
+        },
       };
+    }
+
+    let body = null;
+    if (response.status !== 204) {
+      const contentType = response.headers?.get?.('content-type') || '';
+      if (contentType.includes('application/json')) {
+        body = await response.json();
+      } else {
+        const text = await response.text();
+        body = text ? { message: text } : null;
+      }
     }
 
     return {
       ok: response.ok,
       status: response.status,
-      body: response.status !== 204 ? await response.json() : null
+      body,
     };
   }
 

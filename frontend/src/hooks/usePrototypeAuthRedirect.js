@@ -1,15 +1,6 @@
-import { useCallback } from 'react';
-import { markAuthLoaderRequested } from './useAppLoader';
+import useLoginForm from './useLoginForm';
 
 export default function usePrototypeAuthRedirect(redirectPath = '/trip-feed') {
-  return useCallback(
-    (event) => {
-      event.preventDefault();
-
-      // Keep the prototype auth flow consistent across forms until real auth exists.
-      markAuthLoaderRequested();
-      window.location.assign(redirectPath);
-    },
-    [redirectPath],
-  );
+  // Keep the legacy import name working while the forms move onto the real API-backed flow.
+  return useLoginForm(redirectPath).handleSubmit;
 }

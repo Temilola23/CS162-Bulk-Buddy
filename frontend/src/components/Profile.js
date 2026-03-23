@@ -1,17 +1,23 @@
 import ShopperHeader from './ShopperHeader';
-import { shopperProfile } from '../data/shopperProfile';
+import { useSession } from '../contexts/SessionProvider';
 import useProfilePageState from '../hooks/useProfilePageState';
+import { getProfileFromUser } from '../utils/profileAdapters';
 import './Profile.css';
 
 export default function Profile() {
+  const { currentUser } = useSession();
   const {
     isScrolled,
     scrollProgress,
     applicationForm,
     applicationSubmitted,
+    submittedApplicationDetails,
+    errorMessage,
+    isSubmitting,
     handleFieldChange,
     handleApplicationSubmit,
   } = useProfilePageState();
+  const profile = getProfileFromUser(currentUser);
 
   return (
     <main className="profile-page">
@@ -47,27 +53,27 @@ export default function Profile() {
         <article className="profile-card profile-details-card">
           <div className="profile-identity">
             <span aria-hidden="true" className="profile-avatar">
-              {shopperProfile.initials}
+              {profile?.initials || 'BB'}
             </span>
 
             <div className="profile-identity-copy">
-              <h2>{shopperProfile.name}</h2>
-              <p>Role: {shopperProfile.role}</p>
+              <h2>{profile?.name || 'Bulk Buddy user'}</h2>
+              <p>Role: {profile?.role || 'Shopper'}</p>
             </div>
           </div>
 
           <dl className="profile-details-list">
             <div>
               <dt>Email</dt>
-              <dd>{shopperProfile.email}</dd>
+              <dd>{profile?.email || 'No email loaded'}</dd>
             </div>
             <div>
               <dt>Address</dt>
-              <dd>{shopperProfile.address}</dd>
+              <dd>{profile?.address || 'No address loaded'}</dd>
             </div>
             <div>
               <dt>Nearby radius</dt>
-              <dd>{shopperProfile.nearbyRadius}</dd>
+              <dd>{profile?.nearbyRadius || '5 miles'}</dd>
             </div>
           </dl>
 
@@ -97,11 +103,11 @@ export default function Profile() {
               <dl className="profile-application-summary">
                 <div>
                   <dt>License number</dt>
-                  <dd>{applicationForm.licenseNumber}</dd>
+                  <dd>{submittedApplicationDetails.licenseNumber || 'Not available'}</dd>
                 </div>
                 <div>
                   <dt>Expiration date</dt>
-                  <dd>{applicationForm.expirationDate}</dd>
+                  <dd>{submittedApplicationDetails.expirationDate || 'Not available'}</dd>
                 </div>
               </dl>
             </div>
@@ -140,8 +146,10 @@ export default function Profile() {
                 </label>
               </div>
 
-              <button className="profile-primary-action" type="submit">
-                Submit driver application
+              {errorMessage ? <p className="register-error-message">{errorMessage}</p> : null}
+
+              <button className="profile-primary-action" disabled={isSubmitting} type="submit">
+                {isSubmitting ? 'Submitting...' : 'Submit driver application'}
               </button>
             </form>
           )}

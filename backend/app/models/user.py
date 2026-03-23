@@ -89,5 +89,48 @@ class User(UserMixin, db.Model):
         """Override UserMixin to use user_id instead of id."""
         return str(self.user_id)
 
+    @property
+    def full_name(self):
+        """Return the user's display name."""
+        return f"{self.first_name} {self.last_name}".strip()
+
+    def to_public_dict(self):
+        """
+        Return the subset of user fields safe to expose in shared payloads.
+
+        Returns:
+            dict: Public user identity fields used by trip and order responses.
+        """
+        return {
+            "user_id": self.user_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "full_name": self.full_name,
+            "email": self.email,
+            "role": self.role.value,
+        }
+
+    def to_dict(self):
+        """
+        Convert this User to a JSON-serializable dictionary.
+
+        Returns:
+            dict: User identity, role, address, and coordinate fields.
+        """
+        return {
+            "user_id": self.user_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "full_name": self.full_name,
+            "email": self.email,
+            "role": self.role.value,
+            "address_street": self.address_street,
+            "address_city": self.address_city,
+            "address_state": self.address_state,
+            "address_zip": self.address_zip,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+        }
+
     def __repr__(self):
         return f"<User {self.user_id} {self.email} ({self.role})>"

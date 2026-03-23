@@ -60,6 +60,22 @@ class DriverApplication(db.Model):
     # Relationships
     user = db.relationship("User", back_populates="driver_applications")
 
+    def to_dict(self):
+        """
+        Convert this DriverApplication to a JSON-serializable dictionary.
+
+        Returns:
+            dict: Application identity, status, license info, and timestamps.
+        """
+        return {
+            "driver_application_id": self.driver_application_id,
+            "user_id": self.user_id,
+            "status": self.status.value,
+            "license_info": self.license_info,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
     def __repr__(self):
         return (
             f"<DriverApplication {self.driver_application_id} "

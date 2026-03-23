@@ -72,6 +72,37 @@ class Order(db.Model):
         cascade="all, delete-orphan",
     )
 
+    def to_dict(self, include_trip=False, include_order_items=False):
+        """
+        Convert this Order to a JSON-serializable dictionary.
+
+        Args:
+            include_trip (bool): When True, includes nested trip data with driver.
+            include_order_items (bool): When True, includes nested claimed items.
+
+        Returns:
+            dict: Order identity, status, and timestamp fields.
+        """
+        data = {
+            "order_id": self.order_id,
+            "shopper_id": self.shopper_id,
+            "trip_id": self.trip_id,
+            "status": self.status.value,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+        if include_trip and self.trip:
+            data["trip"] = self.trip.to_dict(
+                include_items=True,
+                include_driver=True,
+            )
+        if include_order_items:
+            data["order_items"] = [
+                order_item.to_dict(include_item=True)
+                for order_item in self.order_items
+            ]
+        return data
+
     def __repr__(self):
         return (
             f"<Order {self.order_id} by User {self.shopper_id} "

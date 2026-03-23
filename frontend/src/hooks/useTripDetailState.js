@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useLinkedOrderSelection from '../components/useLinkedOrderSelection';
-import { shopperOrders } from '../data/shopperOrders';
+import { useApi } from '../contexts/ApiProvider';
 import { getOrderStatusStepIndex } from '../utils/orderStatus';
+import useShopperOrdersData from './useShopperOrdersData';
 
-function getInitialQuantitiesByOrder() {
-  return shopperOrders.reduce((orderAccumulator, order) => {
+function getInitialQuantitiesByOrder(orders) {
+  return orders.reduce((orderAccumulator, order) => {
     orderAccumulator[order.id] = order.items.reduce((itemAccumulator, item) => {
       itemAccumulator[item.id] = item.defaultQuantity;
       return itemAccumulator;
@@ -14,23 +15,40 @@ function getInitialQuantitiesByOrder() {
   }, {});
 }
 
-function getInitialClaimStates() {
-  return shopperOrders.reduce((accumulator, order) => {
+function getInitialClaimStates(orders) {
+  return orders.reduce((accumulator, order) => {
     accumulator[order.id] = order.bucket === 'past' ? 'completed' : 'picked-up';
     return accumulator;
   }, {});
 }
 
 export default function useTripDetailState() {
+  const api = useApi();
+  const { orders, isOrdersLoading, ordersError } = useShopperOrdersData();
   // Trip Detail can browse across all linked orders, not just one bucket.
-  const selection = useLinkedOrderSelection(shopperOrders, { scope: 'all' });
-  const [quantitiesByOrder, setQuantitiesByOrder] = useState(getInitialQuantitiesByOrder);
-  const [claimStatesByOrder, setClaimStatesByOrder] = useState(getInitialClaimStates);
+  const selection = useLinkedOrderSelection(orders, { scope: 'all' });
+  const [quantitiesByOrder, setQuantitiesByOrder] = useState({});
+  const [claimStatesByOrder, setClaimStatesByOrder] = useState({});
   const activeOrder = selection.activeOrder;
   const activeClaimState = activeOrder ? claimStatesByOrder[activeOrder.id] || 'picked-up' : null;
   const canViewPreviousOrder = selection.activeOrderIndex > 0;
   const canViewNextOrder = selection.activeOrderIndex < selection.ordersForDate.length - 1;
   const orderStatusStepIndex = getOrderStatusStepIndex(activeOrder);
+
+  useEffect(() => {
+    if (!orders.length) {
+      return;
+    }
+
+    setQuantitiesByOrder((current) => ({
+      ...getInitialQuantitiesByOrder(orders),
+      ...current,
+    }));
+    setClaimStatesByOrder((current) => ({
+      ...getInitialClaimStates(orders),
+      ...current,
+    }));
+  }, [orders]);
 
   const summary = useMemo(() => {
     if (!activeOrder) {
@@ -69,7 +87,7 @@ export default function useTripDetailState() {
     }));
   }
 
-  function updateClaimState(nextState) {
+  async function updateClaimState(nextState) {
     if (!activeOrder) {
       return;
     }
@@ -79,10 +97,17 @@ export default function useTripDetailState() {
       ...current,
       [activeOrder.id]: nextState,
     }));
+
+    if (nextState === 'completed') {
+      await api.patch(`/me/orders/${activeOrder.orderId}/complete`);
+    }
   }
 
   return {
     ...selection,
+    orders,
+    isOrdersLoading,
+    ordersError,
     quantitiesByOrder,
     activeClaimState,
     canViewPreviousOrder,

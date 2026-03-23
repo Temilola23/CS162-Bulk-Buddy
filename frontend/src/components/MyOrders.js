@@ -37,6 +37,8 @@ export default function MyOrders() {
     canViewPreviousOrder,
     canViewNextOrder,
     orderStatusStepIndex,
+    isOrdersLoading,
+    ordersError,
   } = useMyOrdersPageState();
 
   return (
@@ -141,7 +143,21 @@ export default function MyOrders() {
       </section>
 
       <section className="my-orders-group-list">
-        {activeOrder ? (
+        {isOrdersLoading ? (
+          <article className="my-orders-empty-state">
+            <h2>Loading orders</h2>
+            <p>Fetching your latest order history.</p>
+          </article>
+        ) : null}
+
+        {!isOrdersLoading && ordersError ? (
+          <article className="my-orders-empty-state">
+            <h2>Unable to load orders</h2>
+            <p>{ordersError}</p>
+          </article>
+        ) : null}
+
+        {!isOrdersLoading && !ordersError && activeOrder ? (
           <article className="order-group-card" key={activeOrder.id}>
             <div className="order-group-header">
               <div>
@@ -205,12 +221,12 @@ export default function MyOrders() {
               ))}
             </div>
           </article>
-        ) : (
+        ) : !isOrdersLoading && !ordersError ? (
           <article className="my-orders-empty-state">
             <h2>No orders on this date</h2>
             <p>Choose another day to review your orders and their item statuses.</p>
           </article>
-        )}
+        ) : null}
       </section>
     </main>
   );
