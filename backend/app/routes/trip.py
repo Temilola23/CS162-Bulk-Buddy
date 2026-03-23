@@ -57,9 +57,9 @@ def get_one(trip_id):
         return jsonify({"message": "Trip not found"}), 404
 
     return (
-        jsonify({"trip": trip_obj.to_dict(
-            include_items=True, include_driver=True
-        )}),
+        jsonify(
+            {"trip": trip_obj.to_dict(include_items=True, include_driver=True)}
+        ),
         200,
     )
 
