@@ -91,6 +91,17 @@ export default class ApiClient {
   }
 
   /**
+   * Execute a PATCH request.
+   * @param {string} url - API endpoint path
+   * @param {Object} [body] - Request body
+   * @param {Object} [options] - Additional request options
+   * @returns {Promise<{ok: boolean, status: number, body: Object|null}>}
+   */
+  async patch(url, body, options) {
+    return this.request({method: 'PATCH', url, body, ...options});
+  }
+
+  /**
    * Execute a DELETE request.
    * @param {string} url - API endpoint path
    * @param {Object} [options] - Additional request options
