@@ -1,11 +1,10 @@
 import ShopperHeader from './ShopperHeader';
-import usePageScrollProgress from './usePageScrollProgress';
-import useSettingsForm from '../hooks/useSettingsForm';
+import useSettingsPageState from '../hooks/useSettingsPageState';
 import './Settings.css';
 
 export default function Settings() {
-  const { isScrolled, scrollProgress } = usePageScrollProgress();
-  const { settings, saveMessage, handleInputChange, handleSave } = useSettingsForm();
+  const { isScrolled, scrollProgress, settings, saveMessage, handleInputChange, handleSave } =
+    useSettingsPageState();
 
   return (
     <main className="settings-page">

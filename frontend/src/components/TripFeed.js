@@ -1,11 +1,11 @@
 import ShopperHeader from './ShopperHeader';
-import usePageScrollProgress from './usePageScrollProgress';
-import useTripFeedState from '../hooks/useTripFeedState';
+import useTripFeedPageState from '../hooks/useTripFeedPageState';
 import './TripFeed.css';
 
 export default function TripFeed() {
-  const { isScrolled, scrollProgress } = usePageScrollProgress();
   const {
+    isScrolled,
+    scrollProgress,
     trips,
     selectedTrip,
     setSelectedTripId,
@@ -18,7 +18,7 @@ export default function TripFeed() {
     setItemQuantity,
     handleAddToCart,
     handleCheckout,
-  } = useTripFeedState();
+  } = useTripFeedPageState();
 
   return (
     <main className="trip-feed-page">

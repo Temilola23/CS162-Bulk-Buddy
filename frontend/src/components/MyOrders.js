@@ -1,8 +1,7 @@
 import ShopperHeader from './ShopperHeader';
 import { buildLinkedOrderHref } from './useLinkedOrderSelection';
-import usePageScrollProgress from './usePageScrollProgress';
 import { statusSteps } from '../data/shopperOrders';
-import useMyOrdersState from '../hooks/useMyOrdersState';
+import useMyOrdersPageState from '../hooks/useMyOrdersPageState';
 import { formatCalendarDate } from '../utils/dateFormatting';
 import { formatStatus, getStatusMarkerPosition, getStatusProgress } from '../utils/orderStatus';
 import './MyOrders.css';
@@ -22,8 +21,9 @@ function ChevronIcon() {
 }
 
 export default function MyOrders() {
-  const { isScrolled, scrollProgress } = usePageScrollProgress();
   const {
+    isScrolled,
+    scrollProgress,
     selection,
     activeBucket,
     setActiveBucket,
@@ -37,7 +37,7 @@ export default function MyOrders() {
     canViewPreviousOrder,
     canViewNextOrder,
     orderStatusStepIndex,
-  } = useMyOrdersState();
+  } = useMyOrdersPageState();
 
   return (
     <main className="my-orders-page">

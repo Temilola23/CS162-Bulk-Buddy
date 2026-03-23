@@ -1,14 +1,8 @@
-import { markAuthLoaderRequested } from '../hooks/useAppLoader';
+import usePrototypeAuthRedirect from '../hooks/usePrototypeAuthRedirect';
 import './Register.css';
 
 export default function Register() {
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    markAuthLoaderRequested();
-    // Temporary auth flow: any submission routes into the shopper UI.
-    window.location.assign('/trip-feed');
-  }
+  const handleSubmit = usePrototypeAuthRedirect('/trip-feed');
 
   return (
     <main className="register-page">

@@ -1,17 +1,17 @@
 import ShopperHeader from './ShopperHeader';
-import usePageScrollProgress from './usePageScrollProgress';
 import { shopperProfile } from '../data/shopperProfile';
-import useDriverApplicationForm from '../hooks/useDriverApplicationForm';
+import useProfilePageState from '../hooks/useProfilePageState';
 import './Profile.css';
 
 export default function Profile() {
-  const { isScrolled, scrollProgress } = usePageScrollProgress();
   const {
+    isScrolled,
+    scrollProgress,
     applicationForm,
     applicationSubmitted,
     handleFieldChange,
     handleApplicationSubmit,
-  } = useDriverApplicationForm();
+  } = useProfilePageState();
 
   return (
     <main className="profile-page">

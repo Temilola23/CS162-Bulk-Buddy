@@ -1,7 +1,6 @@
 import HeaderScrollProgress from './HeaderScrollProgress';
-import usePageScrollProgress from './usePageScrollProgress';
 import { howItWorksSteps, landingSlides } from '../data/landingContent';
-import useLandingCarousel from '../hooks/useLandingCarousel';
+import useLandingPageState from '../hooks/useLandingPageState';
 import './Landing.css';
 
 // const faqItems = [
@@ -23,8 +22,9 @@ import './Landing.css';
 // ];
 
 export default function Landing() {
-  const { isScrolled, scrollProgress } = usePageScrollProgress();
   const {
+    isScrolled,
+    scrollProgress,
     activeSlide,
     setActiveSlide,
     goToPreviousSlide,
@@ -32,9 +32,9 @@ export default function Landing() {
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
-  } = useLandingCarousel(landingSlides.length);
-  const currentYear = new Date().getFullYear();
-  const currentSlide = landingSlides[activeSlide];
+    currentYear,
+    currentSlide,
+  } = useLandingPageState();
 
   return (
     <div className="landing">

@@ -1,6 +1,5 @@
 import ShopperHeader from './ShopperHeader';
-import usePageScrollProgress from './usePageScrollProgress';
-import useTripDetailState from '../hooks/useTripDetailState';
+import useTripDetailPageState from '../hooks/useTripDetailPageState';
 import { statusSteps, tripRules } from '../data/shopperOrders';
 import { formatCalendarDate } from '../utils/dateFormatting';
 import {
@@ -34,8 +33,9 @@ function ChevronIcon() {
 }
 
 export default function TripDetail() {
-  const { isScrolled, scrollProgress } = usePageScrollProgress();
   const {
+    isScrolled,
+    scrollProgress,
     selectedDate,
     setSelectedDate,
     activeOrder,
@@ -51,7 +51,7 @@ export default function TripDetail() {
     orderStatusStepIndex,
     updateQuantity,
     updateClaimState,
-  } = useTripDetailState();
+  } = useTripDetailPageState();
 
   return (
     <main className="trip-detail-page">
