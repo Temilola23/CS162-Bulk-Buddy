@@ -2,6 +2,7 @@ import pytest
 from app import create_app
 from app.extensions import db
 from app.models import User
+from app.models.enums import UserRole
 from werkzeug.security import generate_password_hash
 
 
@@ -71,5 +72,42 @@ def auth_client(client, test_user):
     client.post(
         "/api/login",
         json={"email": test_user["email"], "password": test_user["password"]},
+    )
+    return client
+
+
+@pytest.fixture
+def admin_user(app):
+    """Create an admin user for admin flows."""
+    with app.app_context():
+        admin = User(
+            first_name="Admin",
+            last_name="User",
+            email="admin@example.com",
+            password_hash=generate_password_hash("adminpass"),
+            role=UserRole.ADMIN,
+            address_street="1 admin way",
+            address_city="Adminville",
+            address_state="CA",
+            address_zip="99999",
+        )
+        db.session.add(admin)
+        db.session.commit()
+        return {
+            "user_id": admin.user_id,
+            "email": admin.email,
+            "password": "adminpass",
+        }
+
+
+@pytest.fixture
+def admin_client(client, admin_user):
+    """Client authenticated as an admin."""
+    client.post(
+        "/api/login",
+        json={
+            "email": admin_user["email"],
+            "password": admin_user["password"],
+        },
     )
     return client

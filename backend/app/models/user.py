@@ -89,5 +89,15 @@ class User(UserMixin, db.Model):
         """Override UserMixin to use user_id instead of id."""
         return str(self.user_id)
 
+    @property
+    def is_admin(self):
+        """
+        Check if the user has admin privileges.
+
+        Returns:
+            bool: True if user role is ADMIN, False otherwise.
+        """
+        return self.role == UserRole.ADMIN
+
     def __repr__(self):
         return f"<User {self.user_id} {self.email} ({self.role})>"
