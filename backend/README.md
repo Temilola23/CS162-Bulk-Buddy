@@ -55,11 +55,25 @@ when the Flask app starts for the first time.
 
 ## Running Locally
 
-*TBD -- will be added when API routes are implemented.*
+```bash
+cd backend
+source .venv/bin/activate
+flask run --port 5001
+```
+
+The API will be available at `http://127.0.0.1:5001`. Port 5001 is used
+because macOS AirPlay occupies port 5000.
+
+To run both frontend and backend together, use the dev script from the
+project root:
+
+```bash
+bash scripts/dev.sh
+```
 
 ## Testing
 
 ```bash
 cd backend
-pytest
+python3 -m pytest tests/ -v --tb=short
 ```
