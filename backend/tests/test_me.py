@@ -90,12 +90,14 @@ class TestGetMeRoute:
     """Tests for GET /api/me."""
 
     def test_get_me_requires_login(self, client):
+        """Unauthenticated requests should return 401."""
         response = client.get("/api/me")
 
         assert response.status_code == 401
         assert response.json["message"] == "Unauthorized"
 
     def test_get_me_returns_user_and_latest_application(self, client, app):
+        """The route should return the user and most recent application."""
         with app.app_context():
             shopper = _make_shopper(db, email="me@example.com")
             db.session.add(
@@ -130,11 +132,13 @@ class TestUpdateMeRoute:
     """Tests for PUT /api/me."""
 
     def test_update_me_requires_login(self, client):
+        """Unauthenticated profile updates should return 401."""
         response = client.put("/api/me", json={"display_name": "New Name"})
 
         assert response.status_code == 401
 
     def test_update_me_success(self, client, app):
+        """Authenticated shoppers can update editable profile fields."""
         with app.app_context():
             shopper = _make_shopper(db, email="update@example.com")
             _login(client, shopper.email)
@@ -157,6 +161,7 @@ class TestUpdateMeRoute:
         assert response.json["user"]["address_city"] == "San Francisco"
 
     def test_update_me_rejects_blank_display_name(self, client, app):
+        """Blank display names should fail validation."""
         with app.app_context():
             shopper = _make_shopper(db, email="blank-name@example.com")
             _login(client, shopper.email)
@@ -170,6 +175,7 @@ class TestUpdateMeRoute:
         assert response.json["message"] == "display_name required"
 
     def test_update_me_rejects_duplicate_email(self, client, app):
+        """Updating to another user's email should return 409."""
         with app.app_context():
             shopper = _make_shopper(db, email="first@example.com")
             _make_shopper(db, email="second@example.com")
@@ -184,6 +190,7 @@ class TestUpdateMeRoute:
         assert response.json["message"] == "user already exists"
 
     def test_update_me_rejects_empty_required_profile_field(self, client, app):
+        """Empty required address fields should be rejected."""
         with app.app_context():
             shopper = _make_shopper(db, email="profile-fields@example.com")
             _login(client, shopper.email)
@@ -201,6 +208,7 @@ class TestMyOrdersRoutes:
     """Tests for /api/me/orders routes."""
 
     def test_list_orders_requires_login(self, client):
+        """Unauthenticated order history requests should return 401."""
         response = client.get("/api/me/orders")
 
         assert response.status_code == 401
@@ -208,6 +216,7 @@ class TestMyOrdersRoutes:
     def test_list_orders_returns_only_current_shopper_orders(
         self, client, app
     ):
+        """Order history should only include the logged-in shopper's orders."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="orders@example.com")
@@ -244,6 +253,7 @@ class TestMyOrdersRoutes:
         )
 
     def test_create_order_success(self, client, app):
+        """A shopper can create an order against an open trip."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="checkout@example.com")
@@ -272,12 +282,14 @@ class TestMyOrdersRoutes:
             assert updated_item.claimed_quantity == 2
 
     def test_create_order_requires_trip_and_items(self, auth_client):
+        """Checkout should fail when trip_id or items are missing."""
         response = auth_client.post("/api/me/orders", json={})
 
         assert response.status_code == 400
         assert response.json["message"] == "trip_id and items are required"
 
     def test_create_order_rejects_missing_trip(self, auth_client):
+        """Orders against unknown trips should return 404."""
         response = auth_client.post(
             "/api/me/orders",
             json={"trip_id": 9999, "items": [{"item_id": 1, "quantity": 1}]},
@@ -287,6 +299,7 @@ class TestMyOrdersRoutes:
         assert response.json["message"] == "Trip not found"
 
     def test_create_order_rejects_closed_trip(self, client, app):
+        """Shoppers cannot place orders on trips that are no longer open."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="closed-trip@example.com")
@@ -309,6 +322,7 @@ class TestMyOrdersRoutes:
         assert response.json["message"] == "Trip is not accepting claims"
 
     def test_create_order_rejects_missing_item_fields(self, client, app):
+        """Each claimed item must include both item_id and quantity."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="missing-item@example.com")
@@ -328,6 +342,7 @@ class TestMyOrdersRoutes:
         )
 
     def test_create_order_rejects_non_integer_quantity(self, client, app):
+        """Item quantities must be parseable integers."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="bad-quantity@example.com")
@@ -348,6 +363,7 @@ class TestMyOrdersRoutes:
         assert response.json["message"] == "quantity must be an integer"
 
     def test_create_order_rejects_non_positive_quantity(self, client, app):
+        """Item quantities must be greater than zero."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="zero-quantity@example.com")
@@ -368,6 +384,7 @@ class TestMyOrdersRoutes:
         assert response.json["message"] == "quantity must be greater than zero"
 
     def test_create_order_rejects_item_on_other_trip(self, client, app):
+        """Claimed items must belong to the selected trip."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="wrong-trip-item@example.com")
@@ -393,6 +410,7 @@ class TestMyOrdersRoutes:
         assert response.json["message"] == "Item does not belong to this trip"
 
     def test_create_order_rejects_oversell(self, client, app):
+        """Claims above available inventory should return 409."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="oversell@example.com")
@@ -415,6 +433,7 @@ class TestMyOrdersRoutes:
         assert "Not enough quantity available" in response.json["message"]
 
     def test_complete_order_success(self, client, app):
+        """A shopper can mark one of their own orders as completed."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="complete@example.com")
@@ -431,17 +450,20 @@ class TestMyOrdersRoutes:
         assert response.json["order"]["status"] == "completed"
 
     def test_complete_order_requires_login(self, client):
+        """Unauthenticated completion requests should return 401."""
         response = client.patch("/api/me/orders/1/complete")
 
         assert response.status_code == 401
 
     def test_complete_order_rejects_missing_order(self, auth_client):
+        """Completing an unknown order should return 404."""
         response = auth_client.patch("/api/me/orders/9999/complete")
 
         assert response.status_code == 404
         assert response.json["message"] == "Order not found"
 
     def test_complete_order_rejects_other_shopper(self, client, app):
+        """Shoppers cannot complete orders that belong to other users."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="owner@example.com")
@@ -461,6 +483,7 @@ class TestMyOrdersRoutes:
         )
 
     def test_complete_order_rejects_cancelled_order(self, client, app):
+        """Cancelled orders cannot transition to completed."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="cancelled@example.com")
@@ -483,6 +506,7 @@ class TestMyOrdersRoutes:
     def test_complete_order_is_idempotent_for_completed_order(
         self, client, app
     ):
+        """Completing an already completed order should remain a no-op."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="completed@example.com")
@@ -507,6 +531,7 @@ class TestUserService:
     """Direct service tests for branches not reachable through routes."""
 
     def test_get_current_user_profile_rejects_missing_user(self, app):
+        """Missing users should return a 404 tuple from the service."""
         with app.app_context():
             payload, error, status = get_current_user_profile(9999)
 
@@ -515,6 +540,7 @@ class TestUserService:
         assert status == 404
 
     def test_update_current_user_profile_rejects_missing_user(self, app):
+        """Profile updates for missing users should return a 404 tuple."""
         with app.app_context():
             payload, error, status = update_current_user_profile(9999, {})
 

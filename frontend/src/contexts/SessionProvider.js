@@ -5,6 +5,8 @@ const SessionContext = createContext(undefined);
 const SESSION_STORAGE_KEY = 'bulk-buddy-session';
 
 function readStoredSession() {
+  // Reuse the last successful session snapshot during full-page navigations so
+  // the shopper header does not briefly fall back to placeholder content.
   try {
     return JSON.parse(window.sessionStorage.getItem(SESSION_STORAGE_KEY) || 'null');
   } catch (error) {
@@ -41,6 +43,8 @@ export function SessionProvider({ children }) {
       return null;
     }
 
+    // Keep React state and the lightweight browser cache in sync so reloads
+    // can paint the last known user immediately while /api/me refreshes.
     const nextUser = response.body?.user || null;
     const nextDriverApplication = response.body?.driver_application || null;
     setCurrentUser(nextUser);

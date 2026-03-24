@@ -26,6 +26,8 @@ function getStatusStepIndexFromApiStatus(status) {
 }
 
 function getBucketFromOrder(tripPickupTime, status) {
+  // Completed orders always belong in history, and any pickup window that is
+  // already in the past should render under the "Past" bucket as well.
   if (status === 'completed' || new Date(tripPickupTime).getTime() < Date.now()) {
     return 'past';
   }
@@ -40,6 +42,8 @@ export function mapApiOrdersToUi(orders, shopperLocation) {
     const pickupDate = new Date(trip.pickup_time);
     const pickupLabel = trip.pickup_location_text;
     const driverName = trip.driver?.full_name || 'Bulk Buddy Driver';
+    // Distance is recomputed client-side so the order pages can keep the same
+    // proximity language the trip feed uses even though orders are historical.
     const distanceLabel = formatDistance(
       getDistanceMiles(shopperLocation, {
         lat: trip.pickup_lat ?? 37.7599,
@@ -86,6 +90,8 @@ export function mapApiOrdersToUi(orders, shopperLocation) {
         status: trip.status ? trip.status[0].toUpperCase() + trip.status.slice(1) : 'Open',
       },
       note: 'Coordinate final pickup timing with your driver before arrival.',
+      // Order responses include the original trip items plus the shopper's
+      // claimed quantities, so the UI rebuilds a per-item summary here.
       items: (trip.items || []).map((item) => ({
         id: String(item.item_id),
         name: item.name,

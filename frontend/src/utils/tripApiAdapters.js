@@ -4,6 +4,8 @@ import { buildSortedTrips, formatDistance, getDistanceMiles } from './tripFeed';
 const DEFAULT_DRIVER_VEHICLE = 'Verified Bulk Buddy driver';
 
 export function getShopperLocationFromUser(user, fallbackLocation) {
+  // The backend may not have geocoded coordinates for every seeded user yet,
+  // so distance-based sorting falls back to the prototype shopper location.
   if (user?.latitude !== null && user?.latitude !== undefined && user?.longitude !== null && user?.longitude !== undefined) {
     return {
       label: user.address_street || fallbackLocation.label,
@@ -24,6 +26,8 @@ export function mapApiTripToUi(trip) {
     driver: {
       name: driverName,
       photo: createAvatarImage(driverName),
+      // Vehicle/rating are not modeled by the backend yet, so the frontend
+      // keeps a stable placeholder until those fields exist server-side.
       rating: 5,
       vehicle: DEFAULT_DRIVER_VEHICLE,
       locationLabel: trip.pickup_location_text,

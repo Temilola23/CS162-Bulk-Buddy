@@ -34,6 +34,8 @@ export default function useShopperOrdersData() {
 
       if (!response.ok) {
         if (response.status === 401) {
+          // Full-page redirects keep the lightweight pathname routing model
+          // consistent with the rest of the prototype app.
           window.location.assign('/login');
           return;
         }
@@ -44,6 +46,8 @@ export default function useShopperOrdersData() {
         return;
       }
 
+      // Backend order payloads are normalized into the UI shape once here so
+      // My Orders and Trip Detail can stay mostly presentational.
       setOrders(mapApiOrdersToUi(response.body?.orders || [], shopperLocationForOrders));
       setOrdersError('');
       setIsOrdersLoading(false);
