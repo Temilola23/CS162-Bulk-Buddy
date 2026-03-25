@@ -54,6 +54,27 @@ class OrderItem(db.Model):
     order = db.relationship("Order", back_populates="order_items")
     item = db.relationship("Item", back_populates="order_items")
 
+    def to_dict(self, include_item=False):
+        """
+        Convert this OrderItem to a JSON-serializable dictionary.
+
+        Args:
+            include_item (bool): When True, includes the nested item dict.
+
+        Returns:
+            dict: Order-item identity and quantity fields.
+        """
+        data = {
+            "order_item_id": self.order_item_id,
+            "order_id": self.order_id,
+            "item_id": self.item_id,
+            "quantity": self.quantity,
+            "created_at": self.created_at.isoformat(),
+        }
+        if include_item and self.item:
+            data["item"] = self.item.to_dict()
+        return data
+
     def __repr__(self):
         return (
             f"<OrderItem {self.order_item_id} "

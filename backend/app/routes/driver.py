@@ -8,6 +8,16 @@ driver = Blueprint("driver", __name__, url_prefix="/api/driver")
 @driver.route("/apply", methods=["POST"])
 @login_required
 def apply():
+    """
+    Submit a driver application for the authenticated user.
+
+    Expects a JSON body containing ``license_info``. The actual validation
+    and duplicate-pending checks are handled in ``create_driver_application``.
+
+    Returns:
+        Response: JSON ``{"message": ...}`` with HTTP 201 on success, or an
+            error payload when the application cannot be created.
+    """
     data = request.get_json() or {}
     license_info = data.get("license_info")
 

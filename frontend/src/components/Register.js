@@ -1,11 +1,8 @@
+import useRegisterForm from '../hooks/useRegisterForm';
 import './Register.css';
 
 export default function Register() {
-  function handleSubmit(event) {
-    event.preventDefault();
-    // Temporary auth flow: any submission routes into the shopper UI.
-    window.location.assign('/trip-feed');
-  }
+  const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useRegisterForm('/trip-feed');
 
   return (
     <main className="register-page">
@@ -22,32 +19,54 @@ export default function Register() {
         </p>
 
         <form className="register-form" onSubmit={handleSubmit}>
+          <div className="register-grid">
+            <label>
+              <span>
+                First name <span aria-hidden="true" className="required-asterisk">*</span>
+              </span>
+              <input name="firstName" onChange={handleFieldChange} placeholder="First name" value={form.firstName} />
+            </label>
+
+            <label>
+              <span>
+                Last name <span aria-hidden="true" className="required-asterisk">*</span>
+              </span>
+              <input name="lastName" onChange={handleFieldChange} placeholder="Last name" value={form.lastName} />
+            </label>
+          </div>
+
           <label>
             <span>
               Email <span aria-hidden="true" className="required-asterisk">*</span>
             </span>
-            <input placeholder="Enter your email" type="text" />
+            <input name="email" onChange={handleFieldChange} placeholder="Enter your email" type="email" value={form.email} />
           </label>
 
           <label>
             <span>
               Password <span aria-hidden="true" className="required-asterisk">*</span>
             </span>
-            <input placeholder="Create a password" type="password" />
+            <input name="password" onChange={handleFieldChange} placeholder="Create a password" type="password" value={form.password} />
           </label>
 
           <label>
             <span>
               Confirm password <span aria-hidden="true" className="required-asterisk">*</span>
             </span>
-            <input placeholder="Re-enter your password" type="password" />
+            <input
+              name="confirmPassword"
+              onChange={handleFieldChange}
+              placeholder="Re-enter your password"
+              type="password"
+              value={form.confirmPassword}
+            />
           </label>
 
           <label>
             <span>
               Street address <span aria-hidden="true" className="required-asterisk">*</span>
             </span>
-            <input placeholder="Enter your street address" />
+            <input name="addressStreet" onChange={handleFieldChange} placeholder="Enter your street address" value={form.addressStreet} />
           </label>
 
           <div className="register-grid">
@@ -55,14 +74,14 @@ export default function Register() {
               <span>
                 City <span aria-hidden="true" className="required-asterisk">*</span>
               </span>
-              <input placeholder="City" />
+              <input name="addressCity" onChange={handleFieldChange} placeholder="City" value={form.addressCity} />
             </label>
 
             <label>
               <span>
                 State <span aria-hidden="true" className="required-asterisk">*</span>
               </span>
-              <input placeholder="State" />
+              <input name="addressState" onChange={handleFieldChange} placeholder="State" value={form.addressState} />
             </label>
           </div>
 
@@ -70,7 +89,7 @@ export default function Register() {
             <span>
               ZIP code <span aria-hidden="true" className="required-asterisk">*</span>
             </span>
-            <input placeholder="ZIP code" />
+            <input name="addressZip" onChange={handleFieldChange} placeholder="ZIP code" value={form.addressZip} />
           </label>
 
           <p className="register-helper">
@@ -78,8 +97,10 @@ export default function Register() {
             Settings.
           </p>
 
-          <button className="register-submit" type="submit">
-            Sign up
+          {errorMessage ? <p className="register-error-message">{errorMessage}</p> : null}
+
+          <button className="register-submit" disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Signing up...' : 'Sign up'}
           </button>
         </form>
 

@@ -7,7 +7,16 @@ auth = Blueprint("auth", __name__, url_prefix="/api")
 
 @auth.route("/login", methods=["POST"])
 def login():
-    """Authenticate user with email/password and create session."""
+    """
+    Authenticate a user and create a login session.
+
+    Expects a JSON body with ``email`` and ``password``. The optional
+    ``remember`` flag extends the session lifetime.
+
+    Returns:
+        Response: JSON ``{"message": ...}`` with HTTP 200 on success, or an
+            error payload when credentials are invalid.
+    """
     data = request.get_json() or {}
     email = data.get("email")
     password = data.get("password")
@@ -24,7 +33,16 @@ def login():
 
 @auth.route("/signup", methods=["POST"])
 def signup():
-    """Register a new user account with email and password."""
+    """
+    Register a new user account.
+
+    Expects the required identity, credential, and address fields used by
+    ``register_user`` to create the shopper account.
+
+    Returns:
+        Response: JSON ``{"message": ...}`` with HTTP 201 on success, or an
+            error payload when validation or uniqueness checks fail.
+    """
     data = request.get_json() or {}
     email = data.get("email")
     password = data.get("password")
@@ -54,7 +72,13 @@ def signup():
 @auth.route("/logout", methods=["POST"])
 @login_required  # Returns 401 if no valid session
 def logout():
-    """End the current user's session."""
+    """
+    End the authenticated user's session.
+
+    Returns:
+        Response: JSON ``{"message": ...}`` with HTTP 200 on success, or an
+            error payload when logout fails unexpectedly.
+    """
     _, error, status = auth_service.logout_current_user()
     if error:
         return jsonify({"message": error}), status

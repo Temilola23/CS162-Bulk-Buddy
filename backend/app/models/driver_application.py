@@ -62,20 +62,10 @@ class DriverApplication(db.Model):
 
     def to_dict(self):
         """
-        Convert the application to a JSON-serializable dictionary.
-
-        Args:
-            None.
+        Convert this DriverApplication to a JSON-serializable dictionary.
 
         Returns:
-            dict: Dictionary with keys:
-                - driver_application_id (int): Application ID.
-                - user_id (int): User ID.
-                - status (str): Application status
-                  (PENDING, APPROVED, REJECTED).
-                - license_info (str or None): License information if provided.
-                - created_at (str): ISO format creation timestamp.
-                - updated_at (str): ISO format last-modified timestamp.
+            dict: Application identity, status, license info, and timestamps.
         """
         return {
             "driver_application_id": self.driver_application_id,

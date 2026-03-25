@@ -3,6 +3,7 @@ from sqlalchemy import event
 from app.extensions import db
 from app.routes.auth import auth
 from app.routes.driver import driver
+from app.routes.me import me
 from app.routes.trip import trip
 from app.routes.admin import admin
 from flask import Flask, jsonify
@@ -55,6 +56,7 @@ def create_app(test_config=None):
 
         @event.listens_for(db.engine, "connect")
         def set_sqlite_pragma(dbapi_conn, connection_record):
+            """Enable SQLite foreign-key enforcement for each connection."""
             cursor = dbapi_conn.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
@@ -68,6 +70,7 @@ def create_app(test_config=None):
 
     @login_manager.unauthorized_handler
     def unauthorized():
+        """Return a JSON 401 response for unauthorized requests."""
         return jsonify({"message": "Unauthorized"}), 401
 
     # User loader function for flask login
@@ -75,17 +78,20 @@ def create_app(test_config=None):
 
     @login_manager.user_loader
     def load_user(user_id):
+        """Load the logged-in user instance from the session user id."""
         return db.session.get(User, int(user_id))
 
     # Register blueprints
     app.register_blueprint(auth)
     app.register_blueprint(driver)
+    app.register_blueprint(me)
     app.register_blueprint(trip)
     app.register_blueprint(admin)
 
     # Add security headers to all responses
     @app.after_request
     def add_security_headers(response):
+        """Attach basic security headers to every outgoing response."""
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -94,6 +100,7 @@ def create_app(test_config=None):
     # app health checks
     @app.route("/health")
     def health():
+        """Return a simple health-check response for the running app."""
         return jsonify({"message": "App is running"})
 
     # Error handlers
@@ -107,14 +114,17 @@ def create_app(test_config=None):
 
     @app.errorhandler(404)
     def not_found(error):
+        """Return a JSON 404 payload for unmatched routes."""
         return jsonify({"message": "Not found"}), 404
 
     @app.errorhandler(405)
     def method_not_allowed(error):
+        """Return a JSON 405 payload for unsupported HTTP methods."""
         return jsonify({"message": "Method not allowed"}), 405
 
     @app.errorhandler(500)
     def server_error(error):
+        """Return a JSON 500 payload for unhandled server errors."""
         return jsonify({"message": "Internal server error"}), 500
 
     return app
