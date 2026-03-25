@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import useLinkedOrderSelection from '../components/useLinkedOrderSelection';
+import useLinkedOrderSelection from './useLinkedOrderSelection';
 import { useApi } from '../contexts/ApiProvider';
 import { getOrderStatusStepIndex } from '../utils/orderStatus';
 import useShopperOrdersData from './useShopperOrdersData';

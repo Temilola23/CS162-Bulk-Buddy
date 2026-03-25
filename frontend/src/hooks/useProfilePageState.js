@@ -1,4 +1,4 @@
-import usePageScrollProgress from '../components/usePageScrollProgress';
+import usePageScrollProgress from './usePageScrollProgress';
 import useDriverApplicationForm from './useDriverApplicationForm';
 
 export default function useProfilePageState() {

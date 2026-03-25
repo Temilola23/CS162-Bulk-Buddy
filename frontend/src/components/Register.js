@@ -1,8 +1,14 @@
 import useRegisterForm from '../hooks/useRegisterForm';
+import usePostAuthRedirect from '../hooks/usePostAuthRedirect';
 import './Register.css';
 
 export default function Register() {
-  const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useRegisterForm('/trip-feed');
+  // Preserve any pending protected-route destination if the shopper switches
+  // from login to register before authenticating.
+  const { redirectPath, authQueryString } = usePostAuthRedirect('/trip-feed');
+  const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useRegisterForm(
+    redirectPath,
+  );
 
   return (
     <main className="register-page">
@@ -105,7 +111,7 @@ export default function Register() {
         </form>
 
         <p className="register-switch">
-          Already have an account? <a href="/login">Log in</a>
+          Already have an account? <a href={`/login${authQueryString}`}>Log in</a>
         </p>
       </section>
     </main>

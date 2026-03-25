@@ -1,4 +1,4 @@
-import usePageScrollProgress from '../components/usePageScrollProgress';
+import usePageScrollProgress from './usePageScrollProgress';
 import useSettingsForm from './useSettingsForm';
 
 export default function useSettingsPageState() {
