@@ -99,6 +99,7 @@ class User(UserMixin, db.Model):
         """
         return self.role == UserRole.ADMIN
 
+    @property
     def full_name(self):
         """Return the user's display name."""
         return f"{self.first_name} {self.last_name}".strip()
