@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { shopperLocation, tripSeed } from '../data/tripFeedData';
+import { useApi } from '../contexts/ApiProvider';
+import { useSession } from '../contexts/SessionProvider';
+import { shopperLocation } from '../data/tripFeedData';
+import { getShopperLocationFromUser, mapApiTripsToUi } from '../utils/tripApiAdapters';
 import {
   buildChosenItems,
-  buildSortedTrips,
   enrichCartGroups,
   getCartLineCount,
   getCartSubtotal,
@@ -12,14 +14,59 @@ import {
 } from '../utils/tripFeed';
 
 export default function useTripFeedState() {
+  const api = useApi();
+  const { currentUser, isSessionLoading } = useSession();
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [draftQuantities, setDraftQuantities] = useState({});
   const [cartGroups, setCartGroups] = useState([]);
   const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [trips, setTrips] = useState([]);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const [isTripsLoading, setIsTripsLoading] = useState(true);
+  const [tripFeedError, setTripFeedError] = useState('');
 
-  // Sort once from the mock seed so the nearest trips stay stable during the session.
-  const trips = useMemo(() => buildSortedTrips(tripSeed, shopperLocation), []);
-  const selectedTrip = trips.find((trip) => trip.id === selectedTripId) || trips[0] || null;
+  const shopperLocationForTrips = useMemo(
+    () => getShopperLocationFromUser(currentUser, shopperLocation),
+    [currentUser],
+  );
+
+  useEffect(() => {
+    async function fetchTrips() {
+      if (isSessionLoading) {
+        return;
+      }
+
+      if (!currentUser) {
+        setTrips([]);
+        setSelectedTrip(null);
+        setIsTripsLoading(false);
+        return;
+      }
+
+      setIsTripsLoading(true);
+      const response = await api.get('/trips');
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.assign('/login');
+          return;
+        }
+
+        setTrips([]);
+        setSelectedTrip(null);
+        setTripFeedError(response.body?.message || 'Unable to load nearby trips.');
+        setIsTripsLoading(false);
+        return;
+      }
+
+      const nextTrips = mapApiTripsToUi(response.body?.trips || [], shopperLocationForTrips);
+      setTrips(nextTrips);
+      setTripFeedError('');
+      setIsTripsLoading(false);
+    }
+
+    fetchTrips();
+  }, [api, currentUser, isSessionLoading, shopperLocationForTrips]);
 
   useEffect(() => {
     // Initialize the page with the closest trip selected by default.
@@ -27,6 +74,29 @@ export default function useTripFeedState() {
       setSelectedTripId(trips[0].id);
     }
   }, [selectedTripId, trips]);
+
+  useEffect(() => {
+    async function fetchSelectedTrip() {
+      if (!selectedTripId) {
+        setSelectedTrip(null);
+        return;
+      }
+
+      const response = await api.get(`/trips/${selectedTripId}`);
+
+      if (!response.ok) {
+        setSelectedTrip(null);
+        setTripFeedError(response.body?.message || 'Unable to load trip details.');
+        return;
+      }
+
+      setSelectedTrip(
+        mapApiTripsToUi([response.body?.trip], shopperLocationForTrips)[0] || null,
+      );
+    }
+
+    fetchSelectedTrip();
+  }, [api, selectedTripId, shopperLocationForTrips]);
 
   useEffect(() => {
     if (!selectedTrip) {
@@ -75,14 +145,32 @@ export default function useTripFeedState() {
     setCheckoutMessage(`Items added under ${selectedTrip.driver.name}.`);
   }
 
-  function handleCheckout() {
+  async function handleCheckout() {
     if (cart.length === 0) {
       setCheckoutMessage('Your cart is empty.');
       return;
     }
 
+    const responses = await Promise.all(
+      cart.map((tripGroup) =>
+        api.post('/me/orders', {
+          trip_id: Number(tripGroup.tripId),
+          items: tripGroup.items.map((item) => ({
+            item_id: Number(item.id),
+            quantity: item.quantity,
+          })),
+        }),
+      ),
+    );
+
+    const failedResponse = responses.find((response) => !response.ok);
+    if (failedResponse) {
+      setCheckoutMessage(failedResponse.body?.message || 'Checkout failed.');
+      return;
+    }
+
     setCheckoutMessage(
-      `Checkout complete for ${cartLineCount} items across ${cart.length} driver trips. Pickup details saved.`,
+      `Checkout complete for ${cartLineCount} items across ${cart.length} driver trips.`,
     );
     setCartGroups([]);
   }
@@ -98,6 +186,8 @@ export default function useTripFeedState() {
     cartLineCount,
     cartSubtotal,
     checkoutMessage,
+    isTripsLoading,
+    tripFeedError,
     setItemQuantity,
     handleAddToCart,
     handleCheckout,

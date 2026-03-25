@@ -92,7 +92,7 @@ class Trip(db.Model):
         cascade="all, delete-orphan",
     )
 
-    def to_dict(self, include_items=False):
+    def to_dict(self, include_items=False, include_driver=False):
         """
         Convert this Trip to a JSON-serializable dictionary.
 
@@ -100,6 +100,8 @@ class Trip(db.Model):
             include_items (bool): When True, includes a nested
                 list of item dicts under the ``items`` key.
                 Defaults to False.
+            include_driver (bool): When True, includes a nested
+                driver dict under the ``driver`` key.
 
         Returns:
             dict: Trip fields including trip_id, driver_id,
@@ -121,6 +123,8 @@ class Trip(db.Model):
         }
         if include_items:
             data["items"] = [i.to_dict() for i in self.items]
+        if include_driver and self.driver:
+            data["driver"] = self.driver.to_public_dict()
         return data
 
     def __repr__(self):

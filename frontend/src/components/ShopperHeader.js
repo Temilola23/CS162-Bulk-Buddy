@@ -1,15 +1,23 @@
 import HeaderScrollProgress from './HeaderScrollProgress';
-import { shopperProfile } from '../data/shopperProfile';
+import { useSession } from '../contexts/SessionProvider';
 import useShopperHeaderState from '../hooks/useShopperHeaderState';
+import useLogoutAction from '../hooks/useLogoutAction';
+import { getProfileFromUser } from '../utils/profileAdapters';
 import './ShopperHeader.css';
 
 export default function ShopperHeader({ activePage, isScrolled, scrollProgress }) {
   const { menuOpen, profileMenuRef, navItems, toggleMenu } = useShopperHeaderState();
+  const { currentUser } = useSession();
+  const logout = useLogoutAction();
+  const profile = getProfileFromUser(currentUser) || {
+    name: 'Bulk Buddy',
+    initials: 'BB',
+  };
 
   return (
     <header className={`shopper-header ${isScrolled ? 'is-scrolled' : ''}`.trim()}>
       <div className="shopper-header-inner">
-        <a className="shopper-brand" href="/">
+        <a className="shopper-brand" href="/trip-feed">
           <img alt="Bulk Buddy logo" className="shopper-brand-logo" src="/images/logo-main1.png" />
           <span>Bulk Buddy</span>
         </a>
@@ -35,9 +43,9 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
             type="button"
           >
             <span aria-hidden="true" className="shopper-profile-avatar">
-              {shopperProfile.initials}
+              {profile.initials}
             </span>
-            <span className="shopper-profile-name">{shopperProfile.name}</span>
+            <span className="shopper-profile-name">{profile.name}</span>
             <span aria-hidden="true" className="shopper-profile-caret">
               <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -59,9 +67,9 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
               <a className="shopper-profile-menu-item is-link" href="/settings" role="menuitem">
                 Account Settings
               </a>
-              <a className="shopper-profile-menu-item is-link" href="/" role="menuitem">
+              <button className="shopper-profile-menu-item" onClick={logout} role="menuitem" type="button">
                 Logout
-              </a>
+              </button>
             </div>
           ) : null}
         </div>

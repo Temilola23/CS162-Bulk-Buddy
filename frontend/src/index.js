@@ -3,12 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import ApiProvider from './contexts/ApiProvider';
+import { SessionProvider } from './contexts/SessionProvider';
 
 // Mount the React tree once and let App handle which screen to render.
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <ApiProvider>
+      <SessionProvider>
+        <App />
+      </SessionProvider>
+    </ApiProvider>
   </React.StrictMode>
 );
 

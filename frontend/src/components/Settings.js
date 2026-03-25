@@ -3,7 +3,7 @@ import useSettingsPageState from '../hooks/useSettingsPageState';
 import './Settings.css';
 
 export default function Settings() {
-  const { isScrolled, scrollProgress, settings, saveMessage, handleInputChange, handleSave } =
+  const { isScrolled, scrollProgress, settings, saveMessage, saveError, isSaving, handleInputChange, handleSave } =
     useSettingsPageState();
 
   return (
@@ -152,9 +152,9 @@ export default function Settings() {
         </section>
 
         <section className="settings-save-bar">
-          <p>{saveMessage || 'Make changes here, then save when you are ready.'}</p>
-          <button className="settings-primary-action" type="submit">
-            Save settings
+          <p>{saveError || saveMessage || 'Make changes here, then save when you are ready.'}</p>
+          <button className="settings-primary-action" disabled={isSaving} type="submit">
+            {isSaving ? 'Saving...' : 'Save settings'}
           </button>
         </section>
       </form>

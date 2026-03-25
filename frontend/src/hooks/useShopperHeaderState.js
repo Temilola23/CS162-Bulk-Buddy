@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { shopperOrders } from '../data/shopperOrders';
-import { getLinkedOrderHref } from '../components/useLinkedOrderSelection';
 
 export default function useShopperHeaderState() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,16 +9,8 @@ export default function useShopperHeaderState() {
   const navItems = useMemo(
     () => [
       { id: 'trip-feed', label: 'Trip Feed', href: '/trip-feed' },
-      {
-        id: 'my-orders',
-        label: 'My Orders',
-        href: getLinkedOrderHref('/my-orders', shopperOrders, 'upcoming'),
-      },
-      {
-        id: 'trip-detail',
-        label: 'Trip Detail',
-        href: getLinkedOrderHref('/trip-detail', shopperOrders, { scope: 'all' }),
-      },
+      { id: 'my-orders', label: 'My Orders', href: '/my-orders' },
+      { id: 'trip-detail', label: 'Trip Detail', href: '/trip-detail' },
     ],
     [],
   );

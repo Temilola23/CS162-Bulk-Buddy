@@ -15,6 +15,8 @@ export default function TripFeed() {
     cartLineCount,
     cartSubtotal,
     checkoutMessage,
+    isTripsLoading,
+    tripFeedError,
     setItemQuantity,
     handleAddToCart,
     handleCheckout,
@@ -44,6 +46,8 @@ export default function TripFeed() {
             <h2>Available trips</h2>
           </div>
           <div className="trip-list">
+            {isTripsLoading ? <p className="cart-empty">Loading trips...</p> : null}
+            {tripFeedError ? <p className="checkout-message">{tripFeedError}</p> : null}
             {trips.map((trip) => (
               <button
                 className={`trip-list-item ${selectedTrip?.id === trip.id ? 'is-active' : ''}`}
@@ -160,7 +164,7 @@ export default function TripFeed() {
               </button>
             </>
           ) : (
-            <p>No trips available right now.</p>
+            <p>{isTripsLoading ? 'Loading trip details...' : 'No trips available right now.'}</p>
           )}
         </section>
 

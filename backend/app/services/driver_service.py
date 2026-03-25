@@ -16,7 +16,7 @@ def create_driver_application(user_id, license_info=None):
         tuple: (DriverApplication, None, 201) on success, or
             (None, error_message, status_code) on failure.
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if user is not None and user.role == UserRole.DRIVER:
         return None, "User is already a driver", 409
 
