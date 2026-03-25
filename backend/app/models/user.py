@@ -99,14 +99,12 @@ class User(UserMixin, db.Model):
         Return the subset of user fields safe to expose in shared payloads.
 
         Returns:
-            dict: Public user identity fields used by trip and order responses.
+            dict: Public user identity fields used by trip and order
+                responses.
         """
         return {
             "user_id": self.user_id,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
             "full_name": self.full_name,
-            "email": self.email,
             "role": self.role.value,
         }
 

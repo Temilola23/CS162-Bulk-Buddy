@@ -223,7 +223,7 @@ class TestMyOrdersRoutes:
             other_shopper = _make_shopper(db, email="other-orders@example.com")
             trip, item = _make_open_trip_with_item(db, driver)
             shopper_id = shopper.user_id
-            driver_email = driver.email
+            driver_name = driver.full_name
 
             first_order = Order(
                 shopper_id=shopper.user_id, trip_id=trip.trip_id
@@ -248,8 +248,8 @@ class TestMyOrdersRoutes:
         assert response.status_code == 200
         assert len(response.json["orders"]) == 1
         assert response.json["orders"][0]["shopper_id"] == shopper_id
-        assert response.json["orders"][0]["trip"]["driver"]["email"] == (
-            driver_email
+        assert response.json["orders"][0]["trip"]["driver"]["full_name"] == (
+            driver_name
         )
 
     def test_create_order_success(self, client, app):
