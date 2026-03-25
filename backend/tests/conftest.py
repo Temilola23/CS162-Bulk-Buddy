@@ -104,7 +104,7 @@ def admin_user(app):
 def admin_client(client, admin_user):
     """Client authenticated as an admin."""
     client.post(
-        "/api/login",
+        "/admin/login",
         json={
             "email": admin_user["email"],
             "password": admin_user["password"],
