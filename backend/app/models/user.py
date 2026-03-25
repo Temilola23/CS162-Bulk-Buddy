@@ -98,6 +98,7 @@ class User(UserMixin, db.Model):
             bool: True if user role is ADMIN, False otherwise.
         """
         return self.role == UserRole.ADMIN
+
     def full_name(self):
         """Return the user's display name."""
         return f"{self.first_name} {self.last_name}".strip()
