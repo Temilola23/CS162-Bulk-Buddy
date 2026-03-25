@@ -1,5 +1,5 @@
 import ShopperHeader from './ShopperHeader';
-import { buildLinkedOrderHref } from './useLinkedOrderSelection';
+import { buildLinkedOrderHref } from '../utils/linkedOrderHref';
 import { statusSteps } from '../data/shopperOrders';
 import useMyOrdersPageState from '../hooks/useMyOrdersPageState';
 import { formatCalendarDate } from '../utils/dateFormatting';

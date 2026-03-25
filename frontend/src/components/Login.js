@@ -1,8 +1,17 @@
 import useLoginForm from '../hooks/useLoginForm';
+import usePostAuthRedirect from '../hooks/usePostAuthRedirect';
 import './Login.css';
 
-export default function Login() {
-  const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useLoginForm('/trip-feed');
+export default function Login({ pendingRedirectPath = null }) {
+  // When App redirects a protected route to login, keep that target alive on
+  // the first render instead of falling back to the default trip-feed page.
+  const { redirectPath, authQueryString } = usePostAuthRedirect(
+    '/trip-feed',
+    pendingRedirectPath,
+  );
+  const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useLoginForm(
+    redirectPath,
+  );
 
   return (
     <main className="login-page">
@@ -49,7 +58,7 @@ export default function Login() {
         </form>
 
         <p className="login-switch">
-          New to Bulk Buddy? <a href="/register">Create an account</a>
+          New to Bulk Buddy? <a href={`/register${authQueryString}`}>Create an account</a>
         </p>
       </section>
     </main>

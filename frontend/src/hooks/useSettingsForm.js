@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
-import { shopperProfile } from '../data/shopperProfile';
 import { getProfileFromUser } from '../utils/profileAdapters';
 
 function getInitialSettings() {
   return {
-    displayName: shopperProfile.name,
-    email: shopperProfile.email,
-    nearbyRadius: shopperProfile.nearbyRadius,
-    address: shopperProfile.address,
+    displayName: '',
+    email: '',
+    nearbyRadius: '5 miles',
+    address: '',
     orderUpdates: true,
     pickupReminders: true,
     driverMessages: true,
@@ -26,8 +25,15 @@ export default function useSettingsForm() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const profile = getProfileFromUser(currentUser, shopperProfile);
+    const profile = getProfileFromUser(currentUser);
     if (!profile) {
+      setSettings((current) => ({
+        ...current,
+        displayName: '',
+        email: '',
+        nearbyRadius: '5 miles',
+        address: '',
+      }));
       return;
     }
 
@@ -35,7 +41,7 @@ export default function useSettingsForm() {
       ...current,
       displayName: profile.name,
       email: profile.email,
-      nearbyRadius: current.nearbyRadius || profile.nearbyRadius,
+      nearbyRadius: current.nearbyRadius || profile.nearbyRadius || '5 miles',
       address: profile.address,
     }));
   }, [currentUser]);
