@@ -1,10 +1,14 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user
-from app.models import User
+from app.models import User, UserRole
 from app.extensions import db
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
-def authenticate_user(email, password, remember=False):
+def authenticate_user(email, password, remember=False, is_admin=False):
     """
     Authenticate user credentials and create a session.
 
@@ -12,6 +16,7 @@ def authenticate_user(email, password, remember=False):
         email: User's email address.
         password: Plain text password to verify.
         remember: If True, extends session cookie expiry.
+        is_admin: If True, register as admin user. Defaults to False.
 
     Returns:
         tuple: (User, None, 200) on success, or
@@ -24,7 +29,9 @@ def authenticate_user(email, password, remember=False):
     if not check_password_hash(user.password_hash, password):
         return None, "wrong password", 401
 
-    # Sets session cookie via Flask-Login
+    if is_admin and user.role != UserRole.ADMIN:
+        return None, "insufficient permissions", 403
+
     login_user(user, remember=remember)
     return user, None, 200
 
@@ -38,6 +45,8 @@ def register_user(
     address_city,
     address_state,
     address_zip,
+    is_admin=False,
+    admin_token=None,
 ):
     """
     Register a new user account.
@@ -51,6 +60,8 @@ def register_user(
         address_city: City portion of address.
         address_state: State/province portion of address.
         address_zip: ZIP / postal code.
+        is_admin: If True, register as admin user. Defaults to False.
+        admin_token: Required if is_admin=True. Must match ADMIN_TOKEN env var.
 
     Returns:
         tuple: (User, None, 201) on success, or
@@ -65,12 +76,18 @@ def register_user(
     if not all([address_street, address_city, address_state, address_zip]):
         return None, "address (street, city, state, zip) required", 400
 
+    # Verify admin token if registering as admin
+    if is_admin:
+        if admin_token != os.environ.get("ADMIN_TOKEN"):
+            return None, "invalid token", 403
+
     # Check if user already exists
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return None, "user already exists", 409
 
     password_hash = generate_password_hash(password)
+    role = UserRole.ADMIN if is_admin else UserRole.SHOPPER
     new_user = User(
         email=email,
         password_hash=password_hash,
@@ -80,6 +97,7 @@ def register_user(
         address_city=address_city,
         address_state=address_state,
         address_zip=address_zip,
+        role=role,
     )
     try:
         db.session.add(new_user)
