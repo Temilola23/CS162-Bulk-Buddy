@@ -1,9 +1,12 @@
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user
-from app.models import User, UserRole
-from app.extensions import db
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from flask_login import login_user, logout_user
+from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app.extensions import db
+from app.models import User, UserRole
 
 load_dotenv()
 
@@ -102,15 +105,9 @@ def register_user(
     try:
         db.session.add(new_user)
         db.session.commit()
-    except Exception as e:
+    except SQLAlchemyError:
         db.session.rollback()
-        error_type = type(e).__name__
-        error_message = str(e)
-        return (
-            None,
-            f"Failed to register user {error_type}:{error_message}",
-            500,
-        )
+        return None, "Failed to register user", 500
 
     return new_user, None, 201
 
@@ -126,11 +123,5 @@ def logout_current_user():
     try:
         logout_user()
         return None, None, 200
-    except Exception as e:
-        error_type = type(e).__name__
-        error_message = str(e)
-        return (
-            None,
-            f"Failed to log out user. {error_type}:{error_message}",
-            500,
-        )
+    except SQLAlchemyError:
+        return None, "Failed to log out user", 500

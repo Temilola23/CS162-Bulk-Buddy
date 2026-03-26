@@ -210,6 +210,9 @@ __marimo__/
 Reference.pdf
 DESIGN_NOTES.md
 db_schema_plan.md
+docs/roadmap.md
+docs/pr21-review.md
+docs/pr23-review.md
 
 # Node / Frontend
 node_modules/
