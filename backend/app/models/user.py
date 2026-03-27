@@ -90,6 +90,16 @@ class User(UserMixin, db.Model):
         return str(self.user_id)
 
     @property
+    def is_admin(self):
+        """
+        Check if the user has admin privileges.
+
+        Returns:
+            bool: True if user role is ADMIN, False otherwise.
+        """
+        return self.role == UserRole.ADMIN
+
+    @property
     def full_name(self):
         """Return the user's display name."""
         return f"{self.first_name} {self.last_name}".strip()

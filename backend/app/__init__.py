@@ -5,6 +5,7 @@ from app.routes.auth import auth
 from app.routes.driver import driver
 from app.routes.me import me
 from app.routes.trip import trip
+from app.routes.admin import admin
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -85,6 +86,7 @@ def create_app(test_config=None):
     app.register_blueprint(driver)
     app.register_blueprint(me)
     app.register_blueprint(trip)
+    app.register_blueprint(admin)
 
     # Add security headers to all responses
     @app.after_request
@@ -102,6 +104,14 @@ def create_app(test_config=None):
         return jsonify({"message": "App is running"})
 
     # Error handlers
+    @app.errorhandler(401)
+    def not_authenticated(error):
+        return jsonify({"message": "Not authenticated"}), 401
+
+    @app.errorhandler(403)
+    def not_authorized(error):
+        return jsonify({"message": "Not authorized"}), 403
+
     @app.errorhandler(404)
     def not_found(error):
         """Return a JSON 404 payload for unmatched routes."""
