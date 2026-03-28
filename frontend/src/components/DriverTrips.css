@@ -124,9 +124,32 @@
 
 .driver-trip-item-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "name unit"
+    "quantity price"
+    "remove remove";
   gap: 12px;
   align-items: end;
+  padding: 18px;
+  border: 1px solid rgba(77, 33, 106, 0.12);
+  border-radius: 20px;
+}
+
+.driver-trip-item-row .driver-trip-field:nth-of-type(1) {
+  grid-area: name;
+}
+
+.driver-trip-item-row .driver-trip-field:nth-of-type(2) {
+  grid-area: unit;
+}
+
+.driver-trip-item-row .driver-trip-field:nth-of-type(3) {
+  grid-area: quantity;
+}
+
+.driver-trip-item-row .driver-trip-field:nth-of-type(4) {
+  grid-area: price;
 }
 
 .driver-trip-add-item,
@@ -145,6 +168,12 @@
   color: #4d216a;
   cursor: pointer;
   padding: 0 16px;
+}
+
+.driver-trip-remove-item {
+  grid-area: remove;
+  justify-self: center;
+  align-self: center;
 }
 
 .driver-trip-submit {
@@ -222,6 +251,10 @@
 
   .driver-trip-item-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "name unit"
+      "quantity price"
+      "remove remove";
   }
 }
 
@@ -233,6 +266,12 @@
 
   .driver-trip-item-row {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "name"
+      "unit"
+      "quantity"
+      "price"
+      "remove";
   }
 
   .driver-trips-card-header,

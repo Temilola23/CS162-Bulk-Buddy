@@ -80,7 +80,7 @@ export default function DriverTrips() {
                   <h3>What can shoppers claim?</h3>
                 </div>
                 <button className="driver-trip-add-item" onClick={addItemRow} type="button">
-                  Add item
+                  + Add item
                 </button>
               </div>
 
