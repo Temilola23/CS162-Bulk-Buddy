@@ -1,0 +1,126 @@
+.admin-review-layout {
+  display: grid;
+  gap: 22px;
+}
+
+.admin-review-toolbar {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.admin-review-back {
+  border: 1px solid rgba(77, 33, 106, 0.14);
+  background: rgba(255, 255, 255, 0.9);
+  color: #4d216a;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.admin-review-card {
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 20px 44px rgba(77, 33, 106, 0.1);
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+}
+
+.admin-review-card-kicker {
+  margin: 0;
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(77, 33, 106, 0.1);
+  color: #5b2c80;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.admin-review-card h2,
+.admin-review-note,
+.admin-review-feedback {
+  margin: 0;
+}
+
+.admin-review-list {
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.admin-review-list div {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-review-list dt {
+  color: rgba(47, 24, 71, 0.68);
+  font-weight: 600;
+}
+
+.admin-review-list dd {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.admin-review-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.admin-review-action {
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 20px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-review-action:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.admin-review-action.is-approve {
+  background: #4d216a;
+  color: #fff;
+}
+
+.admin-review-action.is-reject {
+  background: rgba(181, 48, 77, 0.14);
+  color: #9c2040;
+}
+
+.admin-review-feedback.is-error {
+  color: #9d1b35;
+  font-weight: 600;
+}
+
+.admin-review-feedback.is-success {
+  color: #196d4e;
+  font-weight: 600;
+}
+
+.admin-review-note {
+  color: rgba(47, 24, 71, 0.76);
+}
+
+@media (max-width: 900px) {
+  .admin-review-grid {
+    grid-template-columns: 1fr;
+  }
+}

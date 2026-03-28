@@ -12,7 +12,7 @@ const LOADER_TIMINGS = {
   },
 };
 
-export function getCurrentPathname() {
+function getCurrentPathname() {
   if (typeof window === 'undefined') {
     return '/';
   }

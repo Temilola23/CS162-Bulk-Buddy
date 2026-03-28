@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import Landing from './components/Landing';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -7,80 +7,118 @@ import MyOrders from './components/MyOrders';
 import TripDetail from './components/TripDetail';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
+import DriverTrips from './components/DriverTrips';
+import AdminLogin from './components/AdminLogin';
+import AdminRegister from './components/AdminRegister';
+import AdminApplications from './components/AdminApplications';
+import AdminApplicationReview from './components/AdminApplicationReview';
 import { useSession } from './contexts/SessionProvider';
 import { buildAuthRedirectUrl } from './hooks/usePostAuthRedirect';
-import useAppLoader, { getCurrentPathname } from './hooks/useAppLoader';
+import { buildAdminAuthRedirectUrl } from './hooks/useAdminPostAuthRedirect';
+import useAppLoader from './hooks/useAppLoader';
 import './App.css';
 
-const PROTECTED_PATHS = new Set([
-  '/trip-feed',
-  '/trips',
-  '/my-orders',
-  '/trip-detail',
-  '/profile',
-  '/settings',
-]);
+function ProtectedRoute() {
+  const { currentUser, isSessionLoading } = useSession();
+  const location = useLocation();
 
-function isProtectedPathname(pathname) {
-  return PROTECTED_PATHS.has(pathname);
+  // Hold protected pages until the session check finishes, then bounce
+  // unauthenticated visitors to login with the route they originally requested.
+  if (isSessionLoading && !currentUser) {
+    return null;
+  }
+
+  if (!currentUser) {
+    const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate replace to={buildAuthRedirectUrl(requestedPath)} />;
+  }
+
+  return <Outlet />;
+}
+
+function AdminRoute() {
+  const { currentUser, isSessionLoading } = useSession();
+  const location = useLocation();
+
+  if (isSessionLoading && !currentUser) {
+    return null;
+  }
+
+  if (!currentUser) {
+    const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate replace to={buildAdminAuthRedirectUrl(requestedPath)} />;
+  }
+
+  if (currentUser.role !== 'admin') {
+    return <Navigate replace to="/" />;
+  }
+
+  return <Outlet />;
+}
+
+function DriverRoute() {
+  const { currentUser, isSessionLoading } = useSession();
+  const location = useLocation();
+
+  if (isSessionLoading && !currentUser) {
+    return null;
+  }
+
+  if (!currentUser) {
+    const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate replace to={buildAuthRedirectUrl(requestedPath)} />;
+  }
+
+  // Drivers get a dedicated trip-posting surface; shoppers should be sent back
+  // to profile where the approval state explains why posting is unavailable.
+  if (currentUser.role !== 'driver') {
+    return <Navigate replace to="/profile" />;
+  }
+
+  return <Outlet />;
 }
 
 function App() {
   const { showLoader, loaderIsLeaving } = useAppLoader();
-  const { currentUser, isSessionLoading } = useSession();
+  const pageContent = (
+    <Routes>
+      <Route element={<Landing />} path="/" />
+      <Route element={<Login />} path="/login" />
+      <Route element={<Register />} path="/register" />
+      <Route element={<AdminLogin />} path="/admin-console/login" />
+      <Route element={<AdminRegister />} path="/admin-console/register" />
 
-  // Keep routing lightweight for now by mapping views directly from the URL path
-  // instead of introducing a router dependency during the prototype phase.
-  const pathname = getCurrentPathname();
-  const routeRequiresAuth = isProtectedPathname(pathname);
-  const shouldRedirectToLogin = routeRequiresAuth && !isSessionLoading && !currentUser;
-  const shouldHoldProtectedRoute = routeRequiresAuth && isSessionLoading && !currentUser;
-  // Capture the protected destination before swapping the rendered page to
-  // Login so the submit handler can send the shopper back to the same route.
-  const requestedPath =
-    shouldRedirectToLogin && typeof window !== 'undefined'
-      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
-      : null;
-  const resolvedPathname = shouldRedirectToLogin ? '/login' : pathname;
-  let pageContent = shouldHoldProtectedRoute ? null : <Landing />;
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Navigate replace to="/trip-feed" />} path="/trips" />
+        <Route element={<TripFeed />} path="/trip-feed" />
+        <Route element={<MyOrders />} path="/my-orders" />
+        <Route element={<TripDetail />} path="/trip-detail" />
+        <Route element={<Profile />} path="/profile" />
+        <Route element={<Settings />} path="/settings" />
+      </Route>
 
-  useEffect(() => {
-    if (!shouldRedirectToLogin || pathname === '/login') {
-      return;
-    }
+      <Route element={<DriverRoute />}>
+        <Route element={<DriverTrips />} path="/post-trip" />
+      </Route>
 
-    // Replace the URL so protected routes cannot be browsed directly without
-    // an authenticated session. The login screen becomes the canonical route.
-    window.history.replaceState(null, '', buildAuthRedirectUrl(requestedPath));
-  }, [pathname, requestedPath, shouldRedirectToLogin]);
+      <Route element={<AdminRoute />}>
+        <Route
+          element={<Navigate replace to="/admin-console/driver-applications" />}
+          path="/admin-console"
+        />
+        <Route
+          element={<AdminApplications />}
+          path="/admin-console/driver-applications"
+        />
+        <Route
+          element={<AdminApplicationReview />}
+          path="/admin-console/driver-applications/:applicationId"
+        />
+      </Route>
 
-  if (resolvedPathname === '/login') {
-    pageContent = <Login pendingRedirectPath={requestedPath} />;
-  }
-
-  if (resolvedPathname === '/register') {
-    pageContent = <Register />;
-  }
-
-  if (resolvedPathname === '/trip-feed' || resolvedPathname === '/trips') {
-    pageContent = <TripFeed />;
-  }
-
-  if (resolvedPathname === '/my-orders') {
-    pageContent = <MyOrders />;
-  }
-
-  if (resolvedPathname === '/trip-detail') {
-    pageContent = <TripDetail />;
-  }
-
-  if (resolvedPathname === '/profile') {
-    pageContent = <Profile />;
-  }
-
-  if (resolvedPathname === '/settings') {
-    pageContent = <Settings />;
-  }
+      <Route element={<Navigate replace to="/" />} path="*" />
+    </Routes>
+  );
 
   return (
     <>

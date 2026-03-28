@@ -1,0 +1,232 @@
+.driver-trips-page {
+  min-height: 100vh;
+  width: min(1180px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 124px 0 56px;
+  display: grid;
+  gap: 24px;
+  font-family: "Geologica", sans-serif;
+}
+
+.driver-trips-intro {
+  width: min(42rem, 100%);
+  margin-inline: auto;
+  padding: 24px;
+  display: grid;
+  gap: 10px;
+  text-align: center;
+  justify-items: center;
+}
+
+.driver-trips-kicker,
+.driver-trips-card-kicker {
+  margin: 0;
+  width: fit-content;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(90, 44, 124, 0.1);
+  color: #5a2c7c;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.driver-trips-intro h1,
+.driver-trips-card-header h2,
+.driver-trip-items-header h3,
+.driver-trip-summary h3 {
+  margin: 0;
+  color: #301746;
+}
+
+.driver-trips-intro h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.08;
+}
+
+.driver-trips-intro p,
+.driver-trips-card-header p,
+.driver-trip-items-header p,
+.driver-trip-summary p,
+.driver-trip-feedback {
+  margin: 0;
+  color: #756985;
+  line-height: 1.6;
+}
+
+.driver-trips-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.driver-trips-card {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  padding: 28px;
+  display: grid;
+  gap: 22px;
+}
+
+.driver-trips-card-header,
+.driver-trip-items-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.driver-trip-form,
+.driver-trip-items-block,
+.driver-trip-items-list,
+.driver-trip-list {
+  display: grid;
+  gap: 16px;
+}
+
+.driver-trip-field {
+  display: grid;
+  gap: 8px;
+}
+
+.driver-trip-field span {
+  color: #3e1f56;
+  font-weight: 700;
+}
+
+.driver-trip-field input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  border-radius: 12px;
+  border: 1px solid rgba(77, 33, 106, 0.2);
+  padding: 0 16px;
+  font: inherit;
+  color: #2a163d;
+  background: #fff;
+}
+
+.driver-trip-item-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.driver-trip-add-item,
+.driver-trip-remove-item,
+.driver-trip-submit {
+  min-height: 46px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+}
+
+.driver-trip-add-item,
+.driver-trip-remove-item {
+  border: 1px solid rgba(77, 33, 106, 0.16);
+  background: rgba(77, 33, 106, 0.06);
+  color: #4d216a;
+  cursor: pointer;
+  padding: 0 16px;
+}
+
+.driver-trip-submit {
+  border: 1px solid #4d216a;
+  background: #4d216a;
+  color: #fff;
+  cursor: pointer;
+}
+
+.driver-trip-submit:disabled {
+  cursor: wait;
+  opacity: 0.74;
+}
+
+.driver-trip-feedback.is-error {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.driver-trip-feedback.is-success {
+  color: #196d4e;
+  font-weight: 700;
+}
+
+.driver-trip-summary {
+  border-radius: 20px;
+  border: 1px solid rgba(77, 33, 106, 0.12);
+  background: rgba(245, 239, 249, 0.62);
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.driver-trip-summary-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.driver-trip-status {
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.driver-trip-status.is-open {
+  background: rgba(39, 142, 103, 0.14);
+  color: #196d4e;
+}
+
+.driver-trip-status.is-closed {
+  background: rgba(77, 33, 106, 0.1);
+  color: #5a2c7c;
+}
+
+.driver-trip-status.is-completed {
+  background: rgba(47, 111, 115, 0.16);
+  color: #1f6266;
+}
+
+.driver-trip-status.is-cancelled {
+  background: rgba(181, 48, 77, 0.14);
+  color: #9c2040;
+}
+
+@media (max-width: 980px) {
+  .driver-trips-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-trip-item-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .driver-trips-page {
+    width: min(1180px, calc(100vw - 24px));
+    padding-top: 118px;
+  }
+
+  .driver-trip-item-row {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-trips-card-header,
+  .driver-trip-items-header,
+  .driver-trip-summary-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

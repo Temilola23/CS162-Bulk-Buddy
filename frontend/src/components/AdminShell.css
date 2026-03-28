@@ -1,0 +1,140 @@
+.admin-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(520px 280px at 0% 0%, rgba(155, 34, 230, 0.12), transparent 72%),
+    radial-gradient(520px 280px at 100% 0%, rgba(47, 111, 115, 0.1), transparent 72%),
+    #f1e8f6;
+  color: #2f1847;
+}
+
+.admin-shell-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid rgba(77, 33, 106, 0.1);
+}
+
+.admin-shell-header-inner {
+  width: min(1160px, calc(100vw - 40px));
+  min-height: 92px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-shell-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 1.22rem;
+  font-weight: 700;
+}
+
+.admin-shell-brand img {
+  width: 42px;
+  height: 42px;
+}
+
+.admin-shell-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-shell-nav-link {
+  padding: 12px 18px;
+  border-radius: 999px;
+  color: rgba(47, 24, 71, 0.8);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-shell-nav-link.active {
+  background: #4d216a;
+  color: #fff;
+}
+
+.admin-shell-logout {
+  border: 1px solid rgba(77, 33, 106, 0.16);
+  background: #fff;
+  color: #4d216a;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-shell-main {
+  width: min(1160px, calc(100vw - 40px));
+  margin: 0 auto;
+  padding: 52px 0 96px;
+}
+
+.admin-shell-intro {
+  max-width: 760px;
+  display: grid;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.admin-shell-kicker {
+  width: fit-content;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(77, 33, 106, 0.1);
+  color: #5b2c80;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-shell-intro h1,
+.admin-shell-intro p {
+  margin: 0;
+}
+
+.admin-shell-intro h1 {
+  font-size: clamp(2.6rem, 5vw, 4.4rem);
+  line-height: 0.94;
+}
+
+.admin-shell-intro p {
+  color: rgba(47, 24, 71, 0.78);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.admin-status-badge.is-pending {
+  background: rgba(184, 140, 26, 0.16);
+  color: #9a6d00;
+}
+
+.admin-status-badge.is-approved {
+  background: rgba(39, 142, 103, 0.14);
+  color: #196d4e;
+}
+
+.admin-status-badge.is-rejected {
+  background: rgba(181, 48, 77, 0.14);
+  color: #9c2040;
+}

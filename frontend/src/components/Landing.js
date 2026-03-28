@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import HeaderScrollProgress from './HeaderScrollProgress';
 import { howItWorksSteps, landingSlides } from '../data/landingContent';
 import useLandingPageState from '../hooks/useLandingPageState';
@@ -49,18 +50,18 @@ export default function Landing() {
             </a>
           </nav>
 
-          <a className="brand" href="/">
+          <Link className="brand" to="/">
             <img alt="Bulk Buddy logo" className="brand-logo" src="/images/logo-main1.png" />
             <span>Bulk Buddy</span>
-          </a>
+          </Link>
 
           <nav className="header-actions" aria-label="Primary">
-            <a className="header-link" href="/login">
+            <Link className="header-link" to="/login">
               Log in
-            </a>
-            <a className="header-link header-link-primary" href="/register">
+            </Link>
+            <Link className="header-link header-link-primary" to="/register">
               Sign up
-            </a>
+            </Link>
           </nav>
         </div>
         <HeaderScrollProgress scrollProgress={scrollProgress} />
@@ -129,9 +130,9 @@ export default function Landing() {
           <h1>{currentSlide.title}</h1>
           <p className="landing-lede">{currentSlide.description}</p>
           <div className="landing-actions">
-            <a className="button button-primary" href={currentSlide.primaryHref}>
+            <Link className="button button-primary" to={currentSlide.primaryHref}>
               {currentSlide.primaryLabel}
-            </a>
+            </Link>
             <a className="button button-secondary" href={currentSlide.secondaryHref}>
               {currentSlide.secondaryLabel}
             </a>
@@ -199,12 +200,12 @@ export default function Landing() {
           <h2>Ready to split your next warehouse run?</h2>
           <p>Join Bulk Buddy now or log back in to see active trips near you.</p>
           <div className="landing-final-cta-actions">
-            <a className="button button-primary" href="/register">
+            <Link className="button button-primary" to="/register">
               Get Started
-            </a>
-            <a className="button button-secondary" href="/login">
+            </Link>
+            <Link className="button button-secondary" to="/login">
               Log in
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -221,8 +222,8 @@ export default function Landing() {
 
           <nav aria-label="Footer" className="landing-footer-links">
             <a href="#about-us">About Us</a>
-            <a href="/login">Log in</a>
-            <a href="/register">Sign up</a>
+            <Link to="/login">Log in</Link>
+            <Link to="/register">Sign up</Link>
             <a href="mailto:support@bulkbuddy.app">Contact</a>
           </nav>
         </div>

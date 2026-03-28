@@ -118,6 +118,11 @@
   color: #8b6b0f;
 }
 
+.profile-status-badge.is-approved {
+  background: rgba(39, 142, 103, 0.14);
+  color: #196d4e;
+}
+
 .profile-card-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -196,7 +201,8 @@
 }
 
 .profile-secondary-action,
-.profile-primary-action {
+.profile-primary-action,
+.profile-primary-link {
   min-height: 48px;
   padding: 0 18px;
   border-radius: 999px;
@@ -207,6 +213,17 @@
 .profile-primary-action:disabled {
   cursor: wait;
   opacity: 0.72;
+}
+
+.profile-primary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border: 1px solid #4d216a;
+  background: #4d216a;
+  color: #fff;
+  text-decoration: none;
 }
 
 .profile-secondary-action {

@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
 import { shopperLocation } from '../data/tripFeedData';
+import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import { mapApiOrdersToUi } from '../utils/orderApiAdapters';
 import { getShopperLocationFromUser } from '../utils/tripApiAdapters';
 
 export default function useShopperOrdersData() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
@@ -34,9 +38,8 @@ export default function useShopperOrdersData() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Full-page redirects keep the lightweight pathname routing model
-          // consistent with the rest of the prototype app.
-          window.location.assign('/login');
+          const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+          navigate(buildAuthRedirectUrl(requestedPath), { replace: true });
           return;
         }
 
@@ -54,7 +57,7 @@ export default function useShopperOrdersData() {
     }
 
     fetchOrders();
-  }, [api, currentUser, isSessionLoading, shopperLocationForOrders]);
+  }, [api, currentUser, isSessionLoading, location.hash, location.pathname, location.search, navigate, shopperLocationForOrders]);
 
   return {
     orders,

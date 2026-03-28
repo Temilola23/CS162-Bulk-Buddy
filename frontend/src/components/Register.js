@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import useRegisterForm from '../hooks/useRegisterForm';
 import usePostAuthRedirect from '../hooks/usePostAuthRedirect';
 import './Register.css';
@@ -12,10 +13,10 @@ export default function Register() {
 
   return (
     <main className="register-page">
-      <a className="register-brand" href="/">
+      <Link className="register-brand" to="/">
         <img alt="Bulk Buddy logo" className="register-brand-logo" src="/images/logo-main1.png" />
         <span>Bulk Buddy</span>
-      </a>
+      </Link>
 
       <section className="register-card">
         <p className="register-kicker">Create account</p>
@@ -111,7 +112,7 @@ export default function Register() {
         </form>
 
         <p className="register-switch">
-          Already have an account? <a href={`/login${authQueryString}`}>Log in</a>
+          Already have an account? <Link to={`/login${authQueryString}`}>Log in</Link>
         </p>
       </section>
     </main>

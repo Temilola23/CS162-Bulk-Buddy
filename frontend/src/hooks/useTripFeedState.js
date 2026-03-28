@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
 import { shopperLocation } from '../data/tripFeedData';
+import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import { getShopperLocationFromUser, mapApiTripsToUi } from '../utils/tripApiAdapters';
 import {
   buildChosenItems,
@@ -16,6 +18,8 @@ import {
 export default function useTripFeedState() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [draftQuantities, setDraftQuantities] = useState({});
   const [cartGroups, setCartGroups] = useState([]);
@@ -48,7 +52,8 @@ export default function useTripFeedState() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.assign('/login');
+          const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+          navigate(buildAuthRedirectUrl(requestedPath), { replace: true });
           return;
         }
 
@@ -66,7 +71,7 @@ export default function useTripFeedState() {
     }
 
     fetchTrips();
-  }, [api, currentUser, isSessionLoading, shopperLocationForTrips]);
+  }, [api, currentUser, isSessionLoading, location.hash, location.pathname, location.search, navigate, shopperLocationForTrips]);
 
   useEffect(() => {
     // Initialize the page with the closest trip selected by default.

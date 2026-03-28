@@ -33,11 +33,15 @@ function parseLicenseInfo(licenseInfo) {
 
 export default function useDriverApplicationForm() {
   const api = useApi();
-  const { driverApplication, refreshSession } = useSession();
+  const { currentUser, driverApplication, refreshSession } = useSession();
   const [applicationForm, setApplicationForm] = useState(getInitialApplicationForm);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const applicationSubmitted = driverApplication?.status === 'pending';
+  const applicationStatus = driverApplication?.status || null;
+  const applicationSubmitted = applicationStatus === 'pending';
+  const applicationApproved =
+    currentUser?.role === 'driver' || applicationStatus === 'approved';
+  const applicationRejected = applicationStatus === 'rejected';
   const submittedApplicationDetails = useMemo(
     () => parseLicenseInfo(driverApplication?.license_info),
     [driverApplication],
@@ -74,7 +78,10 @@ export default function useDriverApplicationForm() {
 
   return {
     applicationForm,
+    applicationStatus,
     applicationSubmitted,
+    applicationApproved,
+    applicationRejected,
     submittedApplicationDetails,
     errorMessage,
     isSubmitting,

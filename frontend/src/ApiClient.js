@@ -6,7 +6,22 @@ const BASE_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
  */
 export default class ApiClient {
   constructor() {
+    this.root_url = BASE_API_URL;
     this.base_url = `${BASE_API_URL}/api`;
+  }
+
+  resolveUrl(url) {
+    if (/^https?:\/\//.test(url)) {
+      return url;
+    }
+
+    // The current backend keeps admin routes at /admin instead of /api/admin,
+    // so the client needs to bypass the default /api prefix for that surface.
+    if (url.startsWith('/admin')) {
+      return `${this.root_url}${url}`;
+    }
+
+    return `${this.base_url}${url}`;
   }
 
   /**
@@ -36,7 +51,7 @@ export default class ApiClient {
         headers['Content-Type'] = 'application/json';
       }
 
-      response = await fetch(this.base_url + options.url + query, {
+      response = await fetch(this.resolveUrl(options.url) + query, {
         method: options.method,
         headers,
         credentials: 'include',

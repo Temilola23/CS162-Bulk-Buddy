@@ -1,0 +1,90 @@
+.admin-applications-panel {
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 20px 44px rgba(77, 33, 106, 0.1);
+  padding: 28px;
+  display: grid;
+  gap: 22px;
+}
+
+.admin-applications-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-applications-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-applications-tab {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 16px;
+  background: rgba(77, 33, 106, 0.08);
+  color: #4d216a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-applications-tab span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  font-size: 0.82rem;
+}
+
+.admin-applications-tab.is-active {
+  background: #4d216a;
+  color: #fff;
+}
+
+.admin-applications-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-applications-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-applications-table th,
+.admin-applications-table td {
+  padding: 16px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(77, 33, 106, 0.1);
+}
+
+.admin-applications-table th {
+  color: rgba(47, 24, 71, 0.68);
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-applications-link {
+  color: #4d216a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-applications-feedback {
+  margin: 0;
+  color: rgba(47, 24, 71, 0.76);
+}
+
+.admin-applications-feedback.is-error {
+  color: #9d1b35;
+  font-weight: 600;
+}
