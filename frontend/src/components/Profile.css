@@ -70,7 +70,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(90, 44, 124, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -110,7 +110,7 @@
 
 .profile-status-badge.is-locked {
   background: rgba(77, 33, 106, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
 }
 
 .profile-status-badge.is-pending {
@@ -149,7 +149,7 @@
   display: grid;
   place-items: center;
   color: #fff;
-  background: #5a2c7c;
+  background: #4d216a;
   box-shadow: 0 12px 24px rgba(90, 44, 124, 0.24);
   font-size: 1.9rem;
   font-weight: 900;
@@ -167,6 +167,12 @@
 
 .profile-identity-copy p {
   font-size: 1rem;
+}
+
+.profile-role-value {
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #301746;
 }
 
 .profile-details-list {
@@ -302,7 +308,7 @@
 
 .profile-primary-action {
   border: none;
-  background: #5a2c7c;
+  background: #4d216a;
   color: #fff;
   cursor: pointer;
   transition:

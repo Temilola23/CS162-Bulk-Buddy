@@ -37,6 +37,7 @@
 .admin-review-card-kicker {
   margin: 0;
   width: fit-content;
+  height: fit-content;
   padding: 7px 12px;
   border-radius: 999px;
   background: rgba(77, 33, 106, 0.1);

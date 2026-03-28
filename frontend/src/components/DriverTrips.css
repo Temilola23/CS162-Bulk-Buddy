@@ -25,11 +25,23 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(90, 44, 124, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.driver-trips-kicker{
+  background: none;
+  padding: 0 5px;
+  margin: 0;
+  width: fit-content;
+  color: #4d216a;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
 }
 
 .driver-trips-intro h1,
@@ -190,7 +202,7 @@
 
 .driver-trip-status.is-closed {
   background: rgba(77, 33, 106, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
 }
 
 .driver-trip-status.is-completed {

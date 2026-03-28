@@ -1,98 +1,64 @@
 .admin-register-page {
   min-height: 100vh;
-  width: min(760px, calc(100vw - 32px));
-  margin: 0 auto;
-  padding: 40px 0 64px;
   display: grid;
-  align-content: start;
-  gap: 28px;
+  place-items: center;
+  padding: 32px 20px;
+  background:
+    radial-gradient(520px 280px at 0% 0%, rgba(155, 34, 230, 0.12), transparent 72%),
+    radial-gradient(520px 280px at 100% 0%, rgba(47, 111, 115, 0.1), transparent 72%),
+    #f1e8f6;
+}
+
+.admin-register-card {
+  width: min(560px, 100%);
+  padding: 34px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 48px rgba(77, 33, 106, 0.12);
+  display: grid;
+  gap: 24px;
 }
 
 .admin-register-brand {
   display: inline-flex;
   align-items: center;
-  justify-self: center;
   gap: 12px;
+  color: #2f1847;
   text-decoration: none;
-  color: #4d216a;
-  font-size: clamp(2.1rem, 6vw, 3rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  font-size: 1.2rem;
 }
 
 .admin-register-brand img {
-  width: clamp(56px, 8vw, 78px);
-  height: clamp(56px, 8vw, 78px);
-  object-fit: contain;
-}
-
-.admin-register-card {
-  margin: 0 auto;
-  width: min(520px, 100%);
-  border-radius: 24px;
-  border: 1px solid rgba(77, 33, 106, 0.18);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-  padding: clamp(24px, 4vw, 40px);
-  display: grid;
-  gap: 16px;
+  width: 40px;
+  height: 40px;
 }
 
 .admin-register-kicker {
   margin: 0;
   width: fit-content;
-  color: #4d216a;
-  font-size: 0.84rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(77, 33, 106, 0.1);
+  color: #5b2c80;
   text-transform: uppercase;
-}
-
-.admin-register-card h1 {
-  margin: 0;
-  color: #2f1840;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  line-height: 1.12;
-}
-
-.admin-register-lede {
-  margin: 0;
-  color: #5f5370;
-  line-height: 1.6;
-}
-
-.admin-register-form {
-  margin-top: 4px;
-  display: grid;
-  gap: 14px;
-}
-
-.admin-register-form label {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-
-.admin-register-form span {
-  color: #3e1f56;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
   font-weight: 700;
 }
 
-.admin-register-form input {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 50px;
-  border-radius: 12px;
-  border: 1px solid rgba(77, 33, 106, 0.2);
-  padding: 0 16px;
-  font: inherit;
-  color: #2a163d;
-  background: #fff;
+.admin-register-card h1,
+.admin-register-lede {
+  margin: 0;
 }
 
-.admin-register-form input:focus {
-  outline: 2px solid rgba(77, 33, 106, 0.22);
-  outline-offset: 2px;
+.admin-register-lede {
+  color: rgba(47, 24, 71, 0.78);
+}
+
+.admin-register-form {
+  display: grid;
+  gap: 14px;
 }
 
 .admin-register-grid {
@@ -105,45 +71,65 @@
   min-width: 0;
 }
 
-.admin-register-submit {
-  margin-top: 8px;
-  min-height: 48px;
-  border-radius: 999px;
-  border: 1px solid #4d216a;
-  background: #4d216a;
-  color: #fff;
+.admin-register-form label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.admin-register-form span {
+  font-weight: 600;
+}
+
+.admin-register-form input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(77, 33, 106, 0.16);
+  border-radius: 18px;
+  padding: 14px 16px;
   font: inherit;
-  font-weight: 800;
+  background: #fff;
+}
+
+.admin-register-error-message {
+  margin: 0;
+  color: #9d1b35;
+  font-weight: 600;
+}
+
+.admin-register-submit {
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: #4d216a;
   cursor: pointer;
 }
 
 .admin-register-submit:disabled {
   cursor: wait;
-  opacity: 0.72;
-}
-
-.admin-register-error-message {
-  margin: 0;
-  color: #b42318;
-  font-weight: 700;
-  line-height: 1.45;
+  opacity: 0.8;
 }
 
 .admin-register-switch {
-  margin: 4px 0 0;
-  color: #5f5370;
+  margin: 0;
+  color: rgba(47, 24, 71, 0.78);
 }
 
 .admin-register-switch a {
   color: #4d216a;
-  font-weight: 700;
-  text-decoration: none;
+  font-weight: 600;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
   .admin-register-page {
-    width: min(900px, calc(100vw - 24px));
-    padding-top: 24px;
+    padding: 24px 16px;
+  }
+
+  .admin-register-card {
+    padding: 28px 22px;
   }
 
   .admin-register-grid {

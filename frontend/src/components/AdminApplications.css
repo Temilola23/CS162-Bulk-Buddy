@@ -50,6 +50,10 @@
   color: #fff;
 }
 
+.admin-applications-tab.is-active span {
+  color: #4d216a;
+}
+
 .admin-applications-table-wrap {
   overflow-x: auto;
 }

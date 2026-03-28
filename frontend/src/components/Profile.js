@@ -82,7 +82,9 @@ export default function Profile() {
 
             <div className="profile-identity-copy">
               <h2>{profile.name}</h2>
-              <p>Role: {profile.role}</p>
+              <p>
+                Role: <span className="profile-role-value">{profile.role}</span>
+              </p>
             </div>
           </div>
 

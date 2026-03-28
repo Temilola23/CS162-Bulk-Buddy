@@ -14,12 +14,12 @@ export default function AdminRegister() {
 
   return (
     <main className="admin-register-page">
-      <Link className="admin-register-brand" to="/">
-        <img alt="Bulk Buddy logo" src="/images/logo-main1.png" />
-        <span>Bulk Buddy Admin</span>
-      </Link>
-
       <section className="admin-register-card">
+        <Link className="admin-register-brand" to="/">
+          <img alt="Bulk Buddy logo" src="/images/logo-main1.png" />
+          <span>Bulk Buddy Admin</span>
+        </Link>
+
         <p className="admin-register-kicker">Restricted Access</p>
         <h1>Create an admin account.</h1>
         <p className="admin-register-lede">

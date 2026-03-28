@@ -53,7 +53,7 @@
   border: 1px solid rgba(90, 44, 124, 0.14);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.86);
-  color: #5a2c7c;
+  color: #4d216a;
   font: inherit;
   font-size: 1.05rem;
   font-weight: 800;
@@ -61,7 +61,7 @@
 }
 
 .my-orders-tab.is-active {
-  background: #5a2c7c;
+  background: #4d216a;
   color: #fff;
 }
 
@@ -93,7 +93,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(90, 44, 124, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -291,7 +291,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #5a2c7c;
+  color: #4d216a;
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
@@ -345,7 +345,7 @@
   background: rgba(178, 155, 206, 0.34);
   display: inline-flex;
   align-items: center;
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.86rem;
   font-weight: 900;
   letter-spacing: 0.04em;
@@ -394,7 +394,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #5a2c7c, #8b4db0);
+  background: linear-gradient(90deg, #4d216a, #8b4db0);
   transition: width 220ms ease;
 }
 
@@ -414,8 +414,8 @@
 }
 
 .order-status-line-marker.is-reached {
-  border-color: #5a2c7c;
-  background: #5a2c7c;
+  border-color: #4d216a;
+  background: #4d216a;
 }
 
 .order-status-line-marker.is-current {
