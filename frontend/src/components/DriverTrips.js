@@ -77,7 +77,6 @@ export default function DriverTrips() {
             <div className="driver-trip-items-block">
               <div className="driver-trip-items-header">
                 <div>
-                  <p className="driver-trips-card-kicker">Trip items</p>
                   <h3>What can shoppers claim?</h3>
                 </div>
                 <button className="driver-trip-add-item" onClick={addItemRow} type="button">
