@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Landing from './components/Landing';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -6,42 +7,78 @@ import MyOrders from './components/MyOrders';
 import TripDetail from './components/TripDetail';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
+import { useSession } from './contexts/SessionProvider';
+import { buildAuthRedirectUrl } from './hooks/usePostAuthRedirect';
 import useAppLoader, { getCurrentPathname } from './hooks/useAppLoader';
 import './App.css';
 
+const PROTECTED_PATHS = new Set([
+  '/trip-feed',
+  '/trips',
+  '/my-orders',
+  '/trip-detail',
+  '/profile',
+  '/settings',
+]);
+
+function isProtectedPathname(pathname) {
+  return PROTECTED_PATHS.has(pathname);
+}
+
 function App() {
   const { showLoader, loaderIsLeaving } = useAppLoader();
+  const { currentUser, isSessionLoading } = useSession();
 
   // Keep routing lightweight for now by mapping views directly from the URL path
   // instead of introducing a router dependency during the prototype phase.
   const pathname = getCurrentPathname();
-  let pageContent = <Landing />;
+  const routeRequiresAuth = isProtectedPathname(pathname);
+  const shouldRedirectToLogin = routeRequiresAuth && !isSessionLoading && !currentUser;
+  const shouldHoldProtectedRoute = routeRequiresAuth && isSessionLoading && !currentUser;
+  // Capture the protected destination before swapping the rendered page to
+  // Login so the submit handler can send the shopper back to the same route.
+  const requestedPath =
+    shouldRedirectToLogin && typeof window !== 'undefined'
+      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+      : null;
+  const resolvedPathname = shouldRedirectToLogin ? '/login' : pathname;
+  let pageContent = shouldHoldProtectedRoute ? null : <Landing />;
 
-  if (pathname === '/login') {
-    pageContent = <Login />;
+  useEffect(() => {
+    if (!shouldRedirectToLogin || pathname === '/login') {
+      return;
+    }
+
+    // Replace the URL so protected routes cannot be browsed directly without
+    // an authenticated session. The login screen becomes the canonical route.
+    window.history.replaceState(null, '', buildAuthRedirectUrl(requestedPath));
+  }, [pathname, requestedPath, shouldRedirectToLogin]);
+
+  if (resolvedPathname === '/login') {
+    pageContent = <Login pendingRedirectPath={requestedPath} />;
   }
 
-  if (pathname === '/register') {
+  if (resolvedPathname === '/register') {
     pageContent = <Register />;
   }
 
-  if (pathname === '/trip-feed' || pathname === '/trips') {
+  if (resolvedPathname === '/trip-feed' || resolvedPathname === '/trips') {
     pageContent = <TripFeed />;
   }
 
-  if (pathname === '/my-orders') {
+  if (resolvedPathname === '/my-orders') {
     pageContent = <MyOrders />;
   }
 
-  if (pathname === '/trip-detail') {
+  if (resolvedPathname === '/trip-detail') {
     pageContent = <TripDetail />;
   }
 
-  if (pathname === '/profile') {
+  if (resolvedPathname === '/profile') {
     pageContent = <Profile />;
   }
 
-  if (pathname === '/settings') {
+  if (resolvedPathname === '/settings') {
     pageContent = <Settings />;
   }
 

@@ -19,6 +19,13 @@ export default function Profile() {
   } = useProfilePageState();
   const profile = getProfileFromUser(currentUser);
 
+  if (!profile) {
+    // App-level auth gating should stop this path before render, but returning
+    // nothing here prevents any fallback identity from appearing if session
+    // state drops out during logout or refresh.
+    return null;
+  }
+
   return (
     <main className="profile-page">
       <ShopperHeader activePage="" isScrolled={isScrolled} scrollProgress={scrollProgress} />
@@ -53,27 +60,27 @@ export default function Profile() {
         <article className="profile-card profile-details-card">
           <div className="profile-identity">
             <span aria-hidden="true" className="profile-avatar">
-              {profile?.initials || 'BB'}
+              {profile.initials}
             </span>
 
             <div className="profile-identity-copy">
-              <h2>{profile?.name || 'Bulk Buddy user'}</h2>
-              <p>Role: {profile?.role || 'Shopper'}</p>
+              <h2>{profile.name}</h2>
+              <p>Role: {profile.role}</p>
             </div>
           </div>
 
           <dl className="profile-details-list">
             <div>
               <dt>Email</dt>
-              <dd>{profile?.email || 'No email loaded'}</dd>
+              <dd>{profile.email}</dd>
             </div>
             <div>
               <dt>Address</dt>
-              <dd>{profile?.address || 'No address loaded'}</dd>
+              <dd>{profile.address}</dd>
             </div>
             <div>
               <dt>Nearby radius</dt>
-              <dd>{profile?.nearbyRadius || '5 miles'}</dd>
+              <dd>{profile.nearbyRadius}</dd>
             </div>
           </dl>
 

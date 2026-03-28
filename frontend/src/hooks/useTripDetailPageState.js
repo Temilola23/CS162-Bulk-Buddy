@@ -1,4 +1,4 @@
-import usePageScrollProgress from '../components/usePageScrollProgress';
+import usePageScrollProgress from './usePageScrollProgress';
 import useTripDetailState from './useTripDetailState';
 
 export default function useTripDetailPageState() {

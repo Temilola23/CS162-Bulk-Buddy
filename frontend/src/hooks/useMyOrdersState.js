@@ -1,4 +1,4 @@
-import useLinkedOrderSelection from '../components/useLinkedOrderSelection';
+import useLinkedOrderSelection from './useLinkedOrderSelection';
 import useShopperOrdersData from './useShopperOrdersData';
 import { getOrderStatusStepIndex } from '../utils/orderStatus';
 

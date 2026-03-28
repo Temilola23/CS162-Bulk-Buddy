@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { buildLinkedOrderHref } from '../utils/linkedOrderHref';
 
 const ORDER_SELECTION_STORAGE_KEY = 'bulk-buddy-linked-order-selection';
 const defaultOptions = {
@@ -105,29 +106,6 @@ export function resolveLinkedOrderSelection(orders, candidateSelection = {}, fal
     date: nextDate,
     orderId: nextOrder?.id || '',
   };
-}
-
-export function buildLinkedOrderHref(pathname, selection) {
-  if (!selection) {
-    return pathname;
-  }
-
-  const searchParams = new URLSearchParams();
-
-  if (selection.bucket) {
-    searchParams.set('bucket', selection.bucket);
-  }
-
-  if (selection.date) {
-    searchParams.set('date', selection.date);
-  }
-
-  if (selection.orderId) {
-    searchParams.set('order', selection.orderId);
-  }
-
-  const query = searchParams.toString();
-  return query ? `${pathname}?${query}` : pathname;
 }
 
 export function getLinkedOrderHref(pathname, orders, fallbackBucket = '') {
