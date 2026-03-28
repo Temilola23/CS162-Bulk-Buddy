@@ -1,3 +1,5 @@
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.extensions import db
 from app.models import DriverApplication, User
 from app.models.enums import ApplicationStatus, UserRole
@@ -35,13 +37,6 @@ def create_driver_application(user_id, license_info=None):
         db.session.add(driver_application)
         db.session.commit()
         return driver_application, None, 201
-    except Exception as e:
+    except SQLAlchemyError:
         db.session.rollback()
-        error_type = type(e).__name__
-        error_message = str(e)
-        return (
-            None,
-            f"""Failed to create driver application \\
-            {error_type}:{error_message}""",
-            500,
-        )
+        return None, "Failed to create driver application", 500
