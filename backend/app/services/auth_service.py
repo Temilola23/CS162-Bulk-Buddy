@@ -10,6 +10,7 @@ from app.models import User, UserRole
 
 load_dotenv()
 
+
 def authenticate_user(email, password, remember=False, is_admin=False):
     """
     Authenticate user credentials and create a session.
