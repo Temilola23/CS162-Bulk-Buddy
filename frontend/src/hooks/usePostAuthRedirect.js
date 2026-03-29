@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 function normalizeRedirectPath(target, fallbackPath) {
   if (!target || typeof target !== 'string') {
@@ -24,6 +25,8 @@ export function buildAuthRedirectUrl(targetPath) {
 }
 
 export default function usePostAuthRedirect(fallbackPath = '/trip-feed', preferredRedirectPath = null) {
+  const location = useLocation();
+
   return useMemo(() => {
     if (preferredRedirectPath) {
       const redirectPath = normalizeRedirectPath(preferredRedirectPath, fallbackPath);
@@ -33,14 +36,7 @@ export default function usePostAuthRedirect(fallbackPath = '/trip-feed', preferr
       };
     }
 
-    if (typeof window === 'undefined') {
-      return {
-        redirectPath: fallbackPath,
-        authQueryString: '',
-      };
-    }
-
-    const searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(location.search);
     const requestedNextPath = searchParams.get('next');
     const redirectPath = normalizeRedirectPath(requestedNextPath, fallbackPath);
     const hasExplicitNextTarget = requestedNextPath === redirectPath;
@@ -51,5 +47,5 @@ export default function usePostAuthRedirect(fallbackPath = '/trip-feed', preferr
         ? `?next=${encodeURIComponent(redirectPath)}`
         : '',
     };
-  }, [fallbackPath, preferredRedirectPath]);
+  }, [fallbackPath, location.search, preferredRedirectPath]);
 }

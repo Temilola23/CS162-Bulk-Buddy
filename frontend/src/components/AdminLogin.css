@@ -1,0 +1,114 @@
+.admin-login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background:
+    radial-gradient(520px 280px at 0% 0%, rgba(155, 34, 230, 0.12), transparent 72%),
+    radial-gradient(520px 280px at 100% 0%, rgba(47, 111, 115, 0.1), transparent 72%),
+    #f1e8f6;
+}
+
+.admin-login-card {
+  width: min(520px, 100%);
+  padding: 34px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 48px rgba(77, 33, 106, 0.12);
+  display: grid;
+  gap: 24px;
+}
+
+.admin-login-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #2f1847;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.admin-login-brand img {
+  width: 40px;
+  height: 40px;
+}
+
+.admin-login-copy,
+.admin-login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-login-kicker {
+  margin: 0;
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(77, 33, 106, 0.1);
+  color: #5b2c80;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.admin-login-copy h1,
+.admin-login-copy p {
+  margin: 0;
+}
+
+.admin-login-copy p:last-child {
+  color: rgba(47, 24, 71, 0.78);
+}
+
+.admin-login-field {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-login-field span {
+  font-weight: 600;
+}
+
+.admin-login-field input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(77, 33, 106, 0.16);
+  border-radius: 18px;
+  padding: 14px 16px;
+  font: inherit;
+  background: #fff;
+}
+
+.admin-login-error {
+  margin: 0;
+  color: #9d1b35;
+  font-weight: 600;
+}
+
+.admin-login-submit {
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: #4d216a;
+  cursor: pointer;
+}
+
+.admin-login-submit:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.admin-login-switch {
+  margin: 0;
+  color: rgba(47, 24, 71, 0.78);
+}
+
+.admin-login-switch a {
+  color: #4d216a;
+  font-weight: 600;
+}

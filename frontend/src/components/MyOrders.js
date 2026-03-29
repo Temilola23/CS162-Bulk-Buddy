@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import ShopperHeader from './ShopperHeader';
 import { buildLinkedOrderHref } from '../utils/linkedOrderHref';
 import { statusSteps } from '../data/shopperOrders';
@@ -164,12 +165,12 @@ export default function MyOrders() {
                 <h2>{activeOrder.title}</h2>
                 <p>{activeOrder.summary}</p>
               </div>
-              <a
+              <Link
                 className="order-group-link"
-                href={buildLinkedOrderHref('/trip-detail', selection)}
+                to={buildLinkedOrderHref('/trip-detail', selection)}
               >
                 View trip detail
-              </a>
+              </Link>
             </div>
 
             <div className="order-group-status">

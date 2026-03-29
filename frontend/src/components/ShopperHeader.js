@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import HeaderScrollProgress from './HeaderScrollProgress';
 import { useSession } from '../contexts/SessionProvider';
 import useShopperHeaderState from '../hooks/useShopperHeaderState';
@@ -17,20 +18,20 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
   return (
     <header className={`shopper-header ${isScrolled ? 'is-scrolled' : ''}`.trim()}>
       <div className="shopper-header-inner">
-        <a className="shopper-brand" href="/trip-feed">
+        <Link className="shopper-brand" to="/trip-feed">
           <img alt="Bulk Buddy logo" className="shopper-brand-logo" src="/images/logo-main1.png" />
           <span>Bulk Buddy</span>
-        </a>
+        </Link>
 
         <nav aria-label="Shopper pages" className="shopper-nav">
           {navItems.map((item) => (
-            <a
+            <Link
               className={`shopper-nav-link ${activePage === item.id ? 'is-active' : ''}`.trim()}
-              href={item.href}
+              to={item.to}
               key={item.id}
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -61,12 +62,12 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
 
           {menuOpen ? (
             <div className="shopper-profile-menu" role="menu">
-              <a className="shopper-profile-menu-item is-link" href="/profile" role="menuitem">
+              <Link className="shopper-profile-menu-item is-link" to="/profile" role="menuitem">
                 View Profile
-              </a>
-              <a className="shopper-profile-menu-item is-link" href="/settings" role="menuitem">
+              </Link>
+              <Link className="shopper-profile-menu-item is-link" to="/settings" role="menuitem">
                 Account Settings
-              </a>
+              </Link>
               <button className="shopper-profile-menu-item" onClick={logout} role="menuitem" type="button">
                 Logout
               </button>

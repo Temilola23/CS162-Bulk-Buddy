@@ -85,7 +85,7 @@
 }
 
 .shopper-nav-link.is-active {
-  background: #5a2c7c;
+  background: #4d216a;
   color: #fff;
 }
 
@@ -126,7 +126,7 @@
   display: grid;
   place-items: center;
   color: #fff;
-  background: #5a2c7c;
+  background: #4d216a;
   box-shadow: 0 10px 24px rgba(90, 44, 124, 0.28);
 }
 

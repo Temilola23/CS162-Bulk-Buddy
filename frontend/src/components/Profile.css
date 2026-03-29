@@ -70,7 +70,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(90, 44, 124, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -110,12 +110,17 @@
 
 .profile-status-badge.is-locked {
   background: rgba(77, 33, 106, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
 }
 
 .profile-status-badge.is-pending {
   background: rgba(215, 166, 42, 0.18);
   color: #8b6b0f;
+}
+
+.profile-status-badge.is-approved {
+  background: rgba(39, 142, 103, 0.14);
+  color: #196d4e;
 }
 
 .profile-card-grid {
@@ -144,7 +149,7 @@
   display: grid;
   place-items: center;
   color: #fff;
-  background: #5a2c7c;
+  background: #4d216a;
   box-shadow: 0 12px 24px rgba(90, 44, 124, 0.24);
   font-size: 1.9rem;
   font-weight: 900;
@@ -162,6 +167,12 @@
 
 .profile-identity-copy p {
   font-size: 1rem;
+}
+
+.profile-role-value {
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #301746;
 }
 
 .profile-details-list {
@@ -196,7 +207,8 @@
 }
 
 .profile-secondary-action,
-.profile-primary-action {
+.profile-primary-action,
+.profile-primary-link {
   min-height: 48px;
   padding: 0 18px;
   border-radius: 999px;
@@ -207,6 +219,17 @@
 .profile-primary-action:disabled {
   cursor: wait;
   opacity: 0.72;
+}
+
+.profile-primary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border: 1px solid #4d216a;
+  background: #4d216a;
+  color: #fff;
+  text-decoration: none;
 }
 
 .profile-secondary-action {
@@ -285,7 +308,7 @@
 
 .profile-primary-action {
   border: none;
-  background: #5a2c7c;
+  background: #4d216a;
   color: #fff;
   cursor: pointer;
   transition:

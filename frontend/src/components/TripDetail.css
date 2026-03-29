@@ -91,7 +91,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(90, 44, 124, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -105,7 +105,7 @@
   background: rgba(178, 155, 206, 0.34);
   display: inline-flex;
   align-items: center;
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: 0.03em;
@@ -154,7 +154,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #5a2c7c, #8b4db0);
+  background: linear-gradient(90deg, #4d216a, #8b4db0);
   transition: width 220ms ease;
 }
 
@@ -174,8 +174,8 @@
 }
 
 .trip-detail-status-line-marker.is-reached {
-  border-color: #5a2c7c;
-  background: #5a2c7c;
+  border-color: #4d216a;
+  background: #4d216a;
 }
 
 .trip-detail-status-line-marker.is-current {
@@ -573,7 +573,7 @@
   bottom: 4px;
   width: calc(50% - 4px);
   border-radius: 999px;
-  background: #5a2c7c;
+  background: #4d216a;
   box-shadow: rgba(50, 50, 93, 0.16) 0px 8px 16px -12px, rgba(0, 0, 0, 0.18) 0px 6px 12px -10px;
   transition: transform 220ms ease;
 }
@@ -588,7 +588,7 @@
   min-height: 48px;
   border: none;
   background: transparent;
-  color: #5a2c7c;
+  color: #4d216a;
   font: inherit;
   font-weight: 800;
   cursor: pointer;

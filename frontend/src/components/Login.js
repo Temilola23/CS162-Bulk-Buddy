@@ -1,24 +1,22 @@
+import { Link } from 'react-router-dom';
 import useLoginForm from '../hooks/useLoginForm';
 import usePostAuthRedirect from '../hooks/usePostAuthRedirect';
 import './Login.css';
 
-export default function Login({ pendingRedirectPath = null }) {
-  // When App redirects a protected route to login, keep that target alive on
-  // the first render instead of falling back to the default trip-feed page.
-  const { redirectPath, authQueryString } = usePostAuthRedirect(
-    '/trip-feed',
-    pendingRedirectPath,
-  );
+export default function Login() {
+  // Use any ?next= target already present in the auth URL so successful login
+  // can return the shopper to the protected page they originally requested.
+  const { redirectPath, authQueryString } = usePostAuthRedirect('/trip-feed');
   const { form, errorMessage, isSubmitting, handleFieldChange, handleSubmit } = useLoginForm(
     redirectPath,
   );
 
   return (
     <main className="login-page">
-      <a className="login-brand" href="/">
+      <Link className="login-brand" to="/">
         <img alt="Bulk Buddy logo" className="login-brand-logo" src="/images/logo-main1.png" />
         <span>Bulk Buddy</span>
-      </a>
+      </Link>
 
       <section className="login-card">
         <p className="login-kicker">Welcome back</p>
@@ -58,7 +56,7 @@ export default function Login({ pendingRedirectPath = null }) {
         </form>
 
         <p className="login-switch">
-          New to Bulk Buddy? <a href={`/register${authQueryString}`}>Create an account</a>
+          New to Bulk Buddy? <Link to={`/register${authQueryString}`}>Create an account</Link>
         </p>
       </section>
     </main>

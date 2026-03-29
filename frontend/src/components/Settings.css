@@ -78,7 +78,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(90, 44, 124, 0.1);
-  color: #5a2c7c;
+  color: #4d216a;
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -211,7 +211,7 @@
 
 /* Move the thumb across the track when the checkbox is enabled. */
 .settings-toggle input:checked + .settings-toggle-slider {
-  background: #5a2c7c;
+  background: #4d216a;
 }
 
 .settings-toggle input:checked + .settings-toggle-slider::after {
@@ -235,7 +235,7 @@
   padding: 0 20px;
   border: none;
   border-radius: 999px;
-  background: #5a2c7c;
+  background: #4d216a;
   color: #fff;
   font: inherit;
   font-weight: 800;

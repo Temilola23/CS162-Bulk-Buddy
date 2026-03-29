@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import ShopperHeader from './ShopperHeader';
 import { useSession } from '../contexts/SessionProvider';
 import useProfilePageState from '../hooks/useProfilePageState';
@@ -10,6 +11,8 @@ export default function Profile() {
     isScrolled,
     scrollProgress,
     applicationForm,
+    applicationApproved,
+    applicationRejected,
     applicationSubmitted,
     submittedApplicationDetails,
     errorMessage,
@@ -42,18 +45,32 @@ export default function Profile() {
       <section className="profile-post-trip-panel" aria-label="Post trip access">
         <div className="profile-post-trip-copy">
           <p className="profile-post-trip-kicker">Post Trip</p>
-          <h2>Posting stays locked until driver access is approved.</h2>
+          <h2>
+            {applicationApproved
+              ? 'Driver access is active. You can post trips now.'
+              : 'Posting stays locked until driver access is approved.'}
+          </h2>
           <p>
-            {applicationSubmitted
+            {applicationApproved
+              ? 'Your driver verification has been approved. Open the trip posting page to publish your next warehouse run.'
+              : applicationSubmitted
               ? 'Your application is pending review, so trip posting is still unavailable right now.'
+              : applicationRejected
+              ? 'Your last application was rejected. Review the details below and submit a new application when you are ready.'
               : 'Complete the driver application first. An admin review will unlock trip posting once you are approved.'}
           </p>
         </div>
-        <span
-          className={`profile-status-badge ${applicationSubmitted ? 'is-pending' : 'is-locked'}`.trim()}
-        >
-          {applicationSubmitted ? 'Pending' : 'Locked'}
-        </span>
+        {applicationApproved ? (
+          <Link className="profile-primary-link" to="/post-trip">
+            Open Post Trip
+          </Link>
+        ) : (
+          <span
+            className={`profile-status-badge ${applicationSubmitted ? 'is-pending' : 'is-locked'}`.trim()}
+          >
+            {applicationSubmitted ? 'Pending' : 'Locked'}
+          </span>
+        )}
       </section>
 
       <section className="profile-card-grid">
@@ -65,7 +82,9 @@ export default function Profile() {
 
             <div className="profile-identity-copy">
               <h2>{profile.name}</h2>
-              <p>Role: {profile.role}</p>
+              <p>
+                Role: <span className="profile-role-value">{profile.role}</span>
+              </p>
             </div>
           </div>
 
@@ -88,16 +107,40 @@ export default function Profile() {
             <button className="profile-secondary-action" type="button">
               Update address
             </button>
-            <a className="profile-secondary-action is-outline profile-secondary-link" href="/settings">
+            <Link className="profile-secondary-action is-outline profile-secondary-link" to="/settings">
               Settings
-            </a>
+            </Link>
           </div>
         </article>
 
         <article className="profile-card profile-application-card">
           <p className="profile-card-kicker">Driver application</p>
 
-          {applicationSubmitted ? (
+          {applicationApproved ? (
+            <div className="profile-application-review">
+              <h2>Driver access approved</h2>
+              <p>
+                Your license details were approved and your account now has driver permissions.
+              </p>
+
+              <span className="profile-status-badge is-approved">Approved</span>
+
+              <dl className="profile-application-summary">
+                <div>
+                  <dt>License number</dt>
+                  <dd>{submittedApplicationDetails.licenseNumber || 'Not available'}</dd>
+                </div>
+                <div>
+                  <dt>Expiration date</dt>
+                  <dd>{submittedApplicationDetails.expirationDate || 'Not available'}</dd>
+                </div>
+              </dl>
+
+              <Link className="profile-primary-link" to="/post-trip">
+                Go to Post Trip
+              </Link>
+            </div>
+          ) : applicationSubmitted ? (
             <div className="profile-application-review">
               <h2>Application under review</h2>
               <p>
