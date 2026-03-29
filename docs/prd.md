@@ -16,35 +16,29 @@ The platform connects:
 ## 3. Core Product Decision
 
 - Address is required during registration
-- The system computes user location from the address
-- Home page shows nearby trips (default: 5 miles)
-- Trips are sorted by distance (nearest first)
+- The shopper experience centers on authenticated trip browsing, checkout, and order review
+- The Trip Feed shows currently open trips and sorts them by distance using the current frontend implementation
+- Checkout creates persisted orders that shoppers can review in `My Orders`
+- Driver trip management is separated from the shopper Trip Feed through a dedicated `My Trips` feed in MVP2
 
 Note: This project uses Option A and does not implement Option B (city dropdown).
 
-## 4. V1 Scope
+## 4. Current Product Scope
 
-### 4.1 Must Have (P0)
+### 4.1 In Scope
 
 - Sign up / Login / Logout
 - Default role is Shopper; users can apply to become Driver
-- Driver can create, edit, and close trips
-- Shopper can browse nearby trip list and trip details
-- Shopper can claim item shares
-- Oversell prevention (must hold under concurrency)
-- Order status transitions
-- My Orders / My Trips pages
-- Frontend minimum pages:
-  - Auth pages: register/login
-  - Driver application page (`real_name` + `license_number`)
-  - Home trip feed (distance-sorted cards)
-  - Trip detail page
-  - Shopper "My Orders" page
-  - Driver "My Trips" management page
-  - Admin login page (same frontend app, admin-only route)
-  - Admin application review page (same frontend app, admin-only route)
+- Shopper can browse open trips and review trip details
+- Shopper can select item quantities and create orders through checkout
+- Shopper can review their own orders in `My Orders`
+- Shopper can open linked trip detail from order history
+- Users can view and update their account information in `Profile` / `Settings`
+- Shoppers can submit a driver application
+- MVP2 adds a dedicated driver `My Trips` feed
+- MVP2 adds a checkout confirmation pop-up, redirect to `My Orders`, aggregated inventory view, and duplicate order guard
 
-### 4.2 Out of Scope (V1)
+### 4.2 Deferred / Out of Scope for the Current PRD
 
 - In-app chat
 - Rating system
@@ -52,42 +46,49 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 - Route optimization
 - Audit logging system
 - Production monitoring/alerting system
+- Address geocoding and backend radius filtering
+- Frontend admin pages
+- Frontend driver trip creation / editing / close controls
+- Full multi-step order status management beyond the current checkout and completion flow
+- Strong multi-worker concurrency guarantees beyond current course-scale SQLite usage
 
 ## 5. Roles and Permissions
 | Feature | Not Logged In | Shopper | Driver (Verified) | Admin |
 |---|---|---|---|---|
 | Browse trips | No | Yes | Yes | Yes |
 | View trip details | No | Yes | Yes | Yes |
-| Claim items | No | Yes | Yes | No |
-| Create/Edit/Close trip | No | No | Yes | Yes |
-| Access admin pages | No | No | No | Yes |
-| View driver application list | No | No | No | Yes |
-| Review driver applications | No | No | No | Yes |
+| Checkout / create order | No | Yes | Yes | No |
+| View own orders | No | Yes | Yes | No |
+| Submit driver application | No | Yes | No | No |
+| View dedicated `My Trips` feed | No | No | Yes | No |
+| Review aggregated inventory in `My Trips` | No | No | Yes | No |
+| Update own profile/settings | No | Yes | Yes | Yes |
+| Use admin review APIs (backend only) | No | No | No | Yes |
 
 ## 6. Core Flows
 
 ### 6.1 Shopper Flow
 
 1. Register with address
-2. Browse nearby trips
-3. Open trip details and view items/available shares
-4. Submit claim
-5. Track order status until completion
+2. Log in to the protected shopper experience
+3. Browse open trips in the Trip Feed
+4. Open Trip Detail and review pickup information, driver information, and item availability
+5. Select item quantities and complete checkout
+6. See checkout confirmation and land on `My Orders`
+7. Review the newly created order and linked trip detail
 
 ### 6.2 Driver Flow
 
-1. Register and apply as Driver
-2. After approval, create a trip
-3. Manage trip and item shares
-4. Update claim status and complete handoff
+1. Register as a shopper and submit a driver application
+2. After approval, access the dedicated `My Trips` feed
+3. Review only the driver's own trips
+4. Review aggregated inventory for each trip without mixing this view into the shopper Trip Feed
 
 ### 6.3 Admin Flow
 
-1. Log in from the shared frontend app through an admin-only route
-2. Open the driver application review page
-3. View all submitted applications in a list
-4. Review each application's `real_name`, `license_number`, current `status`, and `operator`
-5. Approve or reject the application
+- Admin authentication and review endpoints exist on the backend
+- Admin frontend pages are not part of the current MVP1/MVP2 scope
+- Frontend admin review UX can be defined later if that work is explicitly scheduled
 
 ## 7. Functional Requirements (FR)
 
@@ -96,74 +97,77 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 - Support email sign-up/login
 - Address required at registration (`street/city/state/zip`)
 - New user default role is `shopper`
+- Support logout
+- Protected shopper pages require an authenticated session
 
-### FR-2 Address and Nearby Trips (Option A)
+### FR-2 Trip Feed and Distance Presentation
 
-- Registration address must be converted to `lat/lng`
-- Home page shows only trips within radius
-- Response includes distance and is sorted by distance
+- The Trip Feed shows only trips whose status is `open`
+- Trips are presented in ascending distance order using the current frontend distance calculation
+- Backend radius filtering is not required in MVP1
+- The product may use stored coordinates when available, but geocoding is not a current MVP1/MVP2 requirement
 
 ### FR-3 Driver Verification
 
 - Shopper can submit driver application
-- Driver application form fields are limited to `real_name` and `license_number`
-- Both fields are required
+- The current driver application captures license information for review
 - Status: `pending/approved/rejected`
-- Only `approved` drivers can create trips
+- A user who is already a driver cannot submit another driver application
+- A user with an existing pending application cannot submit another pending application
+- Only `approved` drivers can access driver-only trip endpoints
 
-### FR-4 Trip Management
+### FR-4 Trips and Driver Views
 
-- Driver can create/edit/close trips
-- Trip fields: `store_name, pickup_location, pickup_time, capacity_total`
-- Trip must store pickup coordinates (`pickup_lat`, `pickup_lng`) for distance calculation and map/link display
-- Trip status definitions:
-  - `open`: visible in feed and claimable
-  - `closed`: no new claims allowed; existing claims still visible in history
-  - `expired`: pickup time passed; no new claims allowed
-- Only trips with status `open` are claimable
+- Trips store `store_name`, `pickup_location_text`, `pickup_lat`, `pickup_lng`, and `pickup_time`
+- Trip records support status values `open`, `closed`, `completed`, and `cancelled`
+- Driver trip data exists separately from the shopper Trip Feed
+- MVP2 introduces a dedicated driver `My Trips` feed for reviewing the driver's own trips
+- Aggregated inventory is displayed from trip-level item data inside `My Trips`
+- Frontend trip creation and trip-editing workflows are deferred until explicitly scheduled
 
-### FR-5 Items and Claims
+### FR-5 Items, Cart, and Checkout
 
-- Driver adds items to trip: `name, unit, total_share`
+- Driver trip items use `name`, `unit`, `total_quantity`, `claimed_quantity`, and optional `price_per_unit`
 - Item field definitions:
   - `name`: shopper-facing item label (example: "Chicken Breast")
-  - `unit`: how one share is measured/displayed (examples: `lb`, `kg`, `pack`, `box`, `each`)
-  - `total_share`: maximum claimable share count for the item on that trip
-  - `claimed_share`: already claimed share count (system-maintained)
-- Shopper claim quantity must satisfy `qty > 0`
-- System maintains `claimed_share`
-- `claimed_share > total_share` is never allowed
+  - `unit`: shopper-facing unit label (examples: `lb`, `pack`, `box`, `each`)
+  - `total_quantity`: maximum available quantity for that trip item
+  - `claimed_quantity`: already reserved quantity (system-maintained)
+- Shoppers can select item quantities only from trips with status `open`
+- Checkout quantities must be positive integers and cannot exceed the currently available quantity
+- Checkout creates persisted order records
+- The current flow creates one order per trip represented in the shopper's cart
+- MVP2 shows a confirmation pop-up after successful checkout and then redirects the shopper to `My Orders`
+- MVP2 must guard against duplicate checkout submission creating unintended duplicate orders
 
-### FR-6 State Machine
+### FR-6 Order Status Handling
 
-- Claim states: `Claimed -> Purchased -> ReadyForPickup -> Completed`
-- No skipping states
+- Orders are created in `claimed` status
+- Shoppers can mark their own non-cancelled orders as `completed`
+- A shopper cannot update another shopper's order
+- Intermediate statuses present in the data model are not required for the current frontend MVP flow
 
 ### FR-7 My Pages
 
-- Shopper can view own claims
-- Driver can view own trips and claim summary
+- Shopper can view only their own orders in `My Orders`
+- Each order entry can link to a trip-detail review view
+- Users can view current account details in `Profile`
+- Users can update editable account details in `Settings`
+- MVP2 adds a dedicated driver `My Trips` page with aggregated inventory
 
-### FR-8 Home and Trip Detail UX Requirements
+### FR-8 Trip Feed, Trip Detail, and Checkout UX Requirements
 
-- Home feed must show trips within configured radius from account address and sort by distance ascending
-- Each trip card must show at minimum: driver display name, pickup location text, pickup time, store name, remaining capacity, and distance
-- Trip detail must show: pickup location, pickup time, store name, item list (`name/unit`), each item's available shares, and total remaining capacity
-- Shopper can claim from trip detail only when trip status is `open`
-- Driver home/management view must show their created trips, current status, and claim summary per trip
+- Trip Feed cards must show at minimum: driver display name, pickup location text, pickup time, and distance
+- Trip Detail must show at minimum: driver information, pickup location, pickup time, item list, and each item's available quantity
+- Checkout is available only for trips with status `open`
+- The shopper Trip Feed must not include driver `My Trips` content once MVP2 separation is implemented
+- After successful checkout, the shopper sees a confirmation pop-up and is redirected to `My Orders`
 
-### FR-9 Admin Review Pages
+### FR-9 Admin Scope
 
-- Admin experience is implemented inside the existing frontend app, not as a separate project
-- Admin frontend routes must be admin-only (for example: `/admin/login` and `/admin/applications`)
-- Admin authentication uses the shared user/auth system; only users with role `admin` may access admin pages or admin review APIs
-- After admin login, the default admin destination is the application list page
-- V1 admin review uses a list-only UI; no separate application detail page is required
-- Each application row must show: applicant `real_name`, `license_number`, current `status`, and `operator`
-- `operator` means the admin user who last reviewed the application; pending applications show no operator
-- Each row must provide `Approve` and `Reject` actions
-- Approving an application changes status to `approved`, records the reviewing admin as operator, and upgrades the applicant's role to `driver`
-- Rejecting an application changes status to `rejected` and records the reviewing admin as operator
+- Admin authentication and driver-application review APIs exist on the backend
+- Admin frontend pages are deferred from the current MVP1/MVP2 scope
+- Operator tracking and admin review UI are not current acceptance requirements
 
 ## 8. Data Model (Simplified)
 
@@ -171,105 +175,139 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 
 - id, email, password_hash, role
 - address_street/city/state/zip
-- lat, lng
+- latitude, longitude (optional)
 
 ### Trip
 
 - id, driver_id
 - store_name, pickup_location_text, pickup_lat, pickup_lng, pickup_time
-- capacity_total, capacity_left
-- status (`open/closed/expired`)
+- status (`open/closed/completed/cancelled`)
 
 ### Item
 
 - id, trip_id
-- name, unit
-- total_share, claimed_share
+- name, unit, price_per_unit
+- total_quantity, claimed_quantity
 
-### ClaimOrder
+### Order
 
-- id, trip_id, item_id, shopper_id
-- qty
-- status (`Claimed/Purchased/ReadyForPickup/Completed`)
+- id, shopper_id, trip_id
+- status (`claimed/purchased/ready_for_pickup/completed/cancelled`)
+
+### OrderItem
+
+- id, order_id, item_id
+- quantity
 
 ### DriverApplication
 
 - driver_application_id, user_id
-- real_name, license_number
+- license_info
 - status (`pending/approved/rejected`)
-- reviewed_by_admin_id
 - created_at, updated_at
 
 ## 9. API List (Implementation Reference)
 
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /driver/apply` with payload `{ real_name, license_number }`
-- `GET /admin/driver-applications` returns list rows with `application_id, applicant_real_name, license_number, status, operator`
-- `PATCH /admin/driver-applications/{application_id}` with payload `{ status }`, where `status` is `approved` or `rejected`
-- `GET /trips?radius=5`
-- `POST /trips`
-- `PATCH /trips/{trip_id}`
-- `POST /trips/{trip_id}/claims`
-- `PATCH /claims/{claim_id}/status`
-- `GET /me/claims`
-- `GET /me/trips`
+- `POST /api/signup`
+- `POST /api/login`
+- `POST /api/logout`
+- `GET /api/me`
+- `PUT /api/me`
+- `GET /api/trips`
+- `GET /api/trips/{trip_id}`
+- `GET /api/me/orders`
+- `POST /api/me/orders`
+- `PATCH /api/me/orders/{order_id}/complete`
+- `POST /api/driver/apply`
+- `GET /api/me/trips`
+- `POST /api/me/trips`
+- `PUT /api/me/trips/{trip_id}`
+- `PATCH /api/me/trips/{trip_id}/close`
+- `PATCH /api/me/trips/{trip_id}/complete`
+- `PATCH /api/me/trips/{trip_id}/cancel`
+- Backend admin APIs:
+  - `POST /admin/login`
+  - `POST /admin/register`
+  - `POST /admin/logout`
+  - `GET /admin/pending`
+  - `GET /admin/approved`
+  - `GET /admin/rejected`
+  - `PUT /admin/decision/{app_id}`
 
 ## 9.1 Domain Glossary (To Avoid Ambiguity)
 
-- `share`: the atomic claim quantity unit for an item in one trip
-- `unit`: shopper-visible measurement label for a share (such as `lb`, `pack`, `each`)
-- `total_share`: total number of shares published by driver for an item
-- `claimed_share`: number of shares already reserved by shoppers
-- `available_share`: `total_share - claimed_share`
-- `capacity_total`: max total carrying capacity for a trip set by driver
-- `capacity_left`: remaining trip capacity after accepted claims
-- `operator`: the admin user who last reviewed a driver application
+- `unit`: shopper-visible measurement label for an item quantity (such as `lb`, `pack`, `each`)
+- `total_quantity`: total quantity listed for a trip item
+- `claimed_quantity`: quantity already reserved by shoppers
+- `available_quantity`: `total_quantity - claimed_quantity`
+- `order`: a shopper's persisted checkout against one trip
+- `order item`: one quantity selection inside an order
+- `aggregated inventory view`: a driver-facing summary of trip inventory derived from the trip's item quantities and claimed quantities
 
-## 10. Concurrency and Oversell Prevention (Required)
+## 10. Inventory Consistency and Checkout Notes
 
 ### 10.1 V1 Database Assumption (MVP1)
 
 - V1 uses **SQLite** as the primary database.
-- SQLite does not provide PostgreSQL-style row-level locks (`SELECT ... FOR UPDATE`); write concurrency is controlled primarily by database-level locking.
-- In practice, concurrent claim writes are serialized more aggressively in SQLite. This helps correctness in low traffic, but throughput is lower than a row-level-locking database.
+- The current implementation targets local/dev and course-scale usage.
+- SQLite is acceptable for the current MVP1 flow and early MVP2 work.
 
-### 10.2 Claim Transaction Pattern (SQLite-compatible)
+### 10.2 Current Order Creation Pattern
 
-The claim endpoint must run in one database transaction with this logic:
+The current order-creation flow follows this application pattern:
 
-1. Begin write transaction
-2. Read target item and compute `available = total_share - claimed_share`
-3. Validate `available >= qty`
-4. Update `claimed_share = claimed_share + qty`
-5. Insert ClaimOrder record
-6. Commit transaction
+1. Read the target trip and confirm it is `open`
+2. Read the selected items and compute each item's `available_quantity`
+3. Validate each submitted quantity
+4. Create the `Order`
+5. Create the related `OrderItem` rows
+6. Update each item's `claimed_quantity`
+7. Commit the transaction
 
 If validation fails, return business conflict error (409).
 
 ### 10.3 Limitation and Upgrade Path (MVP2/MVP3)
 
 - For MVP1 and early MVP2, SQLite is acceptable for course-scale traffic and single-instance deployment.
-- If AC-4 must hold under higher concurrency (multi-worker or multi-instance deployment), the team should migrate to PostgreSQL in MVP2 or MVP3.
+- The current implementation is intended to prevent basic inventory over-allocation in normal single-instance use, but stronger concurrency guarantees are not a current MVP1 acceptance requirement.
+- MVP2 includes duplicate order guard as part of checkout hardening.
+- If a future MVP2/MVP3 inventory-consistency acceptance criterion must hold under higher concurrency (multi-worker or multi-instance deployment), the team should migrate to PostgreSQL in MVP2 or MVP3.
 - PostgreSQL target approach:
-  - Keep transactional claim flow
+  - Keep transactional order-creation flow
   - Use row-level locking or equivalent atomic update strategy
-  - Re-run concurrency tests to confirm no oversell under parallel claims
+  - Re-run concurrency tests to confirm no over-allocation under parallel checkout
 
 ## 11. Acceptance Criteria (AC)
 
-- AC-1: Address is required at registration
-- AC-2: Home page only shows `open` trips within radius, sorted by distance
-- AC-3: Unverified drivers cannot create trips
-- AC-4: No oversell under concurrent claims in the declared deployment profile (SQLite single-instance for MVP2 baseline; PostgreSQL required for higher-concurrency deployment)
-- AC-5: Claim state follows defined transitions only
-- AC-6: Shopper can only view own orders
-- AC-7: `closed/expired` trips are not claimable
-- AC-8: Shopper can submit driver application with required fields `real_name` and `license_number` only
-- AC-9: Non-admin users cannot access admin pages or admin review APIs
-- AC-10: Admin can log in and view the driver application list in the existing frontend app
-- AC-11: Each driver application row shows applicant name, license number, current status, and operator
-- AC-12: Admin approval upgrades the applicant to `driver`; rejection does not
+### 11.1 MVP1 Acceptance Criteria
+
+- AC-MVP1-1: A user can register with email and password, and registration requires `first_name`, `last_name`, `email`, `password`, `address_street`, `address_city`, `address_state`, and `address_zip`.
+- AC-MVP1-2: A newly registered user is assigned the default role `shopper`.
+- AC-MVP1-3: A user can log in and log out successfully; unauthenticated access to protected pages or protected APIs is rejected.
+- AC-MVP1-4: The frontend protects at least these routes: `Trip Feed`, `My Orders`, `Trip Detail`, `Profile`, and `Settings`; unauthenticated users attempting to access them are redirected to the login page.
+- AC-MVP1-5: The system can return the current authenticated user profile and the user's most recent driver application status from the current session.
+- AC-MVP1-6: The `Trip Feed` displays only trips whose status is `open`.
+- AC-MVP1-7: Trips in the `Trip Feed` are displayed in ascending distance order using the current frontend distance calculation; MVP1 does not require backend radius filtering.
+- AC-MVP1-8: The `Trip Detail` page displays the trip's core information, including driver information, pickup location, pickup time, and the list of items.
+- AC-MVP1-9: Each item displayed in `Trip Detail` includes at least `name`, `unit`, and `available_quantity`, and allows the shopper to select a quantity.
+- AC-MVP1-10: A shopper can place an order on an `open` trip; each submitted item quantity must be a positive integer and must not exceed the currently available inventory.
+- AC-MVP1-11: When an order is created successfully, the system persists the order and its associated order items, and updates each item's `claimed_quantity`.
+- AC-MVP1-12: A shopper can view only their own orders; the `My Orders` page returns and displays only orders belonging to the authenticated user.
+- AC-MVP1-13: A shopper can mark their own non-cancelled order as `completed`; a shopper cannot update another user's order.
+- AC-MVP1-14: A trip whose status is not `open` cannot be checked out or claimed.
+- AC-MVP1-15: A user can update editable profile data through `Settings` / `Profile`, including at least display name, email, and address fields.
+- AC-MVP1-16: A shopper can submit a driver application; a user who is already a driver, or who already has a pending driver application, cannot submit another pending application.
+
+### 11.2 MVP2 Acceptance Criteria
+
+- AC-MVP2-1: The app provides a dedicated `My Trips` feed for drivers to review their own trips.
+- AC-MVP2-2: The shopper-facing `Trip Feed` no longer includes `My Trips` content or driver trip-management content.
+- AC-MVP2-3: A shopper can complete checkout from selected trip items and create the corresponding order successfully.
+- AC-MVP2-4: After successful checkout, the app shows a confirmation pop-up before redirecting the shopper to `My Orders`.
+- AC-MVP2-5: After the checkout confirmation flow completes, the shopper is redirected to `My Orders` and can see the newly created order there.
+- AC-MVP2-6: The driver `My Trips` feed includes an aggregated inventory view for each trip.
+- AC-MVP2-7: The aggregated inventory view shows inventory at the trip level rather than only as isolated item rows.
+- AC-MVP2-8: Duplicate checkout submissions are guarded so the same checkout action does not create unintended duplicate orders.
 
 ## 12. Three-Version Roadmap (Required by course)
 
@@ -278,40 +316,43 @@ The project must deliver 3 versions (MVP1/MVP2/MVP3) with GitHub tags (`mvp-1`, 
 ### 12.1 Version 1: MVP1 (Foundation)
 
 - Timeline: Week 1-2
-- Goal: complete minimum flow `register -> browse nearby trips`
+- Goal: deliver the currently implemented shopper experience from account creation through order review
 - Scope:
-  - Sign up / Login
-  - Address geocoding
-  - Option A trip feed (radius + distance sort)
-  - Read-only trip details
-  - Record database decision: SQLite for V1, with documented concurrency limitation and migration trigger
+  - Sign up / Login / Logout
+  - New users can create an account with required address fields and then authenticate into the app
+  - The shopper-facing pages are protected so unauthenticated users must log in before viewing trip and order data
+  - The Trip Feed shows currently open trips and presents them in distance-sorted order using the current frontend implementation
+  - Shoppers can open a Trip Detail view to review pickup information, driver information, and item availability
+  - Shoppers can select item quantities and create an order from an open trip
+  - Shoppers can review their own order history in `My Orders`
+  - Shoppers can open a linked trip-detail view from their order history to review the associated trip and item information
+  - Users can view their current account information in `Profile`
+  - Users can update editable account information in `Settings`
+  - Shoppers can submit a driver application for review
 - GitHub Tag: `mvp-1`
 - Demo focus:
-  - Account creation, login, and nearby trips shown
+  - Account creation, login, trip browsing, order creation, and reviewing own orders
 - Exit criteria:
-  - AC-1 and AC-2 pass
+  - All `AC-MVP1-*` criteria pass
   - At least one recordable end-to-end demo segment
 
-### 12.2 Version 2: MVP2 (Transaction)
+### 12.2 Version 2: MVP2 (Checkout + My Trips)
 
 - Timeline: Week 3-5
-- Goal: complete transactional loop `create trip -> claim -> status progress`
+- Goal: separate driver trip management from the shopper feed and complete the checkout flow through post-checkout order review
 - Scope:
-  - Driver verification flow
-  - Admin application review page
-  - Trip CRUD
-  - Item management
-  - Claim creation
-  - Oversell-prevention transaction (SQLite-compatible transactional pattern)
-  - Claim state machine
-  - My Orders / My Trips
-  - Concurrency validation in single-instance SQLite baseline; decide whether PostgreSQL migration is required
+  - Implement a dedicated driver `My Trips` feed
+  - Remove `My Trips` content from the shopper-facing `Trip Feed`
+  - Implement checkout from the trip selection flow
+  - Show a confirmation pop-up after successful checkout
+  - Redirect the shopper to `My Orders` after checkout confirmation
+  - Add an aggregated inventory view in `My Trips`
+  - Fix duplicate order guard for checkout submission
 - GitHub Tag: `mvp-2`
 - Demo focus:
-  - Driver publishes trip, shopper claims, status updates
+  - Driver opens `My Trips`, shopper checks out successfully, sees confirmation, and lands on `My Orders`
 - Exit criteria:
-  - AC-3/AC-4/AC-5/AC-6/AC-7 pass
-  - Concurrency test passes (no oversell)
+  - All `AC-MVP2-*` criteria pass
 
 ### 12.3 Version 3: MVP3 Final (Submission)
 
@@ -321,7 +362,7 @@ The project must deliver 3 versions (MVP1/MVP2/MVP3) with GitHub tags (`mvp-1`, 
   - Bug fixing and stabilization
   - UI/UX polish (without expanding core scope)
   - Final demo and submission materials
-  - If needed from MVP2 decision: complete PostgreSQL migration for stronger concurrent-claim guarantees
+  - If needed from MVP2 decision: complete PostgreSQL migration for stronger inventory-consistency guarantees
 - GitHub Tag: `mvp-3`
 - Demo focus:
   - Full flow + tech stack + deployment + MVP evolution
@@ -333,10 +374,10 @@ The project must deliver 3 versions (MVP1/MVP2/MVP3) with GitHub tags (`mvp-1`, 
 ### 12.4 8-Week Plan (Aligned to 3 Versions)
 
 - Week 1: Requirement freeze, task breakdown, wireframe
-- Week 2: Auth + user model + geocoding + release `mvp-1`
-- Week 3: Driver verification flow
-- Week 4: Trip CRUD + item management
-- Week 5: Claim endpoint + oversell prevention + state machine + release `mvp-2`
+- Week 2: Auth + protected shopper flow + order history + release `mvp-1`
+- Week 3: Driver application flow + MVP2 planning
+- Week 4: `My Trips` feed + remove `My Trips` from shopper Trip Feed
+- Week 5: Checkout flow + confirmation pop-up + redirect to `My Orders` + aggregated inventory + duplicate order guard + release `mvp-2`
 - Week 6: Frontend-backend integration + bug fixing + deployment strategy decision
 - Week 7: Testing + final refinements + demo dry run
 - Week 8: Final demo/submission, release `mvp-3`
@@ -447,6 +488,6 @@ Required artifacts per MVP:
 
 ### 16.3 Design Acceptance Responsibilities (Tara + Boss)
 
-- Confirm key flows are consistent across screens (auth, trip browse, claim, my pages)
+- Confirm key flows are consistent across screens (auth, trip browse, checkout, my pages, and `My Trips`)
 - Confirm UX changes do not expand product scope beyond PRD without explicit decision log entry
 - Confirm final UI used in demo is the same version merged to main branch
