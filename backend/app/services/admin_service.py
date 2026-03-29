@@ -1,5 +1,7 @@
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.extensions import db
-from app.models import DriverApplication, ApplicationStatus, User
+from app.models import ApplicationStatus, DriverApplication, User
 from app.models.enums import UserRole
 
 
@@ -18,15 +20,8 @@ def get_driver_applications_by_status(status):
     try:
         applications = DriverApplication.query.filter_by(status=status).all()
         return applications, None, 200
-    except Exception as e:
-        error_type = type(e).__name__
-        error_message = str(e)
-        return (
-            None,
-            f"Failed to fetch applications by status.\
-                {error_type}:{error_message}",
-            500,
-        )
+    except SQLAlchemyError:
+        return None, "Failed to fetch applications", 500
 
 
 def update_driver_application(app_id, data):
@@ -77,12 +72,6 @@ def update_driver_application(app_id, data):
 
         db.session.commit()
         return driver_application, None, 200
-    except Exception as e:
-        error_type = type(e).__name__
-        error_message = str(e)
-        return (
-            None,
-            f"Failed to update driver application.\
-                {error_type}:{error_message}",
-            500,
-        )
+    except SQLAlchemyError:
+        db.session.rollback()
+        return None, "Failed to update driver application", 500
