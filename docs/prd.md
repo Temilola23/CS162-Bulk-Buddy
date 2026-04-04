@@ -35,6 +35,7 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 - Shopper can open linked trip detail from order history
 - Users can view and update their account information in `Profile` / `Settings`
 - Shoppers can submit a driver application
+- MVP1 includes frontend admin pages for driver-application review
 - MVP2 adds a dedicated driver `My Trips` feed
 - MVP2 adds a checkout confirmation pop-up, redirect to `My Orders`, aggregated inventory view, and duplicate order guard
 
@@ -47,7 +48,6 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 - Audit logging system
 - Production monitoring/alerting system
 - Address geocoding and backend radius filtering
-- Frontend admin pages
 - Frontend driver trip creation / editing / close controls
 - Full multi-step order status management beyond the current checkout and completion flow
 - Strong multi-worker concurrency guarantees beyond current course-scale SQLite usage
@@ -63,6 +63,7 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 | View dedicated `My Trips` feed | No | No | Yes | No |
 | Review aggregated inventory in `My Trips` | No | No | Yes | No |
 | Update own profile/settings | No | Yes | Yes | Yes |
+| Use admin frontend pages | No | No | No | Yes |
 | Use admin review APIs (backend only) | No | No | No | Yes |
 
 ## 6. Core Flows
@@ -87,8 +88,8 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 ### 6.3 Admin Flow
 
 - Admin authentication and review endpoints exist on the backend
-- Admin frontend pages are not part of the current MVP1/MVP2 scope
-- Frontend admin review UX can be defined later if that work is explicitly scheduled
+- MVP1 includes frontend admin pages for reviewing driver applications
+- The admin frontend supports pending, approved, and rejected application views plus approve/reject actions
 
 ## 7. Functional Requirements (FR)
 
@@ -166,8 +167,8 @@ Note: This project uses Option A and does not implement Option B (city dropdown)
 ### FR-9 Admin Scope
 
 - Admin authentication and driver-application review APIs exist on the backend
-- Admin frontend pages are deferred from the current MVP1/MVP2 scope
-- Operator tracking and admin review UI are not current acceptance requirements
+- MVP1 includes admin frontend pages for reviewing pending, approved, and rejected driver applications
+- Operator tracking UI is not a current acceptance requirement
 
 ## 8. Data Model (Simplified)
 
@@ -297,6 +298,7 @@ If validation fails, return business conflict error (409).
 - AC-MVP1-14: A trip whose status is not `open` cannot be checked out or claimed.
 - AC-MVP1-15: A user can update editable profile data through `Settings` / `Profile`, including at least display name, email, and address fields.
 - AC-MVP1-16: A shopper can submit a driver application; a user who is already a driver, or who already has a pending driver application, cannot submit another pending application.
+- AC-MVP1-17: An admin can access frontend admin pages to review pending, approved, and rejected driver applications and submit approve/reject decisions.
 
 ### 11.2 MVP2 Acceptance Criteria
 
@@ -329,9 +331,10 @@ The project must deliver 3 versions (MVP1/MVP2/MVP3) with GitHub tags (`mvp-1`, 
   - Users can view their current account information in `Profile`
   - Users can update editable account information in `Settings`
   - Shoppers can submit a driver application for review
+  - Admins can use frontend admin pages to review driver applications and submit approval decisions
 - GitHub Tag: `mvp-1`
 - Demo focus:
-  - Account creation, login, trip browsing, order creation, and reviewing own orders
+  - Account creation, login, trip browsing, order creation, reviewing own orders, and admin application review
 - Exit criteria:
   - All `AC-MVP1-*` criteria pass
   - At least one recordable end-to-end demo segment
@@ -374,7 +377,7 @@ The project must deliver 3 versions (MVP1/MVP2/MVP3) with GitHub tags (`mvp-1`, 
 ### 12.4 8-Week Plan (Aligned to 3 Versions)
 
 - Week 1: Requirement freeze, task breakdown, wireframe
-- Week 2: Auth + protected shopper flow + order history + release `mvp-1`
+- Week 2: Auth + protected shopper flow + order history + admin review page + release `mvp-1`
 - Week 3: Driver application flow + MVP2 planning
 - Week 4: `My Trips` feed + remove `My Trips` from shopper Trip Feed
 - Week 5: Checkout flow + confirmation pop-up + redirect to `My Orders` + aggregated inventory + duplicate order guard + release `mvp-2`
