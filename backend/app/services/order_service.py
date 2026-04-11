@@ -48,6 +48,14 @@ def create_order(shopper_id, data):
     if trip.status != TripStatus.OPEN:
         return None, "Trip is not accepting claims", 409
 
+    existing = (
+        Order.query.filter_by(shopper_id=shopper_id, trip_id=trip_id)
+        .filter(Order.status != OrderStatus.CANCELLED)
+        .first()
+    )
+    if existing:
+        return None, "You already have an active order for this trip", 409
+
     claimed_items = []
     for claimed_item in items_data:
         item_id = claimed_item.get("item_id")
