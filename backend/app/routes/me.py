@@ -69,7 +69,12 @@ def list_orders():
             Each order includes nested trip and order-item data because the
             frontend order history and trip-detail pages need both.
     """
-    orders = list_shopper_orders(current_user.user_id)
+    orders, error, status = list_shopper_orders(
+        current_user.user_id, status_filter=request.args.get("status")
+    )
+    if error:
+        return jsonify({"message": error}), status
+
     return (
         jsonify(
             {
@@ -82,7 +87,7 @@ def list_orders():
                 ]
             }
         ),
-        200,
+        status,
     )
 
 
