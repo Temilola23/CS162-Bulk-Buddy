@@ -5,22 +5,34 @@ from app.models import Item, Order, OrderItem, Trip
 from app.models.enums import OrderStatus, TripStatus
 
 
-def list_shopper_orders(shopper_id):
+def list_shopper_orders(shopper_id, status_filter=None):
     """
     Return all orders belonging to the authenticated shopper.
 
     Args:
         shopper_id: The shopper's primary key.
+        status_filter: Optional status string to filter by.
 
     Returns:
-        list: Orders sorted by pickup time descending.
+        tuple: (orders, None, 200) on success, or
+            (None, error_message, 400) on invalid status.
     """
-    return (
-        Order.query.filter_by(shopper_id=shopper_id)
-        .join(Trip, Order.trip_id == Trip.trip_id)
+    if status_filter:
+        try:
+            status_enum = OrderStatus(status_filter)
+        except ValueError:
+            return None, f"Invalid status: {status_filter}", 400
+
+    query = Order.query.filter_by(shopper_id=shopper_id)
+    if status_filter:
+        query = query.filter_by(status=status_enum)
+
+    orders = (
+        query.join(Trip, Order.trip_id == Trip.trip_id)
         .order_by(Trip.pickup_time.desc(), Order.created_at.desc())
         .all()
     )
+    return orders, None, 200
 
 
 def create_order(shopper_id, data):
