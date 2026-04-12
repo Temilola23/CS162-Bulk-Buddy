@@ -11,6 +11,13 @@ from app.models.enums import (
 )
 
 
+def _cascade_order_status(trip_id, order_status):
+    """Apply a trip-driven status to every order under the trip."""
+    orders = Order.query.filter_by(trip_id=trip_id).all()
+    for order in orders:
+        order.status = order_status
+
+
 def create_trip(driver_id, data):
     """
     Create a new trip with items.
@@ -232,9 +239,75 @@ def close_trip(trip_id, driver_id):
         return None, "Failed to close trip", 500
 
 
+def mark_trip_purchased(trip_id, driver_id):
+    """
+    Mark a closed trip as purchased and cascade to its orders.
+
+    Args:
+        trip_id: The trip's primary key.
+        driver_id: The requesting driver's user ID.
+
+    Returns:
+        tuple: (Trip, None, 200) on success, or
+            (None, error_message, status_code) on failure.
+    """
+    trip = db.session.get(Trip, trip_id)
+    if not trip:
+        return None, "Trip not found", 404
+
+    if trip.driver_id != driver_id:
+        return None, "You can only mark your own trips as purchased", 403
+
+    if trip.status != TripStatus.CLOSED:
+        return None, "Can only mark CLOSED trips as purchased", 409
+
+    trip.status = TripStatus.PURCHASED
+    _cascade_order_status(trip_id, OrderStatus.PURCHASED)
+
+    try:
+        db.session.commit()
+        return trip, None, 200
+    except SQLAlchemyError:
+        db.session.rollback()
+        return None, "Failed to mark trip as purchased", 500
+
+
+def mark_trip_ready_for_pickup(trip_id, driver_id):
+    """
+    Mark a purchased trip ready for pickup and cascade to its orders.
+
+    Args:
+        trip_id: The trip's primary key.
+        driver_id: The requesting driver's user ID.
+
+    Returns:
+        tuple: (Trip, None, 200) on success, or
+            (None, error_message, status_code) on failure.
+    """
+    trip = db.session.get(Trip, trip_id)
+    if not trip:
+        return None, "Trip not found", 404
+
+    if trip.driver_id != driver_id:
+        return None, "You can only mark your own trips ready for pickup", 403
+
+    if trip.status != TripStatus.PURCHASED:
+        return None, "Can only mark PURCHASED trips ready for pickup", 409
+
+    trip.status = TripStatus.READY_FOR_PICKUP
+    _cascade_order_status(trip_id, OrderStatus.READY_FOR_PICKUP)
+
+    try:
+        db.session.commit()
+        return trip, None, 200
+    except SQLAlchemyError:
+        db.session.rollback()
+        return None, "Failed to mark trip ready for pickup", 500
+
+
 def complete_trip(trip_id, driver_id):
     """
-    Complete a trip (CLOSED -> COMPLETED).
+    Complete a trip (READY_FOR_PICKUP -> COMPLETED).
 
     Args:
         trip_id: The trip's primary key.
@@ -251,8 +324,8 @@ def complete_trip(trip_id, driver_id):
     if trip.driver_id != driver_id:
         return None, "You can only complete your own trips", 403
 
-    if trip.status != TripStatus.CLOSED:
-        return None, "Can only complete CLOSED trips", 409
+    if trip.status != TripStatus.READY_FOR_PICKUP:
+        return None, "Can only complete READY_FOR_PICKUP trips", 409
 
     trip.status = TripStatus.COMPLETED
 
@@ -288,10 +361,7 @@ def cancel_trip(trip_id, driver_id):
 
     trip.status = TripStatus.CANCELLED
 
-    # Cascade: cancel all orders on this trip
-    orders = Order.query.filter_by(trip_id=trip_id).all()
-    for order in orders:
-        order.status = OrderStatus.CANCELLED
+    _cascade_order_status(trip_id, OrderStatus.CANCELLED)
 
     try:
         db.session.commit()

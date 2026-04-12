@@ -505,12 +505,16 @@ class TestMyOrdersRoutes:
         assert "Not enough quantity available" in response.json["message"]
 
     def test_complete_order_success(self, client, app):
-        """A shopper can mark one of their own orders as completed."""
+        """A shopper can complete their own ready-for-pickup order."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="complete@example.com")
             trip, _ = _make_open_trip_with_item(db, driver)
-            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.READY_FOR_PICKUP,
+            )
             db.session.add(order)
             db.session.commit()
             order_id = order.order_id
@@ -520,6 +524,29 @@ class TestMyOrdersRoutes:
 
         assert response.status_code == 200
         assert response.json["order"]["status"] == "completed"
+
+    def test_complete_order_rejects_order_before_pickup_ready(
+        self, client, app
+    ):
+        """Shoppers cannot complete orders before the driver marks them ready."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="not-ready@example.com")
+            trip, _ = _make_open_trip_with_item(db, driver)
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CLAIMED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            order_id = order.order_id
+            _login(client, shopper.email)
+
+        response = client.patch(f"/api/me/orders/{order_id}/complete")
+
+        assert response.status_code == 409
+        assert response.json["message"] == "Order is not ready for pickup"
 
     def test_complete_order_requires_login(self, client):
         """Unauthenticated completion requests should return 401."""

@@ -12,11 +12,17 @@ export default function DriverTrips() {
     errorMessage,
     submitMessage,
     isSubmitting,
+    updatingTripId,
     handleTripFieldChange,
     handleItemFieldChange,
     addItemRow,
     removeItemRow,
     handleCreateTrip,
+    handleCloseTrip,
+    handleMarkPurchased,
+    handleMarkReadyForPickup,
+    handleCompleteTrip,
+    handleCancelTrip,
   } = useDriverTripsPageState();
 
   return (
@@ -170,21 +176,71 @@ export default function DriverTrips() {
               <p className="driver-trip-feedback">No trips posted yet.</p>
             ) : null}
 
-            {driverTrips.map((trip) => (
-              <article className="driver-trip-summary" key={trip.id}>
-                <div className="driver-trip-summary-row">
-                  <div>
-                    <h3>{trip.storeName}</h3>
-                    <p>{trip.pickupLocationText}</p>
+            {driverTrips.map((trip) => {
+              const isUpdatingThisTrip = updatingTripId === trip.id;
+              const primaryActionByStatus = {
+                open: {
+                  label: 'Close trip',
+                  onClick: () => handleCloseTrip(trip.id),
+                },
+                closed: {
+                  label: 'Mark purchased',
+                  onClick: () => handleMarkPurchased(trip.id),
+                },
+                purchased: {
+                  label: 'Ready for pickup',
+                  onClick: () => handleMarkReadyForPickup(trip.id),
+                },
+                ready_for_pickup: {
+                  label: 'Complete trip',
+                  onClick: () => handleCompleteTrip(trip.id),
+                },
+              };
+              const primaryAction = primaryActionByStatus[trip.status] || null;
+              const canCancelTrip = !['completed', 'cancelled'].includes(trip.status);
+
+              return (
+                <article className="driver-trip-summary" key={trip.id}>
+                  <div className="driver-trip-summary-row">
+                    <div>
+                      <h3>{trip.storeName}</h3>
+                      <p>{trip.pickupLocationText}</p>
+                    </div>
+                    <span className={`driver-trip-status is-${trip.status}`.trim()}>
+                      {trip.statusLabel}
+                    </span>
                   </div>
-                  <span className={`driver-trip-status is-${trip.status}`.trim()}>
-                    {trip.statusLabel}
-                  </span>
-                </div>
-                <p>{trip.pickupTimeLabel}</p>
-                {trip.itemCount !== null ? <p>{trip.itemCount} items in this trip</p> : null}
-              </article>
-            ))}
+                  <p>{trip.pickupTimeLabel}</p>
+                  {trip.itemCount !== null ? <p>{trip.itemCount} items in this trip</p> : null}
+
+                  {(primaryAction || canCancelTrip) ? (
+                    <div className="driver-trip-actions">
+                      {primaryAction ? (
+                        <button
+                          className="driver-trip-status-action"
+                          disabled={isUpdatingThisTrip}
+                          onClick={primaryAction.onClick}
+                          type="button"
+                        >
+                          {isUpdatingThisTrip ? 'Updating...' : primaryAction.label}
+                        </button>
+                      ) : null}
+
+                      {canCancelTrip ? (
+                        <button
+                          className="driver-trip-status-action is-danger"
+                          disabled={isUpdatingThisTrip}
+                          onClick={() => handleCancelTrip(trip.id)}
+                          type="button"
+                        >
+                          Cancel trip
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
           </div>
         </article>
       </section>

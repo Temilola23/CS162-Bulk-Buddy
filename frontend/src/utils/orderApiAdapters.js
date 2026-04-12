@@ -35,6 +35,15 @@ function getBucketFromOrder(tripPickupTime, status) {
   return 'upcoming';
 }
 
+function formatTripStatus(status) {
+  return status
+    ? status
+        .split('_')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
+    : 'Open';
+}
+
 export function mapApiOrdersToUi(orders, shopperLocation) {
   return orders.map((order) => {
     const trip = order.trip;
@@ -87,7 +96,7 @@ export function mapApiOrdersToUi(orders, shopperLocation) {
           (sum, item) => sum + (item.available_quantity || 0),
           0,
         ),
-        status: trip.status ? trip.status[0].toUpperCase() + trip.status.slice(1) : 'Open',
+        status: formatTripStatus(trip.status),
       },
       note: 'Coordinate final pickup timing with your driver before arrival.',
       // Order responses include the original trip items plus the shopper's

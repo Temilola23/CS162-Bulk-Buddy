@@ -9,6 +9,8 @@ from .trip_service import (
     get_driver_trips,
     get_open_trips,
     get_trip,
+    mark_trip_purchased,
+    mark_trip_ready_for_pickup,
     update_trip,
 )
 from .user_service import get_current_user_profile, update_current_user_profile
@@ -28,6 +30,8 @@ __all__ = [
     "get_trip",
     "list_shopper_orders",
     "logout_current_user",
+    "mark_trip_purchased",
+    "mark_trip_ready_for_pickup",
     "register_user",
     "update_current_user_profile",
     "update_trip",

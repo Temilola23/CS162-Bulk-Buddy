@@ -503,8 +503,8 @@ class TestCloseTrip:
 class TestCompleteTrip:
     """Tests for PATCH /api/me/trips/<id>/complete."""
 
-    def test_complete_closed_trip(self, client, app):
-        """Driver can complete a CLOSED trip."""
+    def test_complete_ready_for_pickup_trip(self, client, app):
+        """Driver can complete a READY_FOR_PICKUP trip."""
         with app.app_context():
             driver = _make_driver(db)
             trip = Trip(
@@ -512,7 +512,7 @@ class TestCompleteTrip:
                 store_name="Costco",
                 pickup_location_text="123 Main St",
                 pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
-                status=TripStatus.CLOSED,
+                status=TripStatus.READY_FOR_PICKUP,
             )
             db.session.add(trip)
             db.session.commit()
@@ -528,7 +528,7 @@ class TestCompleteTrip:
             assert trip.status == TripStatus.COMPLETED
 
     def test_cannot_complete_open_trip(self, client, app):
-        """Cannot skip CLOSED and go directly OPEN -> COMPLETED."""
+        """Cannot skip directly from OPEN to COMPLETED."""
         with app.app_context():
             driver = _make_driver(db)
             trip = Trip(
@@ -544,6 +544,123 @@ class TestCompleteTrip:
             _login(client, driver.email)
 
         response = client.patch(f"/api/me/trips/{trip_id}/complete")
+
+        assert response.status_code == 409
+
+
+class TestPurchaseTrip:
+    """Tests for PATCH /api/me/trips/<id>/purchase."""
+
+    def test_purchase_closed_trip_cascades_orders(self, client, app):
+        """Marking a trip purchased cascades to its orders."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.CLOSED,
+            )
+            db.session.add(trip)
+            db.session.flush()
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+            )
+            db.session.add(order)
+            db.session.commit()
+            trip_id = trip.trip_id
+            order_id = order.order_id
+            _login(client, driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/purchase")
+
+        assert response.status_code == 200
+
+        with app.app_context():
+            trip = db.session.get(Trip, trip_id)
+            order = db.session.get(Order, order_id)
+            assert trip.status == TripStatus.PURCHASED
+            assert order.status == OrderStatus.PURCHASED
+
+    def test_cannot_purchase_open_trip(self, client, app):
+        """Trips must be closed before the driver can mark them purchased."""
+        with app.app_context():
+            driver = _make_driver(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.OPEN,
+            )
+            db.session.add(trip)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/purchase")
+
+        assert response.status_code == 409
+
+
+class TestReadyForPickupTrip:
+    """Tests for PATCH /api/me/trips/<id>/ready-for-pickup."""
+
+    def test_ready_for_pickup_cascades_orders(self, client, app):
+        """Marking a trip ready for pickup cascades to its orders."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.PURCHASED,
+            )
+            db.session.add(trip)
+            db.session.flush()
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.PURCHASED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            trip_id = trip.trip_id
+            order_id = order.order_id
+            _login(client, driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/ready-for-pickup")
+
+        assert response.status_code == 200
+
+        with app.app_context():
+            trip = db.session.get(Trip, trip_id)
+            order = db.session.get(Order, order_id)
+            assert trip.status == TripStatus.READY_FOR_PICKUP
+            assert order.status == OrderStatus.READY_FOR_PICKUP
+
+    def test_cannot_ready_for_pickup_before_purchase(self, client, app):
+        """Trips must be purchased before they are ready for pickup."""
+        with app.app_context():
+            driver = _make_driver(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.CLOSED,
+            )
+            db.session.add(trip)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/ready-for-pickup")
 
         assert response.status_code == 409
 
