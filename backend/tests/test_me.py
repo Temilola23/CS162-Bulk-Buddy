@@ -526,6 +526,71 @@ class TestMyOrdersRoutes:
         assert response.status_code == 200
         assert response.json["order"]["status"] == "completed"
 
+    def test_create_order_rejects_duplicate_active_order(self, client, app):
+        """A shopper cannot place a second active order on the same trip."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="dupe@example.com")
+            trip, item = _make_open_trip_with_item(db, driver)
+            trip_id = trip.trip_id
+            item_id = item.item_id
+
+            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            db.session.add(order)
+            db.session.flush()
+            db.session.add(
+                OrderItem(
+                    order_id=order.order_id,
+                    item_id=item.item_id,
+                    quantity=1,
+                )
+            )
+            item.claimed_quantity += 1
+            db.session.commit()
+            _login(client, shopper.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": item_id, "quantity": 1}],
+            },
+        )
+
+        assert response.status_code == 409
+        assert response.json["message"] == (
+            "You already have an active order for this trip"
+        )
+
+    def test_create_order_allows_after_cancelled(self, client, app):
+        """A shopper can place a new order after cancelling a previous one."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="reorder@example.com")
+            trip, item = _make_open_trip_with_item(db, driver)
+            trip_id = trip.trip_id
+            item_id = item.item_id
+
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CANCELLED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            _login(client, shopper.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": item_id, "quantity": 1}],
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json["order"]["status"] == "claimed"
+
 
 class TestUserService:
     """Direct service tests for branches not reachable through routes."""
