@@ -528,7 +528,8 @@ class TestMyOrdersRoutes:
     def test_complete_order_rejects_order_before_pickup_ready(
         self, client, app
     ):
-        """Shoppers cannot complete orders before the driver marks them ready."""
+        """Shoppers cannot complete orders before
+        the driver marks them ready."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="not-ready@example.com")
