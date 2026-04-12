@@ -7,7 +7,7 @@ echo "Running linters..."
 
 # Backend linting
 echo "Linting backend..."
-python3 -m flake8 backend/
+python3 -m flake8 backend/ --config=backend/.flake8
 python3 -m black --check --line-length 79 backend/
 
 # Frontend linting

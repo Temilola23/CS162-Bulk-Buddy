@@ -60,6 +60,9 @@ def create_order(shopper_id, data):
     if trip.status != TripStatus.OPEN:
         return None, "Trip is not accepting claims", 409
 
+    if trip.driver_id == shopper_id:
+        return None, "You cannot claim items from your own trip", 403
+
     existing = (
         Order.query.filter_by(shopper_id=shopper_id, trip_id=trip_id)
         .filter(Order.status != OrderStatus.CANCELLED)

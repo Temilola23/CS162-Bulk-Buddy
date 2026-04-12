@@ -200,6 +200,7 @@ class TestListTrips:
         """Trip feed should only show OPEN trips."""
         with app.app_context():
             driver = _make_driver(db)
+            shopper = _make_shopper(db)
             pickup = datetime.now(timezone.utc) + timedelta(days=1)
             open_trip = Trip(
                 driver_id=driver.user_id,
@@ -217,13 +218,56 @@ class TestListTrips:
             )
             db.session.add_all([open_trip, closed_trip])
             db.session.commit()
-            _login(client, driver.email)
+            _login(client, shopper.email)
 
         response = client.get("/api/trips")
 
         assert response.status_code == 200
         assert len(response.json["trips"]) == 1
         assert response.json["trips"][0]["store_name"] == "Costco"
+
+    def test_list_hides_current_drivers_own_trips(self, client, app):
+        """Drivers should not see their own trips in the shopper feed."""
+        with app.app_context():
+            driver = _make_driver(db)
+            other_driver = User(
+                first_name="Other",
+                last_name="Driver",
+                email="other-driver@example.com",
+                password_hash=generate_password_hash("password123"),
+                role=UserRole.DRIVER,
+                address_street="3 Driver St",
+                address_city="SF",
+                address_state="CA",
+                address_zip="94103",
+            )
+            db.session.add(other_driver)
+            db.session.commit()
+
+            pickup = datetime.now(timezone.utc) + timedelta(days=1)
+            own_trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Own Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=pickup,
+                status=TripStatus.OPEN,
+            )
+            other_trip = Trip(
+                driver_id=other_driver.user_id,
+                store_name="Other Costco",
+                pickup_location_text="456 Oak Ave",
+                pickup_time=pickup,
+                status=TripStatus.OPEN,
+            )
+            db.session.add_all([own_trip, other_trip])
+            db.session.commit()
+            _login(client, driver.email)
+
+        response = client.get("/api/trips")
+
+        assert response.status_code == 200
+        assert len(response.json["trips"]) == 1
+        assert response.json["trips"][0]["store_name"] == "Other Costco"
 
     def test_get_trip_with_items(self, client, app):
         """GET /api/trips/<id> returns the trip and its items."""

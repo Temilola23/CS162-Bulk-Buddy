@@ -29,7 +29,7 @@ def list_open():
             with HTTP 200.  Each trip dict contains scalar
             fields only (no nested items).
     """
-    trips = get_open_trips()
+    trips = get_open_trips(exclude_driver_id=current_user.user_id)
     return (
         jsonify({"trips": [t.to_dict(include_driver=True) for t in trips]}),
         200,
