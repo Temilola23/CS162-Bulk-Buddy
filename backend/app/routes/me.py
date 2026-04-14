@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
 
 from app.services import (
+    cancel_order,
     complete_order,
     create_order,
     get_current_user_profile,
@@ -111,6 +112,42 @@ def create_order_route():
         jsonify(
             {
                 "message": "Order created successfully",
+                "order": order.to_dict(
+                    include_trip=True,
+                    include_order_items=True,
+                ),
+            }
+        ),
+        status,
+    )
+
+
+@me.route("/me/orders/<int:order_id>/cancel", methods=["PATCH"])
+@login_required
+def cancel_order_route(order_id):
+    """
+    Cancel one of the authenticated shopper's claimed orders.
+
+    Reverts claimed inventory so other shoppers can claim the freed
+    quantities.
+
+    Args:
+        order_id (int): Primary key of the order to cancel, extracted from
+            the URL path.
+
+    Returns:
+        Response: JSON ``{"message": ..., "order": <order_dict>}``
+            with HTTP 200 on success, or an error payload when the order is
+            missing, belongs to another shopper, or cannot be cancelled.
+    """
+    order, error, status = cancel_order(order_id, current_user.user_id)
+    if error:
+        return jsonify({"message": error}), status
+
+    return (
+        jsonify(
+            {
+                "message": "Order cancelled successfully",
                 "order": order.to_dict(
                     include_trip=True,
                     include_order_items=True,

@@ -526,6 +526,153 @@ class TestMyOrdersRoutes:
         assert response.status_code == 200
         assert response.json["order"]["status"] == "completed"
 
+    def test_cancel_order_success(self, client, app):
+        """A shopper can cancel a claimed order and reclaim inventory."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="cancel@example.com")
+            trip, item = _make_open_trip_with_item(db, driver)
+            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            db.session.add(order)
+            db.session.flush()
+            db.session.add(
+                OrderItem(
+                    order_id=order.order_id,
+                    item_id=item.item_id,
+                    quantity=2,
+                )
+            )
+            item.claimed_quantity += 2
+            db.session.commit()
+            order_id = order.order_id
+            item_id = item.item_id
+            _login(client, shopper.email)
+
+        response = client.patch(f"/api/me/orders/{order_id}/cancel")
+
+        assert response.status_code == 200
+        assert response.json["order"]["status"] == "cancelled"
+
+        with app.app_context():
+            updated_item = db.session.get(Item, item_id)
+            assert updated_item.claimed_quantity == 0
+
+    def test_cancel_order_requires_login(self, client):
+        """Unauthenticated cancel requests should return 401."""
+        response = client.patch("/api/me/orders/1/cancel")
+
+        assert response.status_code == 401
+
+    def test_cancel_order_rejects_non_owner(self, client, app):
+        """Shoppers cannot cancel orders that belong to other users."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="cancel-owner@example.com")
+            other = _make_shopper(db, email="cancel-other@example.com")
+            trip, _ = _make_open_trip_with_item(db, driver)
+            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            db.session.add(order)
+            db.session.commit()
+            order_id = order.order_id
+            _login(client, other.email)
+
+        response = client.patch(f"/api/me/orders/{order_id}/cancel")
+
+        assert response.status_code == 403
+        assert (
+            response.json["message"] == "You can only update your own orders"
+        )
+
+    def test_cancel_order_rejects_non_claimed(self, client, app):
+        """Only claimed orders can be cancelled by the shopper."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="cancel-purchased@example.com")
+            trip, _ = _make_open_trip_with_item(db, driver)
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.PURCHASED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            order_id = order.order_id
+            _login(client, shopper.email)
+
+        response = client.patch(f"/api/me/orders/{order_id}/cancel")
+
+        assert response.status_code == 409
+        assert (
+            response.json["message"] == "Only claimed orders can be cancelled"
+        )
+
+    def test_cancel_order_reverts_multiple_items(self, client, app):
+        """Cancelling an order with multiple items reverts all quantities."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="cancel-multi@example.com")
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                pickup_lat=37.7749,
+                pickup_lng=-122.4194,
+                status=TripStatus.OPEN,
+            )
+            db.session.add(trip)
+            db.session.flush()
+
+            item_a = Item(
+                trip_id=trip.trip_id,
+                name="Paper Towels",
+                unit="pack",
+                total_quantity=10,
+                claimed_quantity=3,
+                price_per_unit=15.99,
+            )
+            item_b = Item(
+                trip_id=trip.trip_id,
+                name="Soap",
+                unit="bottle",
+                total_quantity=8,
+                claimed_quantity=5,
+                price_per_unit=9.99,
+            )
+            db.session.add_all([item_a, item_b])
+            db.session.flush()
+
+            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            db.session.add(order)
+            db.session.flush()
+            db.session.add_all(
+                [
+                    OrderItem(
+                        order_id=order.order_id,
+                        item_id=item_a.item_id,
+                        quantity=2,
+                    ),
+                    OrderItem(
+                        order_id=order.order_id,
+                        item_id=item_b.item_id,
+                        quantity=3,
+                    ),
+                ]
+            )
+            db.session.commit()
+            order_id = order.order_id
+            item_a_id = item_a.item_id
+            item_b_id = item_b.item_id
+            _login(client, shopper.email)
+
+        response = client.patch(f"/api/me/orders/{order_id}/cancel")
+
+        assert response.status_code == 200
+
+        with app.app_context():
+            assert db.session.get(Item, item_a_id).claimed_quantity == 1
+            assert db.session.get(Item, item_b_id).claimed_quantity == 2
+
 
 class TestUserService:
     """Direct service tests for branches not reachable through routes."""

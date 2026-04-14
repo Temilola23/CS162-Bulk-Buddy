@@ -99,6 +99,42 @@ def create_order(shopper_id, data):
         return None, "Failed to create order", 500
 
 
+def cancel_order(order_id, shopper_id):
+    """
+    Cancel a shopper's claimed order and revert inventory.
+
+    Args:
+        order_id: The order primary key.
+        shopper_id: The authenticated shopper's primary key.
+
+    Returns:
+        tuple: (Order, None, 200) on success, or
+            (None, error_message, status_code) on failure.
+    """
+    order = db.session.get(Order, order_id)
+    if not order:
+        return None, "Order not found", 404
+
+    if order.shopper_id != shopper_id:
+        return None, "You can only update your own orders", 403
+
+    if order.status != OrderStatus.CLAIMED:
+        return None, "Only claimed orders can be cancelled", 409
+
+    for order_item in order.order_items:
+        item = db.session.get(Item, order_item.item_id)
+        item.claimed_quantity -= order_item.quantity
+
+    order.status = OrderStatus.CANCELLED
+
+    try:
+        db.session.commit()
+        return order, None, 200
+    except SQLAlchemyError:
+        db.session.rollback()
+        return None, "Failed to cancel order", 500
+
+
 def complete_order(order_id, shopper_id):
     """
     Mark a shopper's order as completed.
