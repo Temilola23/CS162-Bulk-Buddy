@@ -89,14 +89,22 @@ def create_trip(driver_id, data):
         return None, "Failed to create trip", 500
 
 
-def get_open_trips():
+def get_open_trips(exclude_driver_id=None):
     """
     Return all trips with OPEN status.
+
+    Args:
+        exclude_driver_id: Optional user ID to omit from the results so
+            drivers do not see their own trips in the shopper-facing feed.
 
     Returns:
         list: List of Trip objects with status OPEN.
     """
-    return Trip.query.filter_by(status=TripStatus.OPEN).all()
+    query = Trip.query.filter_by(status=TripStatus.OPEN)
+    if exclude_driver_id is not None:
+        query = query.filter(Trip.driver_id != exclude_driver_id)
+
+    return query.all()
 
 
 def get_trip(trip_id):

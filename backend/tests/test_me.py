@@ -353,6 +353,29 @@ class TestMyOrdersRoutes:
             assert created_order.shopper_id == shopper_id
             assert updated_item.claimed_quantity == 2
 
+    def test_create_order_rejects_driver_claiming_own_trip(self, client, app):
+        """Drivers cannot claim items from trips they created."""
+        with app.app_context():
+            driver = _make_driver(db)
+            trip, item = _make_open_trip_with_item(db, driver)
+            trip_id = trip.trip_id
+            item_id = item.item_id
+            _login(client, driver.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": item_id, "quantity": 1}],
+            },
+        )
+
+        assert response.status_code == 403
+        assert (
+            response.json["message"]
+            == "You cannot claim items from your own trip"
+        )
+
     def test_create_order_requires_trip_and_items(self, auth_client):
         """Checkout should fail when trip_id or items are missing."""
         response = auth_client.post("/api/me/orders", json={})
