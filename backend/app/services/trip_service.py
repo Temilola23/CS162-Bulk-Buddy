@@ -11,11 +11,22 @@ from app.models.enums import (
 )
 
 
-def _cascade_order_status(trip_id, order_status):
-    """Apply a trip-driven status to every order under the trip."""
-    orders = Order.query.filter_by(trip_id=trip_id).all()
+def _cascade_order_status(trip_id, expected_order_status, next_order_status):
+    """Apply a trip-driven status to orders in the expected prior state."""
+    orders = Order.query.filter_by(
+        trip_id=trip_id,
+        status=expected_order_status,
+    ).all()
     for order in orders:
-        order.status = order_status
+        order.status = next_order_status
+
+
+TRIP_STATUS_TO_ORDER_STATUS = {
+    TripStatus.OPEN: OrderStatus.CLAIMED,
+    TripStatus.CLOSED: OrderStatus.CLAIMED,
+    TripStatus.PURCHASED: OrderStatus.PURCHASED,
+    TripStatus.READY_FOR_PICKUP: OrderStatus.READY_FOR_PICKUP,
+}
 
 
 def create_trip(driver_id, data):
@@ -262,7 +273,11 @@ def mark_trip_purchased(trip_id, driver_id):
         return None, "Can only mark CLOSED trips as purchased", 409
 
     trip.status = TripStatus.PURCHASED
-    _cascade_order_status(trip_id, OrderStatus.PURCHASED)
+    _cascade_order_status(
+        trip_id,
+        OrderStatus.CLAIMED,
+        OrderStatus.PURCHASED,
+    )
 
     try:
         db.session.commit()
@@ -295,7 +310,11 @@ def mark_trip_ready_for_pickup(trip_id, driver_id):
         return None, "Can only mark PURCHASED trips ready for pickup", 409
 
     trip.status = TripStatus.READY_FOR_PICKUP
-    _cascade_order_status(trip_id, OrderStatus.READY_FOR_PICKUP)
+    _cascade_order_status(
+        trip_id,
+        OrderStatus.PURCHASED,
+        OrderStatus.READY_FOR_PICKUP,
+    )
 
     try:
         db.session.commit()
@@ -359,9 +378,18 @@ def cancel_trip(trip_id, driver_id):
     if trip.status == TripStatus.COMPLETED:
         return None, "Cannot cancel a completed trip", 409
 
+    if trip.status == TripStatus.CANCELLED:
+        return None, "Trip already cancelled", 409
+
+    expected_order_status = TRIP_STATUS_TO_ORDER_STATUS.get(trip.status)
     trip.status = TripStatus.CANCELLED
 
-    _cascade_order_status(trip_id, OrderStatus.CANCELLED)
+    if expected_order_status:
+        _cascade_order_status(
+            trip_id,
+            expected_order_status,
+            OrderStatus.CANCELLED,
+        )
 
     try:
         db.session.commit()

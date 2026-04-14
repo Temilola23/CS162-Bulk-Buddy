@@ -10,7 +10,7 @@ from app.models.enums import (
 from werkzeug.security import generate_password_hash
 
 
-def _make_driver(db_session):
+def _make_driver(db_session, email="driver@example.com"):
     """
     Create and return a persisted driver user.
 
@@ -24,7 +24,7 @@ def _make_driver(db_session):
     driver = User(
         first_name="Driver",
         last_name="Test",
-        email="driver@example.com",
+        email=email,
         password_hash=generate_password_hash("password123"),
         role=UserRole.DRIVER,
         address_street="1 Driver St",
@@ -37,7 +37,7 @@ def _make_driver(db_session):
     return driver
 
 
-def _make_shopper(db_session):
+def _make_shopper(db_session, email="shopper@example.com"):
     """
     Create and return a persisted shopper user.
 
@@ -51,7 +51,7 @@ def _make_shopper(db_session):
     shopper = User(
         first_name="Shopper",
         last_name="Test",
-        email="shopper@example.com",
+        email=email,
         password_hash=generate_password_hash("password123"),
         role=UserRole.SHOPPER,
         address_street="2 Shopper St",
@@ -552,10 +552,13 @@ class TestPurchaseTrip:
     """Tests for PATCH /api/me/trips/<id>/purchase."""
 
     def test_purchase_closed_trip_cascades_orders(self, client, app):
-        """Marking a trip purchased cascades to its orders."""
+        """Marking a trip purchased cascades claimed orders only."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db)
+            cancelled_shopper = _make_shopper(
+                db, email="cancelled-purchase@example.com"
+            )
             trip = Trip(
                 driver_id=driver.user_id,
                 store_name="Costco",
@@ -569,10 +572,16 @@ class TestPurchaseTrip:
                 shopper_id=shopper.user_id,
                 trip_id=trip.trip_id,
             )
-            db.session.add(order)
+            cancelled_order = Order(
+                shopper_id=cancelled_shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CANCELLED,
+            )
+            db.session.add_all([order, cancelled_order])
             db.session.commit()
             trip_id = trip.trip_id
             order_id = order.order_id
+            cancelled_order_id = cancelled_order.order_id
             _login(client, driver.email)
 
         response = client.patch(f"/api/me/trips/{trip_id}/purchase")
@@ -582,8 +591,10 @@ class TestPurchaseTrip:
         with app.app_context():
             trip = db.session.get(Trip, trip_id)
             order = db.session.get(Order, order_id)
+            cancelled_order = db.session.get(Order, cancelled_order_id)
             assert trip.status == TripStatus.PURCHASED
             assert order.status == OrderStatus.PURCHASED
+            assert cancelled_order.status == OrderStatus.CANCELLED
 
     def test_cannot_purchase_open_trip(self, client, app):
         """Trips must be closed before the driver can mark them purchased."""
@@ -605,15 +616,43 @@ class TestPurchaseTrip:
 
         assert response.status_code == 409
 
+    def test_cannot_purchase_other_drivers_trip(self, client, app):
+        """Drivers cannot mark another driver's trip as purchased."""
+        with app.app_context():
+            driver = _make_driver(db)
+            other_driver = _make_driver(db, email="other-driver@example.com")
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.CLOSED,
+            )
+            db.session.add(trip)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, other_driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/purchase")
+
+        assert response.status_code == 403
+
+        with app.app_context():
+            trip = db.session.get(Trip, trip_id)
+            assert trip.status == TripStatus.CLOSED
+
 
 class TestReadyForPickupTrip:
     """Tests for PATCH /api/me/trips/<id>/ready-for-pickup."""
 
     def test_ready_for_pickup_cascades_orders(self, client, app):
-        """Marking a trip ready for pickup cascades to its orders."""
+        """Marking a trip ready for pickup cascades purchased orders only."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db)
+            cancelled_shopper = _make_shopper(
+                db, email="cancelled-ready@example.com"
+            )
             trip = Trip(
                 driver_id=driver.user_id,
                 store_name="Costco",
@@ -628,10 +667,16 @@ class TestReadyForPickupTrip:
                 trip_id=trip.trip_id,
                 status=OrderStatus.PURCHASED,
             )
-            db.session.add(order)
+            cancelled_order = Order(
+                shopper_id=cancelled_shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CANCELLED,
+            )
+            db.session.add_all([order, cancelled_order])
             db.session.commit()
             trip_id = trip.trip_id
             order_id = order.order_id
+            cancelled_order_id = cancelled_order.order_id
             _login(client, driver.email)
 
         response = client.patch(f"/api/me/trips/{trip_id}/ready-for-pickup")
@@ -641,8 +686,10 @@ class TestReadyForPickupTrip:
         with app.app_context():
             trip = db.session.get(Trip, trip_id)
             order = db.session.get(Order, order_id)
+            cancelled_order = db.session.get(Order, cancelled_order_id)
             assert trip.status == TripStatus.READY_FOR_PICKUP
             assert order.status == OrderStatus.READY_FOR_PICKUP
+            assert cancelled_order.status == OrderStatus.CANCELLED
 
     def test_cannot_ready_for_pickup_before_purchase(self, client, app):
         """Trips must be purchased before they are ready for pickup."""
@@ -663,6 +710,31 @@ class TestReadyForPickupTrip:
         response = client.patch(f"/api/me/trips/{trip_id}/ready-for-pickup")
 
         assert response.status_code == 409
+
+    def test_cannot_ready_for_pickup_other_drivers_trip(self, client, app):
+        """Drivers cannot mark another driver's trip ready for pickup."""
+        with app.app_context():
+            driver = _make_driver(db)
+            other_driver = _make_driver(db, email="other-driver@example.com")
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.PURCHASED,
+            )
+            db.session.add(trip)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, other_driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/ready-for-pickup")
+
+        assert response.status_code == 403
+
+        with app.app_context():
+            trip = db.session.get(Trip, trip_id)
+            assert trip.status == TripStatus.PURCHASED
 
 
 class TestCancelTrip:
@@ -718,7 +790,7 @@ class TestCancelTrip:
             order = Order(
                 shopper_id=shopper.user_id,
                 trip_id=trip.trip_id,
-                status=OrderStatus.PURCHASED,
+                status=OrderStatus.CLAIMED,
             )
             db.session.add(order)
             db.session.commit()
