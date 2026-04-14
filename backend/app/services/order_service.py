@@ -124,7 +124,7 @@ def create_order(shopper_id, data):
 
 def complete_order(order_id, shopper_id):
     """
-    Mark a shopper's order as completed.
+    Mark a shopper's ready-for-pickup order as completed.
 
     Args:
         order_id: The order primary key.
@@ -146,6 +146,9 @@ def complete_order(order_id, shopper_id):
 
     if order.status == OrderStatus.COMPLETED:
         return order, None, 200
+
+    if order.status != OrderStatus.READY_FOR_PICKUP:
+        return None, "Order is not ready for pickup", 409
 
     order.status = OrderStatus.COMPLETED
 

@@ -45,6 +45,8 @@ export default function TripDetail() {
     ordersForDate,
     quantitiesByOrder,
     activeClaimState,
+    canCompleteActiveOrder,
+    claimStateMessage,
     canViewPreviousOrder,
     canViewNextOrder,
     summary,
@@ -339,12 +341,16 @@ export default function TripDetail() {
                     className={`trip-detail-status-option ${
                       activeClaimState === 'completed' ? 'is-active' : ''
                     }`.trim()}
+                    disabled={!canCompleteActiveOrder}
                     onClick={() => updateClaimState('completed')}
                     type="button"
                   >
                     Completed
                   </button>
                 </div>
+                {claimStateMessage ? (
+                  <p className="trip-detail-slider-message">{claimStateMessage}</p>
+                ) : null}
               </div>
             </aside>
           </section>

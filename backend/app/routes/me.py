@@ -130,7 +130,8 @@ def create_order_route():
 @login_required
 def complete_order_route(order_id):
     """
-    Mark one of the authenticated shopper's orders as completed.
+    Mark one of the authenticated shopper's ready-for-pickup orders as
+    completed.
 
     Args:
         order_id (int): Primary key of the order to update, extracted from

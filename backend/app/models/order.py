@@ -14,7 +14,11 @@ class Order(db.Model):
 
     Status transitions:
         CLAIMED -> PURCHASED -> READY_FOR_PICKUP -> COMPLETED
-        CLAIMED -> CANCELLED (at any point before COMPLETED)
+        any non-completed state -> CANCELLED
+
+    PURCHASED, READY_FOR_PICKUP, and CANCELLED are driven by the parent
+    trip status. Shoppers can only complete their own orders once the trip
+    has made them ready for pickup.
 
     Attributes:
         order_id: Primary key.

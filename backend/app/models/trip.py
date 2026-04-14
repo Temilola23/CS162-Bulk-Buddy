@@ -21,10 +21,14 @@ class Trip(db.Model):
         pickup_lng: Longitude of the pickup point.
         pickup_time: When the driver will be available for
             handoff.
-        status: One of TripStatus.OPEN, CLOSED, or COMPLETED.
+        status: One of TripStatus.OPEN, CLOSED, PURCHASED,
+            READY_FOR_PICKUP, COMPLETED, or CANCELLED.
             - OPEN: accepting claims from shoppers.
             - CLOSED: no longer accepting claims.
+            - PURCHASED: driver has bought the claimed items.
+            - READY_FOR_PICKUP: claimed items are ready for handoff.
             - COMPLETED: all handoffs done.
+            - CANCELLED: trip cancelled by the driver.
         created_at: Row creation timestamp (UTC).
         updated_at: Last-modified timestamp (UTC).
     """

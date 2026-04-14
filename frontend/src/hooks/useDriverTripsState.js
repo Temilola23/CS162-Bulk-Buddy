@@ -22,7 +22,10 @@ function getInitialForm() {
 }
 
 function formatTripStatus(status) {
-  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  return status
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
 }
 
 function mapDriverTrip(apiTrip) {
@@ -55,6 +58,7 @@ export default function useDriverTripsState() {
   const [errorMessage, setErrorMessage] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [updatingTripId, setUpdatingTripId] = useState(null);
 
   useEffect(() => {
     let isActive = true;
@@ -203,6 +207,48 @@ export default function useDriverTripsState() {
     setSubmitMessage(response.body?.message || 'Trip created successfully.');
   }
 
+  async function handleTripStatusAction(tripId, actionPath) {
+    setErrorMessage('');
+    setSubmitMessage('');
+    setUpdatingTripId(tripId);
+
+    const response = await api.patch(`/me/trips/${tripId}/${actionPath}`);
+    setUpdatingTripId(null);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+        navigate(buildAuthRedirectUrl(requestedPath), { replace: true });
+        return;
+      }
+
+      if (response.status === 403) {
+        navigate('/profile', { replace: true });
+        return;
+      }
+
+      setErrorMessage(response.body?.message || 'Unable to update trip status.');
+      return;
+    }
+
+    const updatedTrip = response.body?.trip ? mapDriverTrip(response.body.trip) : null;
+    if (updatedTrip) {
+      setDriverTrips((current) =>
+        current.map((trip) =>
+          trip.id === updatedTrip.id
+            ? {
+                ...trip,
+                ...updatedTrip,
+                itemCount: updatedTrip.itemCount ?? trip.itemCount,
+              }
+            : trip,
+        ),
+      );
+    }
+
+    setSubmitMessage(response.body?.message || 'Trip status updated.');
+  }
+
   return {
     tripForm,
     driverTrips,
@@ -210,10 +256,17 @@ export default function useDriverTripsState() {
     errorMessage,
     submitMessage,
     isSubmitting,
+    updatingTripId,
     handleTripFieldChange,
     handleItemFieldChange,
     addItemRow,
     removeItemRow,
     handleCreateTrip,
+    handleCloseTrip: (tripId) => handleTripStatusAction(tripId, 'close'),
+    handleMarkPurchased: (tripId) => handleTripStatusAction(tripId, 'purchase'),
+    handleMarkReadyForPickup: (tripId) =>
+      handleTripStatusAction(tripId, 'ready-for-pickup'),
+    handleCompleteTrip: (tripId) => handleTripStatusAction(tripId, 'complete'),
+    handleCancelTrip: (tripId) => handleTripStatusAction(tripId, 'cancel'),
   };
 }

@@ -14,6 +14,8 @@ class TripStatus(enum.Enum):
 
     OPEN = "open"
     CLOSED = "closed"
+    PURCHASED = "purchased"
+    READY_FOR_PICKUP = "ready_for_pickup"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 
