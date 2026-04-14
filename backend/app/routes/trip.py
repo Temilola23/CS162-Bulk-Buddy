@@ -9,6 +9,8 @@ from app.services import (
     get_driver_trips,
     get_open_trips,
     get_trip,
+    mark_trip_purchased,
+    mark_trip_ready_for_pickup,
     update_trip,
 )
 
@@ -29,7 +31,7 @@ def list_open():
             with HTTP 200.  Each trip dict contains scalar
             fields only (no nested items).
     """
-    trips = get_open_trips()
+    trips = get_open_trips(exclude_driver_id=current_user.user_id)
     return (
         jsonify({"trips": [t.to_dict(include_driver=True) for t in trips]}),
         200,
@@ -75,8 +77,7 @@ def my_trips():
 
     Returns:
         Response: JSON ``{"trips": [<trip_dict>, ...]}``
-            with HTTP 200.  Includes trips in every status
-            (OPEN, CLOSED, COMPLETED, CANCELLED).
+            with HTTP 200.  Includes trips in every status.
     """
     trips = get_driver_trips(current_user.user_id)
     return (
@@ -214,11 +215,11 @@ def close(trip_id):
 @login_required
 def complete(trip_id):
     """
-    Complete a trip (CLOSED -> COMPLETED).
+    Complete a trip (READY_FOR_PICKUP -> COMPLETED).
 
     Marks the trip as fully fulfilled.  Only the owning
     driver can complete the trip, and only after it has
-    been closed.
+    been marked ready for pickup.
 
     Args:
         trip_id (int): Primary key of the trip to complete,
@@ -228,7 +229,7 @@ def complete(trip_id):
         Response: JSON ``{"message": ..., "trip": <trip_dict>}``
             with HTTP 200 on success.  Returns HTTP 403 if
             not the trip owner, 404 if trip not found, 409
-            if the trip is not currently CLOSED, or 500 on
+            if the trip is not currently READY_FOR_PICKUP, or 500 on
             database failure.
     """
     trip_obj, error, status = complete_trip(trip_id, current_user.user_id)
@@ -247,6 +248,82 @@ def complete(trip_id):
     )
 
 
+@trip.route("/me/trips/<int:trip_id>/purchase", methods=["PATCH"])
+@login_required
+def purchase(trip_id):
+    """
+    Mark a trip as purchased and cascade the status to its orders.
+
+    Only the owning driver can mark the trip as purchased, and only
+    after the trip has been closed.
+
+    Args:
+        trip_id (int): Primary key of the trip to update,
+            extracted from the URL path.
+
+    Returns:
+        Response: JSON ``{"message": ..., "trip": <trip_dict>}``
+            with HTTP 200 on success.  Returns HTTP 403 if
+            not the trip owner, 404 if trip not found, 409
+            if the trip is not currently CLOSED, or 500 on
+            database failure.
+    """
+    trip_obj, error, status = mark_trip_purchased(
+        trip_id, current_user.user_id
+    )
+
+    if error:
+        return jsonify({"message": error}), status
+
+    return (
+        jsonify(
+            {
+                "message": "Trip marked as purchased",
+                "trip": trip_obj.to_dict(),
+            }
+        ),
+        200,
+    )
+
+
+@trip.route("/me/trips/<int:trip_id>/ready-for-pickup", methods=["PATCH"])
+@login_required
+def ready_for_pickup(trip_id):
+    """
+    Mark a trip ready for pickup and cascade the status to its orders.
+
+    Only the owning driver can mark the trip ready for pickup, and only
+    after the trip has been marked purchased.
+
+    Args:
+        trip_id (int): Primary key of the trip to update,
+            extracted from the URL path.
+
+    Returns:
+        Response: JSON ``{"message": ..., "trip": <trip_dict>}``
+            with HTTP 200 on success.  Returns HTTP 403 if
+            not the trip owner, 404 if trip not found, 409
+            if the trip is not currently PURCHASED, or 500 on
+            database failure.
+    """
+    trip_obj, error, status = mark_trip_ready_for_pickup(
+        trip_id, current_user.user_id
+    )
+
+    if error:
+        return jsonify({"message": error}), status
+
+    return (
+        jsonify(
+            {
+                "message": "Trip marked ready for pickup",
+                "trip": trip_obj.to_dict(),
+            }
+        ),
+        200,
+    )
+
+
 @trip.route("/me/trips/<int:trip_id>/cancel", methods=["PATCH"])
 @login_required
 def cancel(trip_id):
@@ -254,8 +331,8 @@ def cancel(trip_id):
     Cancel a trip and cascade cancellation to all orders.
 
     Sets the trip status to CANCELLED and marks every
-    associated order as CANCELLED.  Can be called on OPEN
-    or CLOSED trips but not on COMPLETED ones.
+    associated order as CANCELLED.  Can be called before the
+    trip is COMPLETED.
 
     Args:
         trip_id (int): Primary key of the trip to cancel,

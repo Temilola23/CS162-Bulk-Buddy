@@ -5,22 +5,34 @@ from app.models import Item, Order, OrderItem, Trip
 from app.models.enums import OrderStatus, TripStatus
 
 
-def list_shopper_orders(shopper_id):
+def list_shopper_orders(shopper_id, status_filter=None):
     """
     Return all orders belonging to the authenticated shopper.
 
     Args:
         shopper_id: The shopper's primary key.
+        status_filter: Optional status string to filter by.
 
     Returns:
-        list: Orders sorted by pickup time descending.
+        tuple: (orders, None, 200) on success, or
+            (None, error_message, 400) on invalid status.
     """
-    return (
-        Order.query.filter_by(shopper_id=shopper_id)
-        .join(Trip, Order.trip_id == Trip.trip_id)
+    if status_filter:
+        try:
+            status_enum = OrderStatus(status_filter)
+        except ValueError:
+            return None, f"Invalid status: {status_filter}", 400
+
+    query = Order.query.filter_by(shopper_id=shopper_id)
+    if status_filter:
+        query = query.filter_by(status=status_enum)
+
+    orders = (
+        query.join(Trip, Order.trip_id == Trip.trip_id)
         .order_by(Trip.pickup_time.desc(), Order.created_at.desc())
         .all()
     )
+    return orders, None, 200
 
 
 def create_order(shopper_id, data):
@@ -47,6 +59,17 @@ def create_order(shopper_id, data):
 
     if trip.status != TripStatus.OPEN:
         return None, "Trip is not accepting claims", 409
+
+    if trip.driver_id == shopper_id:
+        return None, "You cannot claim items from your own trip", 403
+
+    existing = (
+        Order.query.filter_by(shopper_id=shopper_id, trip_id=trip_id)
+        .filter(Order.status != OrderStatus.CANCELLED)
+        .first()
+    )
+    if existing:
+        return None, "You already have an active order for this trip", 409
 
     claimed_items = []
     for claimed_item in items_data:
@@ -137,7 +160,7 @@ def cancel_order(order_id, shopper_id):
 
 def complete_order(order_id, shopper_id):
     """
-    Mark a shopper's order as completed.
+    Mark a shopper's ready-for-pickup order as completed.
 
     Args:
         order_id: The order primary key.
@@ -159,6 +182,9 @@ def complete_order(order_id, shopper_id):
 
     if order.status == OrderStatus.COMPLETED:
         return order, None, 200
+
+    if order.status != OrderStatus.READY_FOR_PICKUP:
+        return None, "Order is not ready for pickup", 409
 
     order.status = OrderStatus.COMPLETED
 

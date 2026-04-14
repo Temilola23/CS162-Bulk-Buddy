@@ -252,6 +252,78 @@ class TestMyOrdersRoutes:
             driver_name
         )
 
+    def test_list_orders_filters_by_status(self, client, app):
+        """Filtering by status should return only matching orders."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="filter@example.com")
+            trip, _ = _make_open_trip_with_item(db, driver)
+
+            claimed = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CLAIMED,
+            )
+            cancelled = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CANCELLED,
+            )
+            completed = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.COMPLETED,
+            )
+            db.session.add_all([claimed, cancelled, completed])
+            db.session.commit()
+            _login(client, shopper.email)
+
+        response = client.get("/api/me/orders?status=cancelled")
+
+        assert response.status_code == 200
+        assert len(response.json["orders"]) == 1
+        assert response.json["orders"][0]["status"] == "cancelled"
+
+    def test_list_orders_no_filter_returns_all(self, client, app):
+        """Omitting the status param should return all orders."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="all-orders@example.com")
+            trip, _ = _make_open_trip_with_item(db, driver)
+
+            db.session.add_all(
+                [
+                    Order(
+                        shopper_id=shopper.user_id,
+                        trip_id=trip.trip_id,
+                        status=OrderStatus.CLAIMED,
+                    ),
+                    Order(
+                        shopper_id=shopper.user_id,
+                        trip_id=trip.trip_id,
+                        status=OrderStatus.CANCELLED,
+                    ),
+                ]
+            )
+            db.session.commit()
+            _login(client, shopper.email)
+
+        response = client.get("/api/me/orders")
+
+        assert response.status_code == 200
+        assert len(response.json["orders"]) == 2
+
+    def test_list_orders_rejects_invalid_status(self, client, app):
+        """An invalid status string should return 400."""
+        with app.app_context():
+            shopper = _make_shopper(db, email="bad-status@example.com")
+            _login(client, shopper.email)
+
+        response = client.get("/api/me/orders?status=bogus")
+
+        assert response.status_code == 400
+        assert "Invalid status" in response.json["message"]
+
     def test_create_order_success(self, client, app):
         """A shopper can create an order against an open trip."""
         with app.app_context():
@@ -280,6 +352,29 @@ class TestMyOrdersRoutes:
             updated_item = db.session.get(Item, item_id)
             assert created_order.shopper_id == shopper_id
             assert updated_item.claimed_quantity == 2
+
+    def test_create_order_rejects_driver_claiming_own_trip(self, client, app):
+        """Drivers cannot claim items from trips they created."""
+        with app.app_context():
+            driver = _make_driver(db)
+            trip, item = _make_open_trip_with_item(db, driver)
+            trip_id = trip.trip_id
+            item_id = item.item_id
+            _login(client, driver.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": item_id, "quantity": 1}],
+            },
+        )
+
+        assert response.status_code == 403
+        assert (
+            response.json["message"]
+            == "You cannot claim items from your own trip"
+        )
 
     def test_create_order_requires_trip_and_items(self, auth_client):
         """Checkout should fail when trip_id or items are missing."""
@@ -433,12 +528,16 @@ class TestMyOrdersRoutes:
         assert "Not enough quantity available" in response.json["message"]
 
     def test_complete_order_success(self, client, app):
-        """A shopper can mark one of their own orders as completed."""
+        """A shopper can complete their own ready-for-pickup order."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="complete@example.com")
             trip, _ = _make_open_trip_with_item(db, driver)
-            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.READY_FOR_PICKUP,
+            )
             db.session.add(order)
             db.session.commit()
             order_id = order.order_id
@@ -448,6 +547,30 @@ class TestMyOrdersRoutes:
 
         assert response.status_code == 200
         assert response.json["order"]["status"] == "completed"
+
+    def test_complete_order_rejects_order_before_pickup_ready(
+        self, client, app
+    ):
+        """Shoppers cannot complete orders before
+        the driver marks them ready."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="not-ready@example.com")
+            trip, _ = _make_open_trip_with_item(db, driver)
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CLAIMED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            order_id = order.order_id
+            _login(client, shopper.email)
+
+        response = client.patch(f"/api/me/orders/{order_id}/complete")
+
+        assert response.status_code == 409
+        assert response.json["message"] == "Order is not ready for pickup"
 
     def test_complete_order_requires_login(self, client):
         """Unauthenticated completion requests should return 401."""
@@ -525,6 +648,71 @@ class TestMyOrdersRoutes:
 
         assert response.status_code == 200
         assert response.json["order"]["status"] == "completed"
+
+    def test_create_order_rejects_duplicate_active_order(self, client, app):
+        """A shopper cannot place a second active order on the same trip."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="dupe@example.com")
+            trip, item = _make_open_trip_with_item(db, driver)
+            trip_id = trip.trip_id
+            item_id = item.item_id
+
+            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            db.session.add(order)
+            db.session.flush()
+            db.session.add(
+                OrderItem(
+                    order_id=order.order_id,
+                    item_id=item.item_id,
+                    quantity=1,
+                )
+            )
+            item.claimed_quantity += 1
+            db.session.commit()
+            _login(client, shopper.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": item_id, "quantity": 1}],
+            },
+        )
+
+        assert response.status_code == 409
+        assert response.json["message"] == (
+            "You already have an active order for this trip"
+        )
+
+    def test_create_order_allows_after_cancelled(self, client, app):
+        """A shopper can place a new order after cancelling a previous one."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="reorder@example.com")
+            trip, item = _make_open_trip_with_item(db, driver)
+            trip_id = trip.trip_id
+            item_id = item.item_id
+
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CANCELLED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            _login(client, shopper.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": item_id, "quantity": 1}],
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json["order"]["status"] == "claimed"
 
     def test_cancel_order_success(self, client, app):
         """A shopper can cancel a claimed order and reclaim inventory."""

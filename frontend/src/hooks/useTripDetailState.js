@@ -29,8 +29,12 @@ export default function useTripDetailState() {
   const selection = useLinkedOrderSelection(orders, { scope: 'all' });
   const [quantitiesByOrder, setQuantitiesByOrder] = useState({});
   const [claimStatesByOrder, setClaimStatesByOrder] = useState({});
+  const [claimStateMessage, setClaimStateMessage] = useState('');
   const activeOrder = selection.activeOrder;
   const activeClaimState = activeOrder ? claimStatesByOrder[activeOrder.id] || 'picked-up' : null;
+  const canCompleteActiveOrder = activeOrder
+    ? ['ready_for_pickup', 'completed'].includes(activeOrder.apiStatus)
+    : false;
   const canViewPreviousOrder = selection.activeOrderIndex > 0;
   const canViewNextOrder = selection.activeOrderIndex < selection.ordersForDate.length - 1;
   const orderStatusStepIndex = getOrderStatusStepIndex(activeOrder);
@@ -49,6 +53,10 @@ export default function useTripDetailState() {
       ...current,
     }));
   }, [orders]);
+
+  useEffect(() => {
+    setClaimStateMessage('');
+  }, [activeOrder?.id]);
 
   const summary = useMemo(() => {
     if (!activeOrder) {
@@ -92,14 +100,27 @@ export default function useTripDetailState() {
       return;
     }
 
+    if (nextState === 'completed' && !canCompleteActiveOrder) {
+      setClaimStateMessage('The driver needs to mark this trip ready for pickup first.');
+      return;
+    }
+
     // Persist claim-state UI per order so switching dates does not wipe the slider.
     setClaimStatesByOrder((current) => ({
       ...current,
       [activeOrder.id]: nextState,
     }));
+    setClaimStateMessage('');
 
     if (nextState === 'completed') {
-      await api.patch(`/me/orders/${activeOrder.orderId}/complete`);
+      const response = await api.patch(`/me/orders/${activeOrder.orderId}/complete`);
+      if (!response.ok) {
+        setClaimStatesByOrder((current) => ({
+          ...current,
+          [activeOrder.id]: 'picked-up',
+        }));
+        setClaimStateMessage(response.body?.message || 'Unable to complete this order.');
+      }
     }
   }
 
@@ -110,6 +131,8 @@ export default function useTripDetailState() {
     ordersError,
     quantitiesByOrder,
     activeClaimState,
+    canCompleteActiveOrder,
+    claimStateMessage,
     canViewPreviousOrder,
     canViewNextOrder,
     summary,
