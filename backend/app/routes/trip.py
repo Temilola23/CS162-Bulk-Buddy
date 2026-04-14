@@ -6,6 +6,7 @@ from app.services import (
     close_trip,
     complete_trip,
     create_trip,
+    get_available_inventory,
     get_driver_trips,
     get_open_trips,
     get_trip,
@@ -64,6 +65,28 @@ def get_one(trip_id):
         ),
         200,
     )
+
+
+@trip.route("/inventory", methods=["GET"])
+@login_required
+def inventory():
+    """
+    List all items with remaining availability on open trips.
+
+    Returns items from OPEN trips where available_quantity > 0,
+    ordered by trip pickup_time ascending so the soonest trips
+    appear first.  Each item dict includes a nested ``trip``
+    with driver info so the frontend can render an item-browsing
+    feed without extra API calls.
+
+    Returns:
+        Response: JSON ``{"items": [<item_dict>, ...]}``
+            with HTTP 200.  Each ``item_dict`` mirrors the
+            item model fields plus an ``available_quantity``
+            computed property and a nested ``trip`` dict.
+    """
+    items = get_available_inventory()
+    return jsonify({"items": items}), 200
 
 
 # ── Driver-only routes (/me/trips) ─────────────────────────

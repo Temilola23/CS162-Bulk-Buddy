@@ -1,5 +1,6 @@
 from .auth_service import authenticate_user, logout_current_user, register_user
 from .driver_service import create_driver_application
+from .inventory_service import get_available_inventory
 from .order_service import complete_order, create_order, list_shopper_orders
 from .trip_service import (
     cancel_trip,
@@ -18,6 +19,7 @@ from .user_service import get_current_user_profile, update_current_user_profile
 __all__ = [
     "authenticate_user",
     "cancel_trip",
+    "get_available_inventory",
     "close_trip",
     "complete_order",
     "complete_trip",
