@@ -37,15 +37,16 @@ def list_shopper_orders(shopper_id, status_filter=None):
 
 def create_order(shopper_id, data):
     """
-    Create a shopper order against one open trip.
+    Create or update a shopper order against one open trip.
 
     Args:
         shopper_id: The authenticated shopper's primary key.
         data: Dict with trip_id and item claims.
 
     Returns:
-        tuple: (Order, None, 201) on success, or
-            (None, error_message, status_code) on failure.
+        tuple: (Order, None, 201) when a new order is created,
+            (Order, None, 200) when an existing order is updated,
+            or (None, error_message, status_code) on failure.
     """
     trip_id = data.get("trip_id")
     items_data = data.get("items", [])
@@ -63,15 +64,13 @@ def create_order(shopper_id, data):
     if trip.driver_id == shopper_id:
         return None, "You cannot claim items from your own trip", 403
 
-    existing = (
+    existing_order = (
         Order.query.filter_by(shopper_id=shopper_id, trip_id=trip_id)
         .filter(Order.status != OrderStatus.CANCELLED)
         .first()
     )
-    if existing:
-        return None, "You already have an active order for this trip", 409
 
-    claimed_items = []
+    claimed_quantities = {}
     for claimed_item in items_data:
         item_id = claimed_item.get("item_id")
         quantity = claimed_item.get("quantity")
@@ -87,6 +86,12 @@ def create_order(shopper_id, data):
         if quantity <= 0:
             return None, "quantity must be greater than zero", 400
 
+        claimed_quantities[item_id] = (
+            claimed_quantities.get(item_id, 0) + quantity
+        )
+
+    claimed_items = []
+    for item_id, quantity in claimed_quantities.items():
         item = db.session.get(Item, item_id)
         if not item or item.trip_id != trip.trip_id:
             return None, "Item does not belong to this trip", 400
@@ -101,22 +106,32 @@ def create_order(shopper_id, data):
         claimed_items.append((item, quantity))
 
     try:
-        order = Order(shopper_id=shopper_id, trip_id=trip.trip_id)
-        db.session.add(order)
-        db.session.flush()
+        status = 200 if existing_order else 201
+        order = existing_order
+        if not order:
+            order = Order(shopper_id=shopper_id, trip_id=trip.trip_id)
+            db.session.add(order)
+
+        existing_lines = {
+            order_item.item_id: order_item for order_item in order.order_items
+        }
 
         for item, quantity in claimed_items:
-            db.session.add(
-                OrderItem(
-                    order_id=order.order_id,
-                    item_id=item.item_id,
-                    quantity=quantity,
+            order_item = existing_lines.get(item.item_id)
+            if order_item:
+                order_item.quantity += quantity
+            else:
+                order.order_items.append(
+                    OrderItem(
+                        item_id=item.item_id,
+                        quantity=quantity,
+                    )
                 )
-            )
+
             item.claimed_quantity += quantity
 
         db.session.commit()
-        return order, None, 201
+        return order, None, status
     except SQLAlchemyError:
         db.session.rollback()
         return None, "Failed to create order", 500
