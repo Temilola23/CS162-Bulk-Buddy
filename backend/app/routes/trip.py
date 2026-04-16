@@ -79,13 +79,17 @@ def inventory():
     with driver info so the frontend can render an item-browsing
     feed without extra API calls.
 
+    Items from trips owned by the current user are excluded so
+    drivers do not see their own inventory in the shopper feed
+    (matching the behavior of ``GET /api/trips``).
+
     Returns:
         Response: JSON ``{"items": [<item_dict>, ...]}``
             with HTTP 200.  Each ``item_dict`` mirrors the
             item model fields plus an ``available_quantity``
             computed property and a nested ``trip`` dict.
     """
-    items = get_available_inventory()
+    items = get_available_inventory(exclude_driver_id=current_user.user_id)
     return jsonify({"items": items}), 200
 
 

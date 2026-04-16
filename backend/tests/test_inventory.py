@@ -185,6 +185,31 @@ class TestInventoryRoute:
         assert response.status_code == 200
         assert len(response.json["items"]) == 0
 
+    def test_inventory_excludes_current_drivers_items(self, client, app):
+        """A driver's own trip items should not appear in their feed."""
+        with app.app_context():
+            driver = _make_driver(db)
+            other_driver = _make_driver(db, email="other@example.com")
+            # Give the logged-in driver a trip with available items
+            _make_open_trip_with_items(db, driver)
+            # And another driver has a trip with availability
+            _make_open_trip_with_items(
+                db,
+                other_driver,
+                store_name="Sam's Club",
+                pickup_location_text="999 Other St",
+            )
+            _login(client, driver.email)
+
+        response = client.get("/api/inventory")
+
+        assert response.status_code == 200
+        items = response.json["items"]
+        # Only the other driver's items should be visible
+        assert len(items) >= 1
+        for item in items:
+            assert item["trip"]["store_name"] == "Sam's Club"
+
     def test_inventory_sorted_by_pickup_time(self, client, app):
         """Items should be ordered by trip pickup_time ascending."""
         with app.app_context():
