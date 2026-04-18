@@ -96,11 +96,12 @@ def list_orders():
 @login_required
 def create_order_route():
     """
-    Create a new order for the authenticated shopper.
+    Create or update an order for the authenticated shopper.
 
     Expects a JSON body with ``trip_id`` plus a list of claimed item
-    quantities. The heavy validation and transaction logic lives in
-    ``create_order``.
+    quantities. If the shopper already has an active order for the trip,
+    the requested quantities are added to that order. The heavy validation
+    and transaction logic lives in ``create_order``.
 
     Returns:
         Response: JSON ``{"message": ..., "order": <order_dict>}``
@@ -113,10 +114,16 @@ def create_order_route():
     if error:
         return jsonify({"message": error}), status
 
+    message = (
+        "Order updated successfully"
+        if status == 200
+        else "Order created successfully"
+    )
+
     return (
         jsonify(
             {
-                "message": "Order created successfully",
+                "message": message,
                 "order": order.to_dict(
                     include_trip=True,
                     include_order_items=True,
