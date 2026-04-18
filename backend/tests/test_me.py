@@ -649,8 +649,8 @@ class TestMyOrdersRoutes:
         assert response.status_code == 200
         assert response.json["order"]["status"] == "completed"
 
-    def test_create_order_rejects_duplicate_active_order(self, client, app):
-        """A shopper cannot place a second active order on the same trip."""
+    def test_create_order_updates_duplicate_active_order(self, client, app):
+        """A second claim on the same trip updates the active order."""
         with app.app_context():
             driver = _make_driver(db)
             shopper = _make_shopper(db, email="dupe@example.com")
@@ -676,14 +676,69 @@ class TestMyOrdersRoutes:
             "/api/me/orders",
             json={
                 "trip_id": trip_id,
-                "items": [{"item_id": item_id, "quantity": 1}],
+                "items": [{"item_id": item_id, "quantity": 2}],
             },
         )
 
-        assert response.status_code == 409
-        assert response.json["message"] == (
-            "You already have an active order for this trip"
+        assert response.status_code == 200
+        assert response.json["message"] == "Order updated successfully"
+        assert len(response.json["order"]["order_items"]) == 1
+        assert response.json["order"]["order_items"][0]["quantity"] == 3
+
+        with app.app_context():
+            assert Order.query.count() == 1
+            updated_order_item = OrderItem.query.one()
+            updated_item = db.session.get(Item, item_id)
+            assert updated_order_item.quantity == 3
+            assert updated_item.claimed_quantity == 3
+
+    def test_create_order_adds_new_item_to_existing_order(self, client, app):
+        """A new item from a trip is added to the shopper's active order."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db, email="same-trip-new-item@example.com")
+            trip, item = _make_open_trip_with_item(db, driver)
+            second_item = Item(
+                trip_id=trip.trip_id,
+                name="Olive Oil",
+                unit="bottle",
+                total_quantity=5,
+                claimed_quantity=0,
+                price_per_unit=12.50,
+            )
+            db.session.add(second_item)
+            order = Order(shopper_id=shopper.user_id, trip_id=trip.trip_id)
+            db.session.add(order)
+            db.session.flush()
+            db.session.add(
+                OrderItem(
+                    order_id=order.order_id,
+                    item_id=item.item_id,
+                    quantity=1,
+                )
+            )
+            item.claimed_quantity += 1
+            db.session.commit()
+            trip_id = trip.trip_id
+            second_item_id = second_item.item_id
+            _login(client, shopper.email)
+
+        response = client.post(
+            "/api/me/orders",
+            json={
+                "trip_id": trip_id,
+                "items": [{"item_id": second_item_id, "quantity": 2}],
+            },
         )
+
+        assert response.status_code == 200
+        assert len(response.json["order"]["order_items"]) == 2
+
+        with app.app_context():
+            assert Order.query.count() == 1
+            assert OrderItem.query.count() == 2
+            updated_item = db.session.get(Item, second_item_id)
+            assert updated_item.claimed_quantity == 2
 
     def test_create_order_allows_after_cancelled(self, client, app):
         """A shopper can place a new order after cancelling a previous one."""

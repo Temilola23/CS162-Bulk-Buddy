@@ -12,6 +12,7 @@ export default function useShopperHeaderState() {
     () => {
       const items = [
         { id: 'trip-feed', label: 'Trip Feed', to: '/trip-feed' },
+        { id: 'item-feed', label: 'Item Feed', to: '/item-feed' },
         { id: 'my-orders', label: 'My Orders', to: '/my-orders' },
         { id: 'trip-detail', label: 'Trip Detail', to: '/trip-detail' },
       ];
