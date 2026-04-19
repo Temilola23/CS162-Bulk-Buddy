@@ -266,6 +266,79 @@ class TestAdminService:
             ).first()
             assert updated_user.role == UserRole.SHOPPER
 
+    def test_update_driver_application_rejects_already_approved(self, app):
+        """Cannot change status of an already-approved application."""
+        with app.app_context():
+            applicant = User(
+                first_name="Already",
+                last_name="Approved",
+                email="approved@example.com",
+                password_hash=generate_password_hash("password"),
+                address_street="100 Approved St",
+                address_city="Boston",
+                address_state="MA",
+                address_zip="02101",
+                role=UserRole.DRIVER,
+            )
+            db.session.add(applicant)
+            db.session.commit()
+
+            app_record = DriverApplication(
+                user_id=applicant.user_id,
+                status=ApplicationStatus.APPROVED,
+                license_info="DL123456",
+            )
+            db.session.add(app_record)
+            db.session.commit()
+            app_id = app_record.driver_application_id
+
+            app_obj, error, status = admin_service.update_driver_application(
+                app_id, {"new_status": "rejected"}
+            )
+
+            assert status == 409
+            assert "pending" in error.lower()
+            assert app_obj is None
+
+            # Verify user role was NOT changed
+            updated_user = User.query.filter_by(
+                user_id=applicant.user_id
+            ).first()
+            assert updated_user.role == UserRole.DRIVER
+
+    def test_update_driver_application_rejects_already_rejected(self, app):
+        """Cannot change status of an already-rejected application."""
+        with app.app_context():
+            applicant = User(
+                first_name="Already",
+                last_name="Rejected",
+                email="rejected2@example.com",
+                password_hash=generate_password_hash("password"),
+                address_street="200 Rejected St",
+                address_city="Boston",
+                address_state="MA",
+                address_zip="02102",
+            )
+            db.session.add(applicant)
+            db.session.commit()
+
+            app_record = DriverApplication(
+                user_id=applicant.user_id,
+                status=ApplicationStatus.REJECTED,
+                license_info="DL789012",
+            )
+            db.session.add(app_record)
+            db.session.commit()
+            app_id = app_record.driver_application_id
+
+            app_obj, error, status = admin_service.update_driver_application(
+                app_id, {"new_status": "approved"}
+            )
+
+            assert status == 409
+            assert "pending" in error.lower()
+            assert app_obj is None
+
 
 class TestAuthServiceAdmin:
     """Test admin-related auth service functions."""

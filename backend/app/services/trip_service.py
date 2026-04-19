@@ -413,7 +413,19 @@ def cancel_trip(trip_id, driver_id):
     expected_order_status = TRIP_STATUS_TO_ORDER_STATUS.get(trip.status)
     trip.status = TripStatus.CANCELLED
 
+    # Revert inventory for orders that will be cancelled
     if expected_order_status:
+        orders = Order.query.filter_by(
+            trip_id=trip_id,
+            status=expected_order_status,
+        ).all()
+        for order in orders:
+            for order_item in order.order_items:
+                item = db.session.get(Item, order_item.item_id)
+                if item:
+                    item.claimed_quantity = max(
+                        0, item.claimed_quantity - order_item.quantity
+                    )
         _cascade_order_status(
             trip_id,
             expected_order_status,
