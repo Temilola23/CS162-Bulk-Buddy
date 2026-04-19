@@ -1,25 +1,12 @@
 import { Link } from 'react-router-dom';
 import ShopperHeader from './ShopperHeader';
+import ChevronIcon from './shared/ChevronIcon';
 import { buildLinkedOrderHref } from '../utils/linkedOrderHref';
 import { statusSteps } from '../data/shopperOrders';
 import useMyOrdersPageState from '../hooks/useMyOrdersPageState';
 import { formatCalendarDate } from '../utils/dateFormatting';
 import { formatStatus, getStatusMarkerPosition, getStatusProgress } from '../utils/orderStatus';
 import './MyOrders.css';
-
-function ChevronIcon() {
-  return (
-    <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M1.25 1.5 6 6.25l4.75-4.75"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
 
 export default function MyOrders() {
   const {
