@@ -283,6 +283,70 @@
   opacity: 0.7;
 }
 
+.driver-trip-toggle-orders {
+  min-height: 36px;
+  border: 1px solid rgba(77, 33, 106, 0.16);
+  border-radius: 8px;
+  padding: 0 14px;
+  background: transparent;
+  color: #4d216a;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: background 180ms ease;
+}
+
+.driver-trip-toggle-orders:hover {
+  background: rgba(77, 33, 106, 0.06);
+}
+
+.driver-trip-toggle-orders:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.driver-trip-orders {
+  display: grid;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(77, 33, 106, 0.1);
+}
+
+.driver-trip-order {
+  border-radius: 12px;
+  border: 1px solid rgba(77, 33, 106, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.driver-trip-order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.driver-trip-order-header strong {
+  color: #301746;
+}
+
+.driver-trip-order-address {
+  margin: 0;
+  color: #756985;
+  font-size: 0.88rem;
+}
+
+.driver-trip-order-items {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: #4a3660;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 980px) {
   .driver-trips-layout {
     grid-template-columns: 1fr;

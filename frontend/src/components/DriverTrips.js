@@ -23,6 +23,9 @@ export default function DriverTrips() {
     handleMarkReadyForPickup,
     handleCompleteTrip,
     handleCancelTrip,
+    handleToggleOrders,
+    tripOrders,
+    loadingOrdersTripId,
   } = useDriverTripsPageState();
 
   return (
@@ -236,6 +239,50 @@ export default function DriverTrips() {
                           Cancel trip
                         </button>
                       ) : null}
+                    </div>
+                  ) : null}
+
+                  <button
+                    className="driver-trip-toggle-orders"
+                    disabled={loadingOrdersTripId === trip.id}
+                    onClick={() => handleToggleOrders(trip.id)}
+                    type="button"
+                  >
+                    {loadingOrdersTripId === trip.id
+                      ? 'Loading orders...'
+                      : tripOrders[trip.id]
+                        ? 'Hide orders'
+                        : 'View orders'}
+                  </button>
+
+                  {tripOrders[trip.id] ? (
+                    <div className="driver-trip-orders">
+                      {tripOrders[trip.id].length === 0 ? (
+                        <p className="driver-trip-feedback">No orders yet.</p>
+                      ) : null}
+
+                      {tripOrders[trip.id].map((order) => (
+                        <div className="driver-trip-order" key={order.order_id}>
+                          <div className="driver-trip-order-header">
+                            <strong>{order.shopper?.name || 'Shopper'}</strong>
+                            <span className={`driver-trip-status is-${order.status}`.trim()}>
+                              {order.status?.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                          {order.shopper?.address ? (
+                            <p className="driver-trip-order-address">{order.shopper.address}</p>
+                          ) : null}
+                          {order.order_items?.length > 0 ? (
+                            <ul className="driver-trip-order-items">
+                              {order.order_items.map((oi) => (
+                                <li key={oi.order_item_id}>
+                                  {oi.quantity}x {oi.item?.name || `Item #${oi.item_id}`}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                        </div>
+                      ))}
                     </div>
                   ) : null}
                 </article>

@@ -59,6 +59,8 @@ export default function useDriverTripsState() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingTripId, setUpdatingTripId] = useState(null);
+  const [tripOrders, setTripOrders] = useState({});
+  const [loadingOrdersTripId, setLoadingOrdersTripId] = useState(null);
 
   useEffect(() => {
     let isActive = true;
@@ -207,6 +209,31 @@ export default function useDriverTripsState() {
     setSubmitMessage(response.body?.message || 'Trip created successfully.');
   }
 
+  async function handleToggleOrders(tripId) {
+    if (tripOrders[tripId]) {
+      setTripOrders((current) => {
+        const next = { ...current };
+        delete next[tripId];
+        return next;
+      });
+      return;
+    }
+
+    setLoadingOrdersTripId(tripId);
+    const response = await api.get(`/me/trips/${tripId}/orders`);
+    setLoadingOrdersTripId(null);
+
+    if (!response.ok) {
+      setErrorMessage(response.body?.message || response.body?.error || 'Unable to load orders.');
+      return;
+    }
+
+    setTripOrders((current) => ({
+      ...current,
+      [tripId]: response.body?.orders || [],
+    }));
+  }
+
   async function handleTripStatusAction(tripId, actionPath) {
     setErrorMessage('');
     setSubmitMessage('');
@@ -268,5 +295,8 @@ export default function useDriverTripsState() {
       handleTripStatusAction(tripId, 'ready-for-pickup'),
     handleCompleteTrip: (tripId) => handleTripStatusAction(tripId, 'complete'),
     handleCancelTrip: (tripId) => handleTripStatusAction(tripId, 'cancel'),
+    handleToggleOrders,
+    tripOrders,
+    loadingOrdersTripId,
   };
 }

@@ -10,6 +10,7 @@ from app.services import (
     get_driver_trips,
     get_open_trips,
     get_trip,
+    get_trip_orders,
     mark_trip_purchased,
     mark_trip_ready_for_pickup,
     update_trip,
@@ -386,3 +387,30 @@ def cancel(trip_id):
         ),
         200,
     )
+
+
+@trip.route("/me/trips/<int:trip_id>/orders", methods=["GET"])
+@login_required
+def get_orders(trip_id):
+    """
+    Get all orders for a driver's trip.
+
+    Returns all non-cancelled orders placed on the given trip,
+    including shopper information and order items.
+
+    Args:
+        trip_id (int): Primary key of the trip,
+            extracted from the URL path.
+
+    Returns:
+        Response: JSON ``{"orders": [<order_dict>, ...]}``
+            with HTTP 200 on success.  Returns HTTP 403 if
+            not the trip owner, 404 if trip not found, or 500 on
+            database failure.
+    """
+    orders, error, status = get_trip_orders(trip_id, current_user.user_id)
+
+    if error:
+        return jsonify({"error": error}), status
+
+    return jsonify({"orders": orders}), status
