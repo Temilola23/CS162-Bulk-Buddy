@@ -4,24 +4,6 @@ import { howItWorksSteps, landingSlides } from '../data/landingContent';
 import useLandingPageState from '../hooks/useLandingPageState';
 import './Landing.css';
 
-// const faqItems = [
-//   {
-//     question: '*************',
-//     answer:
-//       '*************',
-//   },
-//   {
-//     question: '*************',
-//     answer:
-//       '*************',
-//   },
-//   {
-//     question: '*************',
-//     answer:
-//       '*************',
-//   },
-// ];
-
 export default function Landing() {
   const {
     isScrolled,
@@ -176,24 +158,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
-      {/* <section className="landing-faq-section" id="faq">
-        <div className="landing-faq-inner">
-          <header className="landing-faq-heading">
-            <p className="how-it-works-kicker">FAQ</p>
-            <h2>Common questions before your first trip.</h2>
-          </header>
-
-          <div className="landing-faq-list">
-            {faqItems.map((item) => (
-              <details className="landing-faq-item" key={item.question}>
-                <summary>{item.question}</summary>
-                <p>{item.answer}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       <section className="landing-final-cta" aria-label="Get started">
         <div className="landing-final-cta-inner">

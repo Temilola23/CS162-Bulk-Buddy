@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from app.extensions import db
-from app.models import User, Trip, Item, Order
+from app.models import User, Trip, Item, Order, OrderItem
 from app.models.enums import (
     UserRole,
     TripStatus,
@@ -869,3 +869,53 @@ class TestCancelTrip:
         response = client.patch(f"/api/me/trips/{trip_id}/cancel")
 
         assert response.status_code == 409
+
+    def test_cancel_trip_reverts_claimed_quantity(self, client, app):
+        """Cancelling a trip reverts claimed_quantity on items."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+                status=TripStatus.OPEN,
+            )
+            db.session.add(trip)
+            db.session.flush()
+            item = Item(
+                trip_id=trip.trip_id,
+                name="Paper Towels",
+                unit="pack",
+                total_quantity=10,
+                claimed_quantity=0,
+            )
+            db.session.add(item)
+            db.session.flush()
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+            )
+            db.session.add(order)
+            db.session.flush()
+            order_item = OrderItem(
+                order_id=order.order_id,
+                item_id=item.item_id,
+                quantity=5,
+            )
+            db.session.add(order_item)
+            db.session.commit()
+            item.claimed_quantity = 5
+            db.session.commit()
+            trip_id = trip.trip_id
+            item_id = item.item_id
+            _login(client, driver.email)
+
+        response = client.patch(f"/api/me/trips/{trip_id}/cancel")
+
+        assert response.status_code == 200
+
+        with app.app_context():
+            item = db.session.get(Item, item_id)
+            assert item.claimed_quantity == 0
