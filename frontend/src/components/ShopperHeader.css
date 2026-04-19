@@ -242,6 +242,45 @@
   box-shadow: 0 2px 4px rgba(77, 33, 106, 0.3);
 }
 
+.header-notifications {
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 180ms ease;
+}
+
+.header-notifications:hover,
+.header-notifications:focus-visible {
+  background: rgba(77, 33, 106, 0.08);
+}
+
+.header-notifications svg {
+  color: var(--text-secondary, #555);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
 @media (max-width: 900px) {
   .shopper-header-inner {
     grid-template-columns: 1fr;

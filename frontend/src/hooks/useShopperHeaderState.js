@@ -3,6 +3,7 @@ import { useSession } from '../contexts/SessionProvider';
 
 export default function useShopperHeaderState() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const profileMenuRef = useRef(null);
   const { currentUser } = useSession();
 
@@ -27,6 +28,19 @@ export default function useShopperHeaderState() {
   );
 
   useEffect(() => {
+    let isActive = true;
+    if (currentUser) {
+      fetch('/api/me/notifications/unread-count', { credentials: 'include' })
+        .then(res => (res.ok ? res.json() : null))
+        .then(data => {
+          if (isActive && data) setUnreadCount(data.unread_count);
+        })
+        .catch(() => {});
+    }
+    return () => { isActive = false; };
+  }, [currentUser]);
+
+  useEffect(() => {
     function handlePointerDown(event) {
       // Close the menu when the click lands anywhere outside the profile shell.
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -49,5 +63,6 @@ export default function useShopperHeaderState() {
     profileMenuRef,
     navItems,
     toggleMenu,
+    unreadCount,
   };
 }

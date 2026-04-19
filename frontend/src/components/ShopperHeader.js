@@ -8,7 +8,7 @@ import { getProfileFromUser } from '../utils/profileAdapters';
 import './ShopperHeader.css';
 
 export default function ShopperHeader({ activePage, isScrolled, scrollProgress }) {
-  const { menuOpen, profileMenuRef, navItems, toggleMenu } = useShopperHeaderState();
+  const { menuOpen, profileMenuRef, navItems, toggleMenu, unreadCount } = useShopperHeaderState();
   const { currentUser } = useSession();
   const { itemCount } = useCartCount();
   const navigate = useNavigate();
@@ -51,6 +51,19 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
             {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+          </button>
+
+          <button
+            className="header-notifications"
+            onClick={() => navigate('/settings')}
+            type="button"
+            aria-label="Notifications"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
           </button>
 
           <div className="shopper-profile-shell" ref={profileMenuRef}>
