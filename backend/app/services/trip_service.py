@@ -8,7 +8,9 @@ from app.models.enums import (
     UserRole,
     TripStatus,
     OrderStatus,
+    NotificationType,
 )
+from app.services.notification_service import create_notification
 
 
 def _cascade_order_status(trip_id, expected_order_status, next_order_status):
@@ -399,9 +401,69 @@ def cancel_trip(trip_id, driver_id):
             OrderStatus.CANCELLED,
         )
 
+    cancelled_orders = Order.query.filter_by(
+        trip_id=trip_id,
+        status=OrderStatus.CANCELLED,
+    ).all()
+    for order in cancelled_orders:
+        create_notification(
+            user_id=order.shopper_id,
+            notification_type=NotificationType.ORDER_CANCELLED,
+            message=(
+                f"Your order from {trip.store_name} was cancelled "
+                f"because the driver cancelled the trip."
+            ),
+            related_trip_id=trip_id,
+            related_order_id=order.order_id,
+        )
+
     try:
         db.session.commit()
         return trip, None, 200
     except SQLAlchemyError:
         db.session.rollback()
         return None, "Failed to cancel trip", 500
+
+
+def get_trip_orders(trip_id, driver_id):
+    """
+    Get all non-cancelled orders for a driver's trip.
+
+    Args:
+        trip_id: The trip's primary key.
+        driver_id: The requesting driver's user ID.
+
+    Returns:
+        tuple: (list[dict], None, 200) on success, or
+            (None, error_message, status_code) on failure.
+    """
+    trip = db.session.get(Trip, trip_id)
+    if not trip:
+        return None, "Trip not found", 404
+
+    if trip.driver_id != driver_id:
+        return None, "You can only view orders for your own trips", 403
+
+    try:
+        orders = (
+            Order.query.filter_by(trip_id=trip_id)
+            .filter(Order.status != OrderStatus.CANCELLED)
+            .all()
+        )
+        result = []
+        for order in orders:
+            order_dict = order.to_dict(include_order_items=True)
+            # Include shopper info (name + address for delivery)
+            shopper = db.session.get(User, order.shopper_id)
+            if shopper:
+                order_dict["shopper"] = {
+                    "name": shopper.full_name,
+                    "address": (
+                        f"{shopper.address_street}, {shopper.address_city}, "
+                        f"{shopper.address_state} {shopper.address_zip}"
+                    ),
+                }
+            result.append(order_dict)
+        return result, None, 200
+    except SQLAlchemyError:
+        return None, "Failed to fetch trip orders", 500

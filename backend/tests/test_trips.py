@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from app.extensions import db
-from app.models import User, Trip, Item, Order
+from app.models import User, Trip, Item, Order, OrderItem
 from app.models.enums import (
     UserRole,
     TripStatus,
@@ -869,3 +869,102 @@ class TestCancelTrip:
         response = client.patch(f"/api/me/trips/{trip_id}/cancel")
 
         assert response.status_code == 409
+
+
+class TestGetTripOrders:
+    """Tests for GET /api/me/trips/<id>/orders."""
+
+    def test_get_trip_orders_success(self, client, app):
+        """Driver can see orders on their trip."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+            )
+            db.session.add(trip)
+            db.session.flush()
+            item = Item(
+                trip_id=trip.trip_id,
+                name="Paper Towels",
+                unit="pack",
+                total_quantity=10,
+                claimed_quantity=3,
+            )
+            db.session.add(item)
+            db.session.flush()
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+            )
+            db.session.add(order)
+            db.session.flush()
+            order_item = OrderItem(
+                order_id=order.order_id,
+                item_id=item.item_id,
+                quantity=3,
+            )
+            db.session.add(order_item)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, driver.email)
+
+        response = client.get(f"/api/me/trips/{trip_id}/orders")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert len(data["orders"]) == 1
+        assert data["orders"][0]["shopper"]["name"] == "Shopper Test"
+        assert "address" in data["orders"][0]["shopper"]
+        assert len(data["orders"][0]["order_items"]) == 1
+
+    def test_get_trip_orders_excludes_cancelled(self, client, app):
+        """Cancelled orders are not shown to driver."""
+        with app.app_context():
+            driver = _make_driver(db)
+            shopper = _make_shopper(db)
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+            )
+            db.session.add(trip)
+            db.session.flush()
+            order = Order(
+                shopper_id=shopper.user_id,
+                trip_id=trip.trip_id,
+                status=OrderStatus.CANCELLED,
+            )
+            db.session.add(order)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, driver.email)
+
+        response = client.get(f"/api/me/trips/{trip_id}/orders")
+
+        assert response.status_code == 200
+        assert len(response.get_json()["orders"]) == 0
+
+    def test_get_trip_orders_wrong_driver(self, client, app):
+        """Cannot view orders for another driver's trip."""
+        with app.app_context():
+            driver = _make_driver(db)
+            other_driver = _make_driver(db, email="other_driver@example.com")
+            trip = Trip(
+                driver_id=driver.user_id,
+                store_name="Costco",
+                pickup_location_text="123 Main St",
+                pickup_time=datetime.now(timezone.utc) + timedelta(days=1),
+            )
+            db.session.add(trip)
+            db.session.commit()
+            trip_id = trip.trip_id
+            _login(client, other_driver.email)
+
+        response = client.get(f"/api/me/trips/{trip_id}/orders")
+
+        assert response.status_code == 403
