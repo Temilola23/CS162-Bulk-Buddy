@@ -99,6 +99,14 @@
   line-height: 1.55;
 }
 
+.settings-save-bar p.is-error {
+  color: #c0392b;
+}
+
+.settings-save-bar p.is-success {
+  color: #27864a;
+}
+
 .settings-field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

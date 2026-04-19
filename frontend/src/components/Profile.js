@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ShopperHeader from './ShopperHeader';
 import { useSession } from '../contexts/SessionProvider';
 import useProfilePageState from '../hooks/useProfilePageState';
@@ -7,6 +7,7 @@ import './Profile.css';
 
 export default function Profile() {
   const { currentUser } = useSession();
+  const navigate = useNavigate();
   const {
     isScrolled,
     scrollProgress,
@@ -104,7 +105,7 @@ export default function Profile() {
           </dl>
 
           <div className="profile-details-actions">
-            <button className="profile-secondary-action" type="button">
+            <button className="profile-secondary-action" onClick={() => navigate('/settings')} type="button">
               Update address
             </button>
             <Link className="profile-secondary-action is-outline profile-secondary-link" to="/settings">

@@ -110,6 +110,11 @@
   margin: 10px 0;
 }
 
+.trip-list-item:focus-visible {
+  outline: 2px solid #4d216a;
+  outline-offset: 2px;
+}
+
 .trip-list-item.is-active {
   background: rgba(77, 33, 106, 0.08);
 }
@@ -392,6 +397,14 @@
   color: #4d216a;
   font-weight: 700;
   line-height: 1.45;
+}
+
+.checkout-message.is-error {
+  color: #c0392b;
+}
+
+.checkout-message.is-success {
+  color: #27864a;
 }
 
 

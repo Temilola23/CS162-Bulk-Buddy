@@ -50,10 +50,12 @@ class TestAdminService:
             db.session.commit()
 
             # Test retrieval
-            apps, error, status = (
-                admin_service.get_driver_applications_by_status(
-                    ApplicationStatus.PENDING
-                )
+            (
+                apps,
+                error,
+                status,
+            ) = admin_service.get_driver_applications_by_status(
+                ApplicationStatus.PENDING
             )
 
             assert status == 200
@@ -88,10 +90,12 @@ class TestAdminService:
             db.session.commit()
 
             # Test retrieval
-            apps, error, status = (
-                admin_service.get_driver_applications_by_status(
-                    ApplicationStatus.APPROVED
-                )
+            (
+                apps,
+                error,
+                status,
+            ) = admin_service.get_driver_applications_by_status(
+                ApplicationStatus.APPROVED
             )
 
             assert status == 200
@@ -125,10 +129,12 @@ class TestAdminService:
             db.session.commit()
 
             # Test retrieval
-            apps, error, status = (
-                admin_service.get_driver_applications_by_status(
-                    ApplicationStatus.REJECTED
-                )
+            (
+                apps,
+                error,
+                status,
+            ) = admin_service.get_driver_applications_by_status(
+                ApplicationStatus.REJECTED
             )
 
             assert status == 200
@@ -138,10 +144,12 @@ class TestAdminService:
     def test_get_driver_applications_empty(self, app):
         """Returns empty list when no applications match the status."""
         with app.app_context():
-            apps, error, status = (
-                admin_service.get_driver_applications_by_status(
-                    ApplicationStatus.PENDING
-                )
+            (
+                apps,
+                error,
+                status,
+            ) = admin_service.get_driver_applications_by_status(
+                ApplicationStatus.PENDING
             )
 
             assert status == 200

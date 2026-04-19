@@ -26,6 +26,7 @@ export default function useTripFeedState() {
   const [draftQuantities, setDraftQuantities] = useState({});
   const [cartGroups, setCartGroups] = useState([]);
   const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [checkoutMessageType, setCheckoutMessageType] = useState('');
   const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [isTripsLoading, setIsTripsLoading] = useState(true);
@@ -179,6 +180,7 @@ export default function useTripFeedState() {
 
     if (chosenItems.length === 0) {
       setCheckoutMessage('Select at least one quantity before adding to cart.');
+      setCheckoutMessageType('error');
       return;
     }
 
@@ -186,11 +188,13 @@ export default function useTripFeedState() {
     setCartGroups((currentCart) => mergeCartGroups(currentCart, selectedTrip, chosenItems));
     setDraftQuantities((current) => resetDraftQuantities(current, chosenItems));
     setCheckoutMessage(`Items added under ${selectedTrip.driver.name}.`);
+    setCheckoutMessageType('success');
   }
 
   async function handleCheckout() {
     if (cart.length === 0) {
       setCheckoutMessage('Your cart is empty.');
+      setCheckoutMessageType('error');
       return;
     }
 
@@ -220,6 +224,7 @@ export default function useTripFeedState() {
 
     if (firstError && successfulIndices.size === 0) {
       setCheckoutMessage(firstError);
+      setCheckoutMessageType('error');
       return;
     }
 
@@ -238,6 +243,7 @@ export default function useTripFeedState() {
     }
 
     setCheckoutMessage(message);
+    setCheckoutMessageType(remainingCart.length > 0 ? 'error' : 'success');
     setCartGroups(remainingCart);
   }
 
@@ -252,6 +258,7 @@ export default function useTripFeedState() {
     cartLineCount,
     cartSubtotal,
     checkoutMessage,
+    checkoutMessageType,
     isTripsLoading,
     tripFeedError,
     setItemQuantity,

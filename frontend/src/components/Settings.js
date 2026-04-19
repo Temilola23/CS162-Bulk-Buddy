@@ -152,7 +152,7 @@ export default function Settings() {
         </section>
 
         <section className="settings-save-bar">
-          <p>{saveError || saveMessage || 'Make changes here, then save when you are ready.'}</p>
+          <p className={saveError ? 'is-error' : saveMessage ? 'is-success' : ''}>{saveError || saveMessage || 'Make changes here, then save when you are ready.'}</p>
           <button className="settings-primary-action" disabled={isSaving} type="submit">
             {isSaving ? 'Saving...' : 'Save settings'}
           </button>

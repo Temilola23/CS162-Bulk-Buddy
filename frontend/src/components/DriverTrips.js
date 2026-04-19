@@ -230,7 +230,11 @@ export default function DriverTrips() {
                         <button
                           className="driver-trip-status-action is-danger"
                           disabled={isUpdatingThisTrip}
-                          onClick={() => handleCancelTrip(trip.id)}
+                          onClick={() => {
+                            if (window.confirm('Cancel this trip? All claimed orders will be reverted.')) {
+                              handleCancelTrip(trip.id);
+                            }
+                          }}
                           type="button"
                         >
                           Cancel trip

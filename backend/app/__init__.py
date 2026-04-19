@@ -37,9 +37,9 @@ def create_app(test_config=None):
 
     # Session configuration
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
-    app.config["SESSION_COOKIE_SECURE"] = (
-        False  # Set True in production with HTTPS
-    )
+    app.config[
+        "SESSION_COOKIE_SECURE"
+    ] = False  # Set True in production with HTTPS
     app.config["SESSION_COOKIE_HTTPONLY"] = True  # Prevent XSS
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # CSRF protection
     app.config["SESSION_COOKIE_DOMAIN"] = None  # Allow any domain in dev

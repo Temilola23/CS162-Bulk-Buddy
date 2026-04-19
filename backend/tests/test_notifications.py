@@ -108,9 +108,7 @@ class TestNotificationsRoutes:
         assert response.status_code == 200
         assert response.json["notifications"] == []
 
-    def test_get_notifications_returns_user_notifications(
-        self, client, app
-    ):
+    def test_get_notifications_returns_user_notifications(self, client, app):
         """Get notifications should return the logged-in user's
         notifications."""
         with app.app_context():
@@ -155,26 +153,28 @@ class TestNotificationsRoutes:
         """Unread count should reflect only unread notifications."""
         with app.app_context():
             shopper = _make_shopper(db, email="count@example.com")
-            db.session.add_all([
-                Notification(
-                    user_id=shopper.user_id,
-                    type=NotificationType.ORDER_CANCELLED,
-                    message="First",
-                    is_read=False,
-                ),
-                Notification(
-                    user_id=shopper.user_id,
-                    type=NotificationType.ITEMS_CLAIMED,
-                    message="Second",
-                    is_read=False,
-                ),
-                Notification(
-                    user_id=shopper.user_id,
-                    type=NotificationType.TRIP_UPDATE,
-                    message="Third",
-                    is_read=True,
-                ),
-            ])
+            db.session.add_all(
+                [
+                    Notification(
+                        user_id=shopper.user_id,
+                        type=NotificationType.ORDER_CANCELLED,
+                        message="First",
+                        is_read=False,
+                    ),
+                    Notification(
+                        user_id=shopper.user_id,
+                        type=NotificationType.ITEMS_CLAIMED,
+                        message="Second",
+                        is_read=False,
+                    ),
+                    Notification(
+                        user_id=shopper.user_id,
+                        type=NotificationType.TRIP_UPDATE,
+                        message="Third",
+                        is_read=True,
+                    ),
+                ]
+            )
             db.session.commit()
             _login(client, shopper.email)
 
@@ -209,9 +209,7 @@ class TestNotificationsRoutes:
         assert response.status_code == 200
         assert response.json["notification"]["is_read"] is True
 
-    def test_mark_as_read_rejects_missing_notification(
-        self, client, app
-    ):
+    def test_mark_as_read_rejects_missing_notification(self, client, app):
         """Marking a missing notification as read should return 404."""
         with app.app_context():
             shopper = _make_shopper(db, email="missing-notif@example.com")
@@ -222,9 +220,7 @@ class TestNotificationsRoutes:
         assert response.status_code == 404
         assert response.json["message"] == "Notification not found"
 
-    def test_mark_as_read_rejects_other_user_notification(
-        self, client, app
-    ):
+    def test_mark_as_read_rejects_other_user_notification(self, client, app):
         """Users cannot mark other users' notifications as read."""
         with app.app_context():
             shopper1 = _make_shopper(db, email="user1@example.com")
@@ -254,20 +250,22 @@ class TestNotificationsRoutes:
         """A user can mark all their notifications as read."""
         with app.app_context():
             shopper = _make_shopper(db, email="mark-all@example.com")
-            db.session.add_all([
-                Notification(
-                    user_id=shopper.user_id,
-                    type=NotificationType.ORDER_CANCELLED,
-                    message="First",
-                    is_read=False,
-                ),
-                Notification(
-                    user_id=shopper.user_id,
-                    type=NotificationType.ITEMS_CLAIMED,
-                    message="Second",
-                    is_read=False,
-                ),
-            ])
+            db.session.add_all(
+                [
+                    Notification(
+                        user_id=shopper.user_id,
+                        type=NotificationType.ORDER_CANCELLED,
+                        message="First",
+                        is_read=False,
+                    ),
+                    Notification(
+                        user_id=shopper.user_id,
+                        type=NotificationType.ITEMS_CLAIMED,
+                        message="Second",
+                        is_read=False,
+                    ),
+                ]
+            )
             db.session.commit()
             _login(client, shopper.email)
 
@@ -311,6 +309,7 @@ class TestNotificationsTriggers:
             _login(client, driver.email)
 
         from app.services import cancel_trip
+
         with app.app_context():
             _, error, status = cancel_trip(trip_id, driver.user_id)
 

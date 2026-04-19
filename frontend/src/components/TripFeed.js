@@ -15,6 +15,7 @@ export default function TripFeed() {
     cartLineCount,
     cartSubtotal,
     checkoutMessage,
+    checkoutMessageType,
     isTripsLoading,
     tripFeedError,
     setItemQuantity,
@@ -272,7 +273,7 @@ export default function TripFeed() {
             Checkout
           </button>
 
-          {checkoutMessage ? <p className="checkout-message">{checkoutMessage}</p> : null}
+          {checkoutMessage ? <p className={`checkout-message ${checkoutMessageType === 'error' ? 'is-error' : 'is-success'}`}>{checkoutMessage}</p> : null}
         </aside>
       </section>
     </main>
