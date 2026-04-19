@@ -156,7 +156,7 @@ export default function useTripFeedState() {
       return;
     }
 
-    const responses = await Promise.all(
+    const responses = await Promise.allSettled(
       cart.map((tripGroup) =>
         api.post('/me/orders', {
           trip_id: Number(tripGroup.tripId),
@@ -168,16 +168,39 @@ export default function useTripFeedState() {
       ),
     );
 
-    const failedResponse = responses.find((response) => !response.ok);
-    if (failedResponse) {
-      setCheckoutMessage(failedResponse.body?.message || 'Checkout failed.');
+    const successfulIndices = new Set();
+    let errorMessage = '';
+    let successCount = 0;
+    let totalItemCount = 0;
+
+    responses.forEach((result, index) => {
+      if (result.status === 'fulfilled' && result.value.ok) {
+        successfulIndices.add(index);
+        successCount += 1;
+        totalItemCount += cart[index].items.reduce((sum, item) => sum + item.quantity, 0);
+      } else {
+        const failureMsg = result.status === 'rejected'
+          ? 'Request failed'
+          : result.value.body?.message || 'Checkout failed for one or more items.';
+        if (!errorMessage) {
+          errorMessage = failureMsg;
+        }
+      }
+    });
+
+    if (successfulIndices.size === 0) {
+      setCheckoutMessage(errorMessage);
       return;
     }
 
-    setCheckoutMessage(
-      `Checkout complete for ${cartLineCount} items across ${cart.length} driver trips.`,
-    );
-    setCartGroups([]);
+    const remainingCart = cart.filter((_, index) => !successfulIndices.has(index));
+    setCartGroups(remainingCart.map((group) => ({ tripId: group.tripId, items: group.items })));
+
+    let message = `Checkout complete for ${totalItemCount} items across ${successCount} driver trip${successCount !== 1 ? 's' : ''}.`;
+    if (remainingCart.length > 0) {
+      message += ` ${errorMessage || 'Some items could not be checked out and remain in your cart.'}`;
+    }
+    setCheckoutMessage(message);
   }
 
   return {
