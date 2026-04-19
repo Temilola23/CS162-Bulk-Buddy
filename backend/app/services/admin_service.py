@@ -58,6 +58,14 @@ def update_driver_application(app_id, data):
         if not driver_application:
             return None, f"Driver application for {app_id} does not exist", 404
 
+        # Prevent changes to already-decided applications
+        if driver_application.status != ApplicationStatus.PENDING:
+            return (
+                None,
+                "Only pending applications can be updated",
+                409,
+            )
+
         # Convert string status to enum
         application_status_enum = ApplicationStatus(new_status)
         driver_application.status = application_status_enum
