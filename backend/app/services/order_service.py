@@ -161,7 +161,9 @@ def cancel_order(order_id, shopper_id):
 
     for order_item in order.order_items:
         item = db.session.get(Item, order_item.item_id)
-        item.claimed_quantity -= order_item.quantity
+        item.claimed_quantity = max(
+            0, item.claimed_quantity - order_item.quantity
+        )
 
     order.status = OrderStatus.CANCELLED
 
