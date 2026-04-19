@@ -1,11 +1,7 @@
 import ShopperHeader from './ShopperHeader';
 import useItemFeedPageState from '../hooks/useItemFeedPageState';
+import { currencyFormatter } from '../utils/currency';
 import './ItemFeed.css';
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
 
 function getOrderContextLabel(item) {
   if (item.existingQuantity > 0) {

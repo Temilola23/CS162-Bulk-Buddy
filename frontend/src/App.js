@@ -13,6 +13,7 @@ import AdminLogin from './components/AdminLogin';
 import AdminRegister from './components/AdminRegister';
 import AdminApplications from './components/AdminApplications';
 import AdminApplicationReview from './components/AdminApplicationReview';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useSession } from './contexts/SessionProvider';
 import { CartProvider } from './contexts/CartProvider';
 import { buildAuthRedirectUrl } from './hooks/usePostAuthRedirect';
@@ -124,6 +125,7 @@ function App() {
   );
 
   return (
+    <ErrorBoundary>
     <CartProvider>
       <>
         <div className={`app-root ${showLoader ? 'is-loading' : 'is-ready'}`.trim()}>{pageContent}</div>
@@ -195,6 +197,7 @@ function App() {
         ) : null}
       </>
     </CartProvider>
+    </ErrorBoundary>
   );
 }
 
