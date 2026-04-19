@@ -8,9 +8,7 @@ from app.models.enums import (
     UserRole,
     TripStatus,
     OrderStatus,
-    NotificationType,
 )
-from app.services.notification_service import create_notification
 
 
 def _cascade_order_status(trip_id, expected_order_status, next_order_status):
@@ -399,22 +397,6 @@ def cancel_trip(trip_id, driver_id):
             trip_id,
             expected_order_status,
             OrderStatus.CANCELLED,
-        )
-
-    cancelled_orders = Order.query.filter_by(
-        trip_id=trip_id,
-        status=OrderStatus.CANCELLED,
-    ).all()
-    for order in cancelled_orders:
-        create_notification(
-            user_id=order.shopper_id,
-            notification_type=NotificationType.ORDER_CANCELLED,
-            message=(
-                f"Your order from {trip.store_name} was cancelled "
-                f"because the driver cancelled the trip."
-            ),
-            related_trip_id=trip_id,
-            related_order_id=order.order_id,
         )
 
     try:
