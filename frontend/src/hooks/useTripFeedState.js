@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
+import { useCartCount } from '../contexts/CartProvider';
 import { shopperLocation } from '../data/tripFeedData';
 import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import { getShopperLocationFromUser, mapApiTripsToUi } from '../utils/tripApiAdapters';
@@ -18,6 +19,7 @@ import {
 export default function useTripFeedState() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();
+  const { setItemCount } = useCartCount();
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedTripId, setSelectedTripId] = useState(null);
@@ -119,6 +121,13 @@ export default function useTripFeedState() {
     });
   }, [selectedTrip]);
 
+  useEffect(() => {
+    const total = cartGroups.reduce((sum, group) =>
+      sum + group.items.reduce((s, item) => s + item.quantity, 0), 0
+    );
+    setItemCount(total);
+  }, [cartGroups, setItemCount]);
+
   const selectedQuantityCount = useMemo(
     () => getSelectedQuantityCount(selectedTrip, draftQuantities),
     [selectedTrip, draftQuantities],
@@ -131,6 +140,35 @@ export default function useTripFeedState() {
     const clampedValue = Math.max(0, Math.min(maxValue, nextValue));
     setDraftQuantities((current) => ({ ...current, [itemId]: clampedValue }));
   }
+
+  const removeCartItem = useCallback((groupIndex, itemIndex) => {
+    setCartGroups(prev => {
+      const next = prev.map((group, gi) => {
+        if (gi !== groupIndex) return group;
+        const items = group.items.filter((_, ii) => ii !== itemIndex);
+        return { ...group, items };
+      }).filter(group => group.items.length > 0);
+      return next;
+    });
+  }, []);
+
+  const updateCartItemQty = useCallback((groupIndex, itemIndex, newQty) => {
+    if (newQty < 1) return;
+    setCartGroups(prev => {
+      return prev.map((group, gi) => {
+        if (gi !== groupIndex) return group;
+        const items = group.items.map((item, ii) => {
+          if (ii !== itemIndex) return item;
+          return { ...item, quantity: newQty };
+        });
+        return { ...group, items };
+      });
+    });
+  }, []);
+
+  const clearCart = useCallback(() => {
+    setCartGroups([]);
+  }, []);
 
   function handleAddToCart() {
     if (!selectedTrip) {
@@ -156,7 +194,7 @@ export default function useTripFeedState() {
       return;
     }
 
-    const responses = await Promise.all(
+    const results = await Promise.allSettled(
       cart.map((tripGroup) =>
         api.post('/me/orders', {
           trip_id: Number(tripGroup.tripId),
@@ -168,16 +206,39 @@ export default function useTripFeedState() {
       ),
     );
 
-    const failedResponse = responses.find((response) => !response.ok);
-    if (failedResponse) {
-      setCheckoutMessage(failedResponse.body?.message || 'Checkout failed.');
+    const successfulIndices = new Set();
+    let firstError = null;
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled' && result.value.ok) {
+        successfulIndices.add(index);
+      } else if (!firstError) {
+        const response = result.status === 'fulfilled' ? result.value : null;
+        firstError = response?.body?.message || 'Checkout failed.';
+      }
+    });
+
+    if (firstError && successfulIndices.size === 0) {
+      setCheckoutMessage(firstError);
       return;
     }
 
-    setCheckoutMessage(
-      `Checkout complete for ${cartLineCount} items across ${cart.length} driver trips.`,
-    );
-    setCartGroups([]);
+    const remainingCart = cart.filter((_, index) => !successfulIndices.has(index));
+    const totalItems = results.reduce((sum, result, index) => {
+      if (successfulIndices.has(index)) {
+        return sum + cart[index].items.reduce((s, item) => s + item.quantity, 0);
+      }
+      return sum;
+    }, 0);
+    const successfulGroups = cart.length - remainingCart.length;
+
+    let message = `Checkout complete for ${totalItems} items across ${successfulGroups} driver trips.`;
+    if (remainingCart.length > 0) {
+      message += ` ${firstError} Please retry for the remaining ${remainingCart.length} driver trips.`;
+    }
+
+    setCheckoutMessage(message);
+    setCartGroups(remainingCart);
   }
 
   return {
@@ -196,5 +257,8 @@ export default function useTripFeedState() {
     setItemQuantity,
     handleAddToCart,
     handleCheckout,
+    removeCartItem,
+    updateCartItemQty,
+    clearCart,
   };
 }

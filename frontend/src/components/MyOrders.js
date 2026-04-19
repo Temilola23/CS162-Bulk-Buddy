@@ -159,7 +159,7 @@ export default function MyOrders() {
         ) : null}
 
         {!isOrdersLoading && !ordersError && activeOrder ? (
-          <article className="order-group-card" key={activeOrder.id}>
+          <article className={`order-group-card ${activeOrder?.apiStatus === 'completed' ? 'is-completed' : ''}`} key={activeOrder.id}>
             <div className="order-group-header">
               <div>
                 <h2>{activeOrder.title}</h2>

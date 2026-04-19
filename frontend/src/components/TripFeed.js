@@ -20,6 +20,9 @@ export default function TripFeed() {
     setItemQuantity,
     handleAddToCart,
     handleCheckout,
+    removeCartItem,
+    updateCartItemQty,
+    clearCart,
   } = useTripFeedPageState();
 
   return (
@@ -106,6 +109,10 @@ export default function TripFeed() {
                 </article>
               </div>
 
+              {selectedTrip?.status !== 'open' && (
+                <p className="trip-closed-notice">This trip is no longer accepting orders.</p>
+              )}
+
               <div className="trip-items-grid">
                 {selectedTrip.items.map((item) => (
                   <article className="trip-item-card" key={item.id}>
@@ -116,6 +123,7 @@ export default function TripFeed() {
                     <div className="quantity-stepper">
                       <button
                         aria-label={`Decrease ${item.name} quantity`}
+                        disabled={selectedTrip?.status !== 'open'}
                         onClick={() =>
                           setItemQuantity(
                             item.id,
@@ -129,6 +137,7 @@ export default function TripFeed() {
                       </button>
                       <input
                         aria-label={`${item.name} quantity`}
+                        disabled={selectedTrip?.status !== 'open'}
                         max={item.availableQty}
                         min="0"
                         onChange={(event) =>
@@ -143,6 +152,7 @@ export default function TripFeed() {
                       />
                       <button
                         aria-label={`Increase ${item.name} quantity`}
+                        disabled={selectedTrip?.status !== 'open'}
                         onClick={() =>
                           setItemQuantity(
                             item.id,
@@ -159,7 +169,7 @@ export default function TripFeed() {
                 ))}
               </div>
 
-              <button className="trip-add-button" onClick={handleAddToCart} type="button">
+              <button className="trip-add-button" disabled={selectedTrip?.status !== 'open'} onClick={handleAddToCart} type="button">
                 Add selected items ({selectedQuantityCount}) to cart
               </button>
             </>
@@ -169,11 +179,18 @@ export default function TripFeed() {
         </section>
 
         <aside className="trip-cart-panel">
-          <h2>Cart</h2>
+          <div className="cart-header">
+            <h2>Cart</h2>
+            {cart.length > 0 ? (
+              <button className="cart-clear-btn" onClick={clearCart} type="button">
+                Clear
+              </button>
+            ) : null}
+          </div>
           {cart.length > 0 ? (
             <>
               <div className="cart-group-list">
-                {cart.map((tripGroup) => {
+                {cart.map((tripGroup, gi) => {
                   const tripSubtotal = tripGroup.items.reduce(
                     (sum, item) => sum + item.quantity * item.unitPrice,
                     0,
@@ -193,12 +210,41 @@ export default function TripFeed() {
                         {tripGroup.pickupTime} • {tripGroup.pickupLabel}
                       </p>
                       <ul className="cart-list">
-                        {tripGroup.items.map((item) => (
-                          <li key={item.id}>
-                            <span>
-                              {item.name} x {item.quantity}
-                            </span>
-                            <strong>${(item.quantity * item.unitPrice).toFixed(2)}</strong>
+                        {tripGroup.items.map((item, ii) => (
+                          <li className="cart-item" key={item.id}>
+                            <div className="cart-item-info">
+                              <span className="cart-item-name">{item.name}</span>
+                              <span className="cart-item-price">{item.quantity} x ${item.unitPrice?.toFixed(2)}</span>
+                            </div>
+                            <div className="cart-item-controls">
+                              <button
+                                className="cart-qty-btn"
+                                onClick={() => updateCartItemQty(gi, ii, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                                type="button"
+                                aria-label={`Decrease ${item.name} quantity`}
+                              >
+                                −
+                              </button>
+                              <span className="cart-qty-val">{item.quantity}</span>
+                              <button
+                                className="cart-qty-btn"
+                                onClick={() => updateCartItemQty(gi, ii, item.quantity + 1)}
+                                type="button"
+                                aria-label={`Increase ${item.name} quantity`}
+                              >
+                                +
+                              </button>
+                              <button
+                                className="cart-remove-btn"
+                                onClick={() => removeCartItem(gi, ii)}
+                                title="Remove"
+                                type="button"
+                                aria-label={`Remove ${item.name} from cart`}
+                              >
+                                &times;
+                              </button>
+                            </div>
                           </li>
                         ))}
                       </ul>

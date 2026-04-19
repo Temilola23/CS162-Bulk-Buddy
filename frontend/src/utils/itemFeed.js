@@ -34,6 +34,7 @@ export function mapApiInventoryItemToUi(item, shopperLocation) {
     pickupTime: trip.pickup_time ? formatPickupTime(trip.pickup_time) : 'Pickup time TBD',
     pickupLabel: pickupLocation.label,
     distanceLabel: formatDistance(getDistanceMiles(shopperLocation, pickupLocation)),
+    tripStatus: trip.status,
     driver: {
       name: driverName,
       photo: createAvatarImage(driverName),

@@ -190,6 +190,58 @@
   display: flex;
 }
 
+
+.shopper-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-cart {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4d216a;
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.header-cart:hover,
+.header-cart:focus-visible {
+  background: rgba(77, 33, 106, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(77, 33, 106, 0.12);
+}
+
+.header-cart svg {
+  width: 20px;
+  height: 20px;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #4d216a;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(77, 33, 106, 0.3);
+}
+
 @media (max-width: 900px) {
   .shopper-header-inner {
     grid-template-columns: 1fr;

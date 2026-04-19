@@ -221,7 +221,7 @@ export default function TripDetail() {
           </section>
 
           <section className="trip-detail-content">
-            <div className="trip-detail-item-stack">
+            <div className={`trip-detail-item-stack ${activeOrder?.apiStatus === 'completed' ? 'is-completed' : ''}`}>
               <div className="trip-detail-item-list">
                 {activeOrder.items.map((item) => {
                   const available = item.totalShares - item.claimed;

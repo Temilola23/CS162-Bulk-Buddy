@@ -6,7 +6,11 @@ from app.services import (
     complete_order,
     create_order,
     get_current_user_profile,
+    get_notifications,
+    get_unread_count,
     list_shopper_orders,
+    mark_all_as_read,
+    mark_as_read,
     update_current_user_profile,
 )
 
@@ -202,3 +206,43 @@ def complete_order_route(order_id):
         ),
         status,
     )
+
+
+@me.route("/me/notifications", methods=["GET"])
+@login_required
+def get_notifications_route():
+    """Get notifications for the authenticated user."""
+    notifications, error, status = get_notifications(current_user.user_id)
+    if error:
+        return jsonify({"error": error}), status
+    return jsonify({"notifications": notifications}), status
+
+
+@me.route("/me/notifications/unread-count", methods=["GET"])
+@login_required
+def get_unread_count_route():
+    """Get unread notification count."""
+    result, error, status = get_unread_count(current_user.user_id)
+    if error:
+        return jsonify({"error": error}), status
+    return jsonify(result), status
+
+
+@me.route("/me/notifications/<int:notification_id>/read", methods=["PATCH"])
+@login_required
+def mark_notification_read_route(notification_id):
+    """Mark a notification as read."""
+    result, error, status = mark_as_read(notification_id, current_user.user_id)
+    if error:
+        return jsonify({"error": error}), status
+    return jsonify({"notification": result}), status
+
+
+@me.route("/me/notifications/read-all", methods=["PATCH"])
+@login_required
+def mark_all_read_route():
+    """Mark all notifications as read."""
+    _, error, status = mark_all_as_read(current_user.user_id)
+    if error:
+        return jsonify({"error": error}), status
+    return jsonify({"message": "All notifications marked as read"}), status

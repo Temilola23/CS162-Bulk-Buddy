@@ -173,7 +173,7 @@ export default function ItemFeed() {
 
                 <button
                   className="item-feed-claim-button"
-                  disabled={selectedQuantity === 0 || isSubmitting}
+                  disabled={selectedQuantity === 0 || isSubmitting || item.tripStatus !== 'open'}
                   onClick={() => handleAddItem(item)}
                   type="button"
                 >

@@ -494,3 +494,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.order-group-card.is-completed {
+  opacity: 0.7;
+}

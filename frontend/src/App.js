@@ -14,6 +14,7 @@ import AdminRegister from './components/AdminRegister';
 import AdminApplications from './components/AdminApplications';
 import AdminApplicationReview from './components/AdminApplicationReview';
 import { useSession } from './contexts/SessionProvider';
+import { CartProvider } from './contexts/CartProvider';
 import { buildAuthRedirectUrl } from './hooks/usePostAuthRedirect';
 import { buildAdminAuthRedirectUrl } from './hooks/useAdminPostAuthRedirect';
 import useAppLoader from './hooks/useAppLoader';
@@ -123,8 +124,9 @@ function App() {
   );
 
   return (
-    <>
-      <div className={`app-root ${showLoader ? 'is-loading' : 'is-ready'}`.trim()}>{pageContent}</div>
+    <CartProvider>
+      <>
+        <div className={`app-root ${showLoader ? 'is-loading' : 'is-ready'}`.trim()}>{pageContent}</div>
 
       {showLoader ? (
         <div
@@ -190,8 +192,9 @@ function App() {
             </svg>
           </div>
         </div>
-      ) : null}
-    </>
+        ) : null}
+      </>
+    </CartProvider>
   );
 }
 

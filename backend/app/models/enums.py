@@ -36,3 +36,11 @@ class ApplicationStatus(enum.Enum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+
+class NotificationType(str, enum.Enum):
+    """Types of in-app notifications."""
+
+    ORDER_CANCELLED = "order_cancelled"
+    ITEMS_CLAIMED = "items_claimed"
+    TRIP_UPDATE = "trip_update"

@@ -2,7 +2,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.extensions import db
 from app.models import Item, Order, OrderItem, Trip
-from app.models.enums import OrderStatus, TripStatus
+from app.models.enums import OrderStatus, TripStatus, NotificationType
+from app.services.notification_service import create_notification
 
 
 def list_shopper_orders(shopper_id, status_filter=None):
@@ -129,6 +130,18 @@ def create_order(shopper_id, data):
                 )
 
             item.claimed_quantity += quantity
+
+        if status == 201:
+            create_notification(
+                user_id=trip.driver_id,
+                notification_type=NotificationType.ITEMS_CLAIMED,
+                message=(
+                    f"A shopper claimed items from your "
+                    f"{trip.store_name} trip."
+                ),
+                related_trip_id=trip.trip_id,
+                related_order_id=order.order_id,
+            )
 
         db.session.commit()
         return order, None, status
