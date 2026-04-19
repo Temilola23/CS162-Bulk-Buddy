@@ -172,7 +172,7 @@ class TestUpdateMeRoute:
         )
 
         assert response.status_code == 400
-        assert response.json["message"] == "display_name required"
+        assert response.json["message"] == "Display name required"
 
     def test_update_me_rejects_duplicate_email(self, client, app):
         """Updating to another user's email should return 409."""
@@ -187,7 +187,7 @@ class TestUpdateMeRoute:
         )
 
         assert response.status_code == 409
-        assert response.json["message"] == "user already exists"
+        assert response.json["message"] == "User already exists"
 
     def test_update_me_rejects_empty_required_profile_field(self, client, app):
         """Empty required address fields should be rejected."""
@@ -201,7 +201,7 @@ class TestUpdateMeRoute:
         )
 
         assert response.status_code == 400
-        assert response.json["message"] == "profile fields cannot be empty"
+        assert response.json["message"] == "Profile fields cannot be empty"
 
 
 class TestMyOrdersRoutes:
@@ -381,7 +381,7 @@ class TestMyOrdersRoutes:
         response = auth_client.post("/api/me/orders", json={})
 
         assert response.status_code == 400
-        assert response.json["message"] == "trip_id and items are required"
+        assert response.json["message"] == "Trip ID and items are required"
 
     def test_create_order_rejects_missing_trip(self, auth_client):
         """Orders against unknown trips should return 404."""
@@ -455,7 +455,7 @@ class TestMyOrdersRoutes:
         )
 
         assert response.status_code == 400
-        assert response.json["message"] == "quantity must be an integer"
+        assert response.json["message"] == "Quantity must be an integer"
 
     def test_create_order_rejects_non_positive_quantity(self, client, app):
         """Item quantities must be greater than zero."""
@@ -476,7 +476,7 @@ class TestMyOrdersRoutes:
         )
 
         assert response.status_code == 400
-        assert response.json["message"] == "quantity must be greater than zero"
+        assert response.json["message"] == "Quantity must be greater than zero"
 
     def test_create_order_rejects_item_on_other_trip(self, client, app):
         """Claimed items must belong to the selected trip."""

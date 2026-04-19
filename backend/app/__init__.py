@@ -9,8 +9,6 @@ from app.routes.admin import admin
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_login import LoginManager
-# Import models to register them with SQLAlchemy metadata
-import app.models  # noqa: F401
 
 
 def create_app(test_config=None):
@@ -52,6 +50,9 @@ def create_app(test_config=None):
 
     # Initialize db with app
     db.init_app(app)
+
+    # Import models so SQLAlchemy registers them before create_all()
+    from app import models as _models  # noqa: F401
 
     # Enable FK enforcement for SQLite
     with app.app_context():

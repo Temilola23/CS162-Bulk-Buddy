@@ -39,7 +39,7 @@ def update_driver_application(app_id, data):
     new_status = data.get("new_status")
 
     if not new_status:
-        return None, "new status is needed", 400
+        return None, "New status is needed", 400
 
     # Validate that new_status is a valid ApplicationStatus
     valid_statuses = [status.value for status in ApplicationStatus]

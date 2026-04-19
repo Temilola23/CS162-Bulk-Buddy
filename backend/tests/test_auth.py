@@ -34,7 +34,7 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "first name required" in response.json["message"]
+        assert "First name required" in response.json["message"]
 
     def test_signup_missing_last_name(self, client):
         """Test signup with missing last name."""
@@ -47,7 +47,7 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "last name required" in response.json["message"]
+        assert "Last name required" in response.json["message"]
 
     def test_signup_missing_email(self, client):
         """Test signup with missing email."""
@@ -60,7 +60,7 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "email and password required" in response.json["message"]
+        assert "Email and password required" in response.json["message"]
 
     def test_signup_missing_password(self, client):
         """Test signup with missing password."""
@@ -73,7 +73,7 @@ class TestSignup:
             },
         )
         assert response.status_code == 400
-        assert "email and password required" in response.json["message"]
+        assert "Email and password required" in response.json["message"]
 
     def test_signup_missing_address_state(self, client):
         """Test signup with missing address state."""
@@ -91,7 +91,7 @@ class TestSignup:
         )
         assert response.status_code == 400
         assert (
-            "address (street, city, state, zip) required"
+            "Address (street, city, state, zip) required"
             in response.json["message"]
         )
 
@@ -111,7 +111,7 @@ class TestSignup:
         )
         assert response.status_code == 400
         assert (
-            "address (street, city, state, zip) required"
+            "Address (street, city, state, zip) required"
             in response.json["message"]
         )
 
@@ -131,7 +131,7 @@ class TestSignup:
         )
         assert response.status_code == 400
         assert (
-            "address (street, city, state, zip) required"
+            "Address (street, city, state, zip) required"
             in response.json["message"]
         )
 
@@ -151,7 +151,7 @@ class TestSignup:
             },
         )
         assert response.status_code == 409
-        assert "user already exists" in response.json["message"]
+        assert "User already exists" in response.json["message"]
 
 
 class TestLogin:
@@ -176,7 +176,7 @@ class TestLogin:
             json={"email": test_user["email"], "password": "wrongpassword"},
         )
         assert response.status_code == 401
-        assert "wrong password" in response.json["message"]
+        assert "Wrong password" in response.json["message"]
 
     def test_login_nonexistent_user(self, client):
         """Test login with non-existent user."""
@@ -185,7 +185,7 @@ class TestLogin:
             json={"email": "nonexistent@example.com", "password": "password"},
         )
         assert response.status_code == 401
-        assert "user not found" in response.json["message"]
+        assert "User not found" in response.json["message"]
 
 
 class TestLogout:

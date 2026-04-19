@@ -28,12 +28,12 @@ def authenticate_user(email, password, remember=False, is_admin=False):
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        return None, "user not found", 401
+        return None, "User not found", 401
     if not check_password_hash(user.password_hash, password):
-        return None, "wrong password", 401
+        return None, "Wrong password", 401
 
     if is_admin and user.role != UserRole.ADMIN:
-        return None, "insufficient permissions", 403
+        return None, "Insufficient permissions", 403
 
     login_user(user, remember=remember)
     return user, None, 200
@@ -71,23 +71,23 @@ def register_user(
             (None, error_message, status_code) on failure.
     """
     if not first_name:
-        return None, "first name required", 400
+        return None, "First name required", 400
     if not last_name:
-        return None, "last name required", 400
+        return None, "Last name required", 400
     if not email or not password:
-        return None, "email and password required", 400
+        return None, "Email and password required", 400
     if not all([address_street, address_city, address_state, address_zip]):
-        return None, "address (street, city, state, zip) required", 400
+        return None, "Address (street, city, state, zip) required", 400
 
     # Verify admin token if registering as admin
     if is_admin:
         if admin_token != os.environ.get("ADMIN_TOKEN"):
-            return None, "invalid token", 403
+            return None, "Invalid token", 403
 
     # Check if user already exists
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
-        return None, "user already exists", 409
+        return None, "User already exists", 409
 
     password_hash = generate_password_hash(password)
     role = UserRole.ADMIN if is_admin else UserRole.SHOPPER

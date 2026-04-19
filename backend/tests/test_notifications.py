@@ -220,7 +220,7 @@ class TestNotificationsRoutes:
         response = client.patch("/api/me/notifications/9999/read")
 
         assert response.status_code == 404
-        assert response.json["error"] == "Notification not found"
+        assert response.json["message"] == "Notification not found"
 
     def test_mark_as_read_rejects_other_user_notification(
         self, client, app
@@ -242,7 +242,7 @@ class TestNotificationsRoutes:
         response = client.patch(f"/api/me/notifications/{notif_id}/read")
 
         assert response.status_code == 403
-        assert response.json["error"] == "Not your notification"
+        assert response.json["message"] == "Not your notification"
 
     def test_mark_all_as_read_requires_login(self, client):
         """Marking all as read requires authentication."""

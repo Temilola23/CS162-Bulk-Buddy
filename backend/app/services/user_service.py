@@ -54,7 +54,7 @@ def update_current_user_profile(user_id, data):
     if display_name is not None:
         normalized_name = " ".join(str(display_name).split())
         if not normalized_name:
-            return None, "display_name required", 400
+            return None, "Display name required", 400
         name_parts = normalized_name.split(" ", 1)
         user.first_name = name_parts[0]
         user.last_name = name_parts[1] if len(name_parts) > 1 else ""
@@ -62,11 +62,11 @@ def update_current_user_profile(user_id, data):
     if "email" in data:
         email = (data.get("email") or "").strip()
         if not email:
-            return None, "email required", 400
+            return None, "Email required", 400
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user and existing_user.user_id != user_id:
-            return None, "user already exists", 409
+            return None, "User already exists", 409
         user.email = email
 
     if "address_street" in data:
@@ -88,7 +88,7 @@ def update_current_user_profile(user_id, data):
             user.address_zip,
         ]
     ):
-        return None, "profile fields cannot be empty", 400
+        return None, "Profile fields cannot be empty", 400
 
     try:
         db.session.commit()

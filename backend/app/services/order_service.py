@@ -53,7 +53,7 @@ def create_order(shopper_id, data):
     items_data = data.get("items", [])
 
     if not trip_id or not items_data:
-        return None, "trip_id and items are required", 400
+        return None, "Trip ID and items are required", 400
 
     trip = db.session.get(Trip, trip_id)
     if not trip:
@@ -82,10 +82,10 @@ def create_order(shopper_id, data):
         try:
             quantity = int(quantity)
         except (TypeError, ValueError):
-            return None, "quantity must be an integer", 400
+            return None, "Quantity must be an integer", 400
 
         if quantity <= 0:
-            return None, "quantity must be greater than zero", 400
+            return None, "Quantity must be greater than zero", 400
 
         claimed_quantities[item_id] = (
             claimed_quantities.get(item_id, 0) + quantity
@@ -174,7 +174,9 @@ def cancel_order(order_id, shopper_id):
 
     for order_item in order.order_items:
         item = db.session.get(Item, order_item.item_id)
-        item.claimed_quantity -= order_item.quantity
+        if not item:
+            continue
+        item.claimed_quantity = max(0, item.claimed_quantity - order_item.quantity)
 
     order.status = OrderStatus.CANCELLED
 

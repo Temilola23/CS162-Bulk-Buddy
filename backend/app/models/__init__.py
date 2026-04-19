@@ -12,7 +12,6 @@ from .enums import (
     ApplicationStatus,
     NotificationType,
 )
-from .notification import Notification
 
 __all__ = [
     "User",

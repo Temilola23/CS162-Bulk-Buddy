@@ -214,7 +214,7 @@ def get_notifications_route():
     """Get notifications for the authenticated user."""
     notifications, error, status = get_notifications(current_user.user_id)
     if error:
-        return jsonify({"error": error}), status
+        return jsonify({"message": error}), status
     return jsonify({"notifications": notifications}), status
 
 
@@ -224,7 +224,7 @@ def get_unread_count_route():
     """Get unread notification count."""
     result, error, status = get_unread_count(current_user.user_id)
     if error:
-        return jsonify({"error": error}), status
+        return jsonify({"message": error}), status
     return jsonify(result), status
 
 
@@ -234,7 +234,7 @@ def mark_notification_read_route(notification_id):
     """Mark a notification as read."""
     result, error, status = mark_as_read(notification_id, current_user.user_id)
     if error:
-        return jsonify({"error": error}), status
+        return jsonify({"message": error}), status
     return jsonify({"notification": result}), status
 
 
@@ -244,5 +244,5 @@ def mark_all_read_route():
     """Mark all notifications as read."""
     _, error, status = mark_all_as_read(current_user.user_id)
     if error:
-        return jsonify({"error": error}), status
+        return jsonify({"message": error}), status
     return jsonify({"message": "All notifications marked as read"}), status

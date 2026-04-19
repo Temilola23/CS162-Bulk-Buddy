@@ -48,8 +48,8 @@ def create_trip(driver_id, data):
     if not user or user.role != UserRole.DRIVER:
         return None, "Only drivers can create trips", 403
 
-    store_name = data.get("store_name")
-    pickup_location_text = data.get("pickup_location_text")
+    store_name = (data.get("store_name") or "").strip()
+    pickup_location_text = (data.get("pickup_location_text") or "").strip()
     pickup_time = data.get("pickup_time")
     items_data = data.get("items", [])
 
@@ -79,6 +79,25 @@ def create_trip(driver_id, data):
                 f"Missing: {', '.join(missing)}",
                 400,
             )
+
+        item_name = (item_data.get("name") or "").strip()
+        item_unit = (item_data.get("unit") or "").strip()
+        if not item_name or not item_unit:
+            return (
+                None,
+                "Item name and unit cannot be empty",
+                400,
+            )
+        item_data["name"] = item_name
+        item_data["unit"] = item_unit
+
+        try:
+            qty = int(item_data["total_quantity"])
+        except (ValueError, TypeError):
+            return None, "total_quantity must be a positive integer", 400
+        if qty <= 0:
+            return None, "total_quantity must be a positive integer", 400
+        item_data["total_quantity"] = qty
 
     try:
         trip = Trip(

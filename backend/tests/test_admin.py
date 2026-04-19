@@ -156,7 +156,7 @@ class TestAdminService:
             )
 
             assert status == 400
-            assert error == "new status is needed"
+            assert error == "New status is needed"
             assert app_obj is None
 
     def test_update_driver_application_invalid_status(self, app):
@@ -296,7 +296,7 @@ class TestAuthServiceAdmin:
             )
 
             assert status == 401
-            assert error == "wrong password"
+            assert error == "Wrong password"
             assert user is None
 
     def test_authenticate_user_admin_not_found(self, app):
@@ -309,7 +309,7 @@ class TestAuthServiceAdmin:
             )
 
             assert status == 401
-            assert error == "user not found"
+            assert error == "User not found"
             assert user is None
 
     def test_authenticate_user_non_admin_with_admin_flag(self, app, test_user):
@@ -322,7 +322,7 @@ class TestAuthServiceAdmin:
             )
 
             assert status == 403
-            assert error == "insufficient permissions"
+            assert error == "Insufficient permissions"
             assert user is None
 
     def test_register_user_admin_success(self, app, monkeypatch):
@@ -367,7 +367,7 @@ class TestAuthServiceAdmin:
             )
 
             assert status == 403
-            assert error == "invalid token"
+            assert error == "Invalid token"
             assert user is None
 
     def test_register_user_admin_missing_token(self, app, monkeypatch):
@@ -389,7 +389,7 @@ class TestAuthServiceAdmin:
             )
 
             assert status == 403
-            assert error == "invalid token"
+            assert error == "Invalid token"
             assert user is None
 
     def test_register_user_admin_duplicate_email(
@@ -413,7 +413,7 @@ class TestAuthServiceAdmin:
             )
 
             assert status == 409
-            assert error == "user already exists"
+            assert error == "User already exists"
             assert user is None
 
     def test_register_user_admin_missing_required_fields(
