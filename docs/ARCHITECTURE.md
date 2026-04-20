@@ -289,33 +289,85 @@ PENDING ──▶ APPROVED (user role → DRIVER)
 ### Implemented
 
 
-| Method | Path                            | Auth   | Description                   |
-| ------ | ------------------------------- | ------ | ----------------------------- |
-| POST   | `/api/signup`                   | No     | Register new user             |
-| POST   | `/api/login`                    | No     | Log in, create session        |
-| POST   | `/api/logout`                   | Yes    | End session                   |
-| GET    | `/health`                       | No     | Health check                  |
-| GET    | `/api/trips`                    | Yes    | Browse open trips (feed)      |
-| GET    | `/api/trips/:id`                | Yes    | Get trip with items           |
-| GET    | `/api/me/trips`                 | Driver | Driver's trips (all statuses) |
-| POST   | `/api/me/trips`                 | Driver | Create trip with items        |
-| PUT    | `/api/me/trips/:id`             | Driver | Edit an OPEN trip             |
-| PATCH  | `/api/me/trips/:id/close`       | Driver | Close trip (OPEN->CLOSED)     |
-| PATCH  | `/api/me/trips/:id/complete`    | Driver | Complete trip (CLOSED->DONE)  |
-| PATCH  | `/api/me/trips/:id/cancel`      | Driver | Cancel trip + cascade orders  |
-| POST   | `/api/driver/apply`             | Yes    | Apply to become driver        |
+| Method | Path                         | Auth   | Description                   |
+| ------ | ---------------------------- | ------ | ----------------------------- |
+| POST   | `/api/signup`                | No     | Register new user             |
+| POST   | `/api/login`                 | No     | Log in, create session        |
+| POST   | `/api/logout`                | Yes    | End session                   |
+| GET    | `/health`                    | No     | Health check                  |
+| GET    | `/api/inventory`             | Yes    | Browse available item feed    |
+| GET    | `/api/trips`                 | Yes    | Browse open trips (feed)      |
+| GET    | `/api/trips/:id`             | Yes    | Get trip with items           |
+| GET    | `/api/me/trips`              | Driver | Driver's trips (all statuses) |
+| POST   | `/api/me/trips`              | Driver | Create trip with items        |
+| PUT    | `/api/me/trips/:id`          | Driver | Edit an OPEN trip             |
+| PATCH  | `/api/me/trips/:id/close`    | Driver | Close trip (OPEN->CLOSED)     |
+| PATCH  | `/api/me/trips/:id/complete` | Driver | Complete trip (CLOSED->DONE)  |
+| PATCH  | `/api/me/trips/:id/cancel`   | Driver | Cancel trip + cascade orders  |
+| POST   | `/api/driver/apply`          | Yes    | Apply to become driver        |
 
 
 ### Planned
 
 
-| Method | Path                                 | Auth    | Description              |
-| ------ | ------------------------------------ | ------- | ------------------------ |
-| POST   | `/api/trips/:id/claims`              | Shopper | Claim items              |
-| PATCH  | `/api/claims/:id/status`             | Driver  | Update order status      |
-| GET    | `/api/me/orders`                     | Shopper | Shopper's orders         |
-| PATCH  | `/api/admin/driver-applications/:id` | Admin   | Review application       |
+| Method | Path                                 | Auth    | Description         |
+| ------ | ------------------------------------ | ------- | ------------------- |
+| POST   | `/api/trips/:id/claims`              | Shopper | Claim items         |
+| PATCH  | `/api/claims/:id/status`             | Driver  | Update order status |
+| GET    | `/api/me/orders`                     | Shopper | Shopper's orders    |
+| PATCH  | `/api/admin/driver-applications/:id` | Admin   | Review application  |
 
+
+## `/api/inventory` API Contract
+
+The `GET /api/inventory` endpoint powers an item-centric shopper feed.
+
+### Behavior
+
+- Requires authentication (`@login_required`)
+- Returns items only from trips with status `OPEN`
+- Returns only items where `total_quantity > claimed_quantity`
+- Excludes items from trips owned by the current user
+(consistent with `GET /api/trips` excluding driver-owned trips)
+- Sorted by `trip.pickup_time` ascending (soonest pickup first)
+
+### Response shape
+
+```json
+{
+  "items": [
+    {
+      "item_id": 12,
+      "trip_id": 5,
+      "name": "Paper Towels",
+      "unit": "pack",
+      "total_quantity": 10,
+      "claimed_quantity": 3,
+      "available_quantity": 7,
+      "price_per_unit": 15.99,
+      "trip": {
+        "trip_id": 5,
+        "store_name": "Costco",
+        "pickup_location_text": "123 Main St",
+        "pickup_time": "2026-04-20T18:00:00+00:00",
+        "status": "open",
+        "driver": {
+          "user_id": 9,
+          "first_name": "Driver",
+          "last_name": "Example"
+        }
+      }
+    }
+  ]
+}
+```
+
+### Notes
+
+- Trip and driver are eager-loaded in the service layer to avoid N+1
+queries during serialization.
+- This endpoint intentionally returns nested trip metadata to avoid
+extra frontend calls when rendering item cards.
 
 ## Authentication
 
