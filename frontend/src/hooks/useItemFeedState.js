@@ -5,11 +5,13 @@ import { useSession } from '../contexts/SessionProvider';
 import { shopperLocation } from '../data/tripFeedData';
 import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import { getShopperLocationFromUser } from '../utils/tripApiAdapters';
+import { mapApiOrdersToUi } from '../utils/orderApiAdapters';
 import {
   getActiveOrderForTrip,
   getOrderItemQuantity,
   mapApiInventoryToUi,
 } from '../utils/itemFeed';
+import { rememberLinkedOrderSelection } from './useLinkedOrderSelection';
 
 export default function useItemFeedState() {
   const api = useApi();
@@ -160,6 +162,11 @@ export default function useItemFeedState() {
 
     const updatedOrder = response.body?.order;
     if (updatedOrder) {
+      const updatedOrderUi = mapApiOrdersToUi(
+        [updatedOrder],
+        shopperLocationForItems,
+      )[0];
+
       setOrders((currentOrders) => {
         const orderIndex = currentOrders.findIndex(
           (order) => order.order_id === updatedOrder.order_id,
@@ -173,6 +180,16 @@ export default function useItemFeedState() {
           order.order_id === updatedOrder.order_id ? updatedOrder : order,
         );
       });
+
+      if (updatedOrderUi) {
+        // Point shared shopper-page navigation at the order that was just
+        // updated so My Orders and Trip Detail open on the fresh data next.
+        rememberLinkedOrderSelection({
+          bucket: updatedOrderUi.bucket,
+          date: updatedOrderUi.date,
+          orderId: updatedOrderUi.id,
+        });
+      }
 
       const availabilityByItemId = new Map(
         (updatedOrder.trip?.items || []).map((tripItem) => [

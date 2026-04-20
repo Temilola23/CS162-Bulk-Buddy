@@ -4,6 +4,8 @@
   right: 0;
   bottom: -14px;
   pointer-events: none;
+  perspective: 1000;
+  z-index: 200;
 }
 
 .header-scroll-progress-inner {
