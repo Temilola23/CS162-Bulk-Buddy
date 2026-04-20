@@ -32,6 +32,7 @@ export function mapApiInventoryItemToUi(item, shopperLocation) {
     unitPrice: item.price_per_unit || 0,
     storeName: trip.store_name || 'Warehouse trip',
     pickupTime: trip.pickup_time ? formatPickupTime(trip.pickup_time) : 'Pickup time TBD',
+    pickupTimestamp: trip.pickup_time || null,
     pickupLabel: pickupLocation.label,
     distanceLabel: formatDistance(getDistanceMiles(shopperLocation, pickupLocation)),
     driver: {
@@ -42,13 +43,36 @@ export function mapApiInventoryItemToUi(item, shopperLocation) {
 }
 
 export function mapApiInventoryToUi(items, shopperLocation) {
-  return items.map((item) => mapApiInventoryItemToUi(item, shopperLocation));
+  return items
+    .map((item) => mapApiInventoryItemToUi(item, shopperLocation))
+    .sort((left, right) => {
+      const nameComparison = left.name.localeCompare(right.name, undefined, {
+        sensitivity: 'base',
+      });
+
+      if (nameComparison !== 0) {
+        return nameComparison;
+      }
+
+      if (left.pickupTimestamp && right.pickupTimestamp) {
+        const pickupComparison = new Date(left.pickupTimestamp) - new Date(right.pickupTimestamp);
+        if (pickupComparison !== 0) {
+          return pickupComparison;
+        }
+      }
+
+      return left.storeName.localeCompare(right.storeName, undefined, {
+        sensitivity: 'base',
+      });
+    });
 }
 
 export function getActiveOrderForTrip(orders, tripId) {
-  return orders.find(
-    (order) => String(order.trip_id) === String(tripId) && order.status !== 'cancelled',
-  ) || null;
+  return (
+    orders.find(
+      (order) => String(order.trip_id) === String(tripId) && order.status !== 'cancelled',
+    ) || null
+  );
 }
 
 export function getOrderItemQuantity(order, itemId) {

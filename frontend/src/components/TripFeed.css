@@ -304,9 +304,15 @@
   font-weight: 800;
 }
 
+.trip-add-button {
+  width: fit-content;
+  padding: 5px 24px;
+}
+
 .trip-checkout-button {
   margin-top: 12px;
-  width: 100%;
+  width: fit-content;
+  padding: 5px 24px;
 }
 
 .trip-cart-panel {

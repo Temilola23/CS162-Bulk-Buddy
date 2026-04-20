@@ -1,6 +1,5 @@
 import ShopperHeader from './ShopperHeader';
 import useItemFeedPageState from '../hooks/useItemFeedPageState';
-import { currencyFormatter } from '../utils/currency';
 import './ItemFeed.css';
 
 function getOrderContextLabel(item) {
@@ -79,7 +78,7 @@ export default function ItemFeed() {
           const isSubmitting = submittingItemId === item.id;
 
           return (
-            <article className="item-feed-card" key={`${item.tripId}-${item.id}`}>
+            <article className="item-feed-card" key={item.id}>
               <div className="item-feed-card-header">
                 <div>
                   <p className="item-feed-card-kicker">{item.storeName}</p>
@@ -116,7 +115,7 @@ export default function ItemFeed() {
                 </div>
                 <div>
                   <dt>Approx price</dt>
-                  <dd>{currencyFormatter.format(item.unitPrice)} each</dd>
+                  <dd>${item.unitPrice.toFixed(2)} each</dd>
                 </div>
                 <div>
                   <dt>Your order</dt>

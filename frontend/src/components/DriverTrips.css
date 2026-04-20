@@ -200,8 +200,9 @@
 
 .driver-trip-summary {
   border-radius: 20px;
-  border: 1px solid rgba(77, 33, 106, 0.12);
-  background: rgba(245, 239, 249, 0.62);
+  background: #fff;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   padding: 18px;
   display: grid;
   gap: 10px;
