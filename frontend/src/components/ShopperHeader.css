@@ -26,7 +26,7 @@
 }
 
 .shopper-header-inner {
-  width: min(1120px, calc(100vw - 32px));
+  width: min(1360px, calc(100vw - 40px));
   margin: 0 auto;
   min-height: 100px;
   display: grid;
@@ -36,19 +36,21 @@
 }
 
 .shopper-brand {
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   color: #3e1c55;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1rem, 2vw, 2.6rem);
   font-weight: 900;
   letter-spacing: -0.03em;
+  white-space: nowrap;
   text-decoration: none;
 }
 
 .shopper-brand-logo {
-  width: 64px;
-  height: 64px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
 }
 
@@ -70,8 +72,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   color: #4d216a;
   font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
   text-decoration: none;
   transition:
     background-color 180ms ease,
@@ -91,6 +96,7 @@
 
 .shopper-profile-shell {
   position: relative;
+  justify-self: end;
 }
 
 .shopper-profile-trigger {
@@ -122,6 +128,7 @@
 .shopper-profile-avatar {
   width: 42px;
   height: 42px;
+  flex: 0 0 42px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -142,7 +149,7 @@
 
 .shopper-profile-caret svg {
   width: 12px;
-  height: 8px;
+  height: 8x;
   display: block;
 }
 

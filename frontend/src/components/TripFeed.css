@@ -121,6 +121,13 @@
   line-height: 1.45;
 }
 
+.trip-list-store {
+  color: #301746;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .trip-list-row {
   display: flex;
   align-items: center;
@@ -158,10 +165,22 @@
   flex-wrap: wrap;
 }
 
+.trip-detail-heading {
+  display: grid;
+  gap: 6px;
+}
+
 .trip-detail-header p {
   margin: 0;
   color: #4d216a;
   font-weight: 700;
+}
+
+.trip-detail-store {
+  color: #301746;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .trip-detail-driver {
