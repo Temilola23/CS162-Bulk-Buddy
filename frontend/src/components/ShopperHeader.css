@@ -103,6 +103,7 @@
   position: relative;
   justify-self: end;
   margin-right: -12px;
+  margin-left: 5px;
 }
 
 .shopper-header-cart {
@@ -152,6 +153,7 @@
   position: relative;
   width: 34px;
   height: 34px;
+  margin-left: -60px;
   flex: 0 0 34px;
   display: inline-flex;
   align-items: center;
