@@ -6,6 +6,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ApiProvider from './contexts/ApiProvider';
 import { SessionProvider } from './contexts/SessionProvider';
+import { CartProvider } from './contexts/CartProvider';
 
 // Mount the React tree once and let App handle which screen to render.
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -14,7 +15,9 @@ root.render(
     <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
       <ApiProvider>
         <SessionProvider>
-          <App />
+          <CartProvider>
+            <App />
+          </CartProvider>
         </SessionProvider>
       </ApiProvider>
     </BrowserRouter>

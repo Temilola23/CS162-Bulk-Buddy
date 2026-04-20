@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import HeaderScrollProgress from './HeaderScrollProgress';
+import { useCart } from '../contexts/CartProvider';
 import { useSession } from '../contexts/SessionProvider';
 import useShopperHeaderState from '../hooks/useShopperHeaderState';
 import useLogoutAction from '../hooks/useLogoutAction';
@@ -9,11 +10,17 @@ import './ShopperHeader.css';
 export default function ShopperHeader({ activePage, isScrolled, scrollProgress }) {
   const { menuOpen, profileMenuRef, navItems, toggleMenu } = useShopperHeaderState();
   const { currentUser } = useSession();
+  const { cart } = useCart();
   const logout = useLogoutAction();
   const profile = getProfileFromUser(currentUser) || {
     name: 'Bulk Buddy',
     initials: 'BB',
   };
+  const cartGroupCount = cart.length;
+  const cartLabel =
+    cartGroupCount > 0
+      ? `Cart with ${cartGroupCount} ${cartGroupCount === 1 ? 'driver group' : 'driver groups'}`
+      : 'Cart';
 
   return (
     <header className={`shopper-header ${isScrolled ? 'is-scrolled' : ''}`.trim()}>
@@ -34,6 +41,17 @@ export default function ShopperHeader({ activePage, isScrolled, scrollProgress }
             </Link>
           ))}
         </nav>
+
+        <Link
+          aria-label={cartLabel}
+          className={`shopper-cart-link shopper-header-cart ${
+            activePage === 'cart' ? 'is-active' : ''
+          }`.trim()}
+          to="/cart"
+        >
+          <i aria-hidden="true" className="fa-solid fa-cart-shopping" />
+          {cartGroupCount > 0 ? <span className="shopper-cart-badge">{cartGroupCount}</span> : null}
+        </Link>
 
         <div className="shopper-profile-shell" ref={profileMenuRef}>
           <button

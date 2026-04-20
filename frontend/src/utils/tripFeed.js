@@ -71,7 +71,9 @@ export function mergeCartGroups(currentCart, selectedTrip, chosenItems) {
   const tripIndex = nextCart.findIndex((tripGroup) => tripGroup.tripId === selectedTrip.id);
   const existingGroup = tripIndex >= 0 ? nextCart[tripIndex] : null;
   // Merge new quantities into the existing driver group so the cart stays grouped by trip.
-  const mergedItems = new Map((existingGroup ? existingGroup.items : []).map((item) => [item.id, { ...item }]));
+  const mergedItems = new Map(
+    (existingGroup ? existingGroup.items : []).map((item) => [item.id, { ...item }]),
+  );
 
   chosenItems.forEach((item) => {
     const existingLine = mergedItems.get(item.id);
@@ -92,6 +94,7 @@ export function mergeCartGroups(currentCart, selectedTrip, chosenItems) {
 
   const nextGroup = {
     tripId: selectedTrip.id,
+    storeName: selectedTrip.storeName,
     driverName: selectedTrip.driver.name,
     driverPhoto: selectedTrip.driver.photo,
     pickupTime: selectedTrip.pickupTime,
