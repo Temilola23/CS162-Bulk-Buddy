@@ -3,6 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
 import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 
+/**
+ * Returns an empty item row for the post-trip form.
+ *
+ * @returns {Object} Blank item form values.
+ */
 function getInitialItem() {
   return {
     name: '',
@@ -12,6 +17,11 @@ function getInitialItem() {
   };
 }
 
+/**
+ * Returns the empty driver trip form shape.
+ *
+ * @returns {Object} Blank trip form values.
+ */
 function getInitialForm() {
   return {
     storeName: '',
@@ -21,6 +31,12 @@ function getInitialForm() {
   };
 }
 
+/**
+ * Converts backend trip status values into readable labels.
+ *
+ * @param {string} status - Backend trip status.
+ * @returns {string} Display status label.
+ */
 function formatTripStatus(status) {
   return status
     .split('_')
@@ -28,6 +44,12 @@ function formatTripStatus(status) {
     .join(' ');
 }
 
+/**
+ * Maps a driver trip API payload into the post-trip page UI shape.
+ *
+ * @param {Object} apiTrip - Driver trip API payload.
+ * @returns {Object} Driver trip UI model.
+ */
 function mapDriverTrip(apiTrip) {
   return {
     id: apiTrip.trip_id,
@@ -48,6 +70,11 @@ function mapDriverTrip(apiTrip) {
   };
 }
 
+/**
+ * Manages driver trip creation, status transitions, and order expansion.
+ *
+ * @returns {Object} Driver trip form state, trip list state, and action handlers.
+ */
 export default function useDriverTripsState() {
   const api = useApi();
   const location = useLocation();

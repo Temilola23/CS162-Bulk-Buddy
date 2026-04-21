@@ -1,3 +1,10 @@
+/**
+ * Builds a route URL containing the linked order selection query params.
+ *
+ * @param {string} pathname - Route path to link to.
+ * @param {{bucket?: string, date?: string, orderId?: string}} selection - Order selection state.
+ * @returns {string} Route URL with order selection query params.
+ */
 export function buildLinkedOrderHref(pathname, selection) {
   if (!selection) {
     return pathname;

@@ -21,6 +21,9 @@ import { buildAdminAuthRedirectUrl } from './hooks/useAdminPostAuthRedirect';
 import useAppLoader from './hooks/useAppLoader';
 import './App.css';
 
+/**
+ * Guards shopper-facing routes and redirects signed-out users to login.
+ */
 function ProtectedRoute() {
   const { currentUser, isSessionLoading } = useSession();
   const location = useLocation();
@@ -39,6 +42,9 @@ function ProtectedRoute() {
   return <Outlet />;
 }
 
+/**
+ * Guards admin routes so only authenticated admin users can view them.
+ */
 function AdminRoute() {
   const { currentUser, isSessionLoading } = useSession();
   const location = useLocation();
@@ -59,6 +65,9 @@ function AdminRoute() {
   return <Outlet />;
 }
 
+/**
+ * Guards driver-only pages and sends unapproved shoppers back to profile.
+ */
 function DriverRoute() {
   const { currentUser, isSessionLoading } = useSession();
   const location = useLocation();
@@ -81,6 +90,9 @@ function DriverRoute() {
   return <Outlet />;
 }
 
+/**
+ * Defines the app route tree and global loading overlay.
+ */
 function App() {
   const { showLoader, loaderIsLeaving } = useAppLoader();
   const pageContent = (

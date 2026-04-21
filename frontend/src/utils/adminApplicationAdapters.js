@@ -4,6 +4,12 @@ export const ADMIN_STATUS_TABS = [
   { id: 'rejected', label: 'Rejected', endpoint: '/admin/rejected', responseKey: 'rejected_apps' },
 ];
 
+/**
+ * Splits stored license metadata into reviewable fields for admins.
+ *
+ * @param {string} licenseInfo - Persisted license string from the backend.
+ * @returns {{licenseNumber: string, expirationDate: string}} Parsed license fields.
+ */
 function parseLicenseInfo(licenseInfo) {
   const normalizedLicenseInfo = (licenseInfo || '').trim();
   if (!normalizedLicenseInfo) {
@@ -27,10 +33,22 @@ function parseLicenseInfo(licenseInfo) {
   };
 }
 
+/**
+ * Converts application status values into display labels.
+ *
+ * @param {string} status - Backend application status.
+ * @returns {string} Human-readable status label.
+ */
 function formatStatusLabel(status) {
   return status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
 }
 
+/**
+ * Formats backend timestamps for the admin application table.
+ *
+ * @param {string|null} timestamp - Backend timestamp.
+ * @returns {string} Display timestamp or fallback text.
+ */
 function formatTimestamp(timestamp) {
   if (!timestamp) {
     return 'No date';
@@ -45,6 +63,12 @@ function formatTimestamp(timestamp) {
   });
 }
 
+/**
+ * Maps one backend driver application into the admin UI shape.
+ *
+ * @param {Object} apiApplication - Driver application API payload.
+ * @returns {Object} Application object used by admin pages.
+ */
 export function mapAdminApplication(apiApplication) {
   const parsedLicense = parseLicenseInfo(apiApplication.license_info);
 
@@ -60,6 +84,12 @@ export function mapAdminApplication(apiApplication) {
   };
 }
 
+/**
+ * Loads each admin application status bucket and merges them into one list.
+ *
+ * @param {Object} api - API client with get method.
+ * @returns {Promise<{applications: Object[], error: string|null, status: number}>} Fetch result.
+ */
 export async function fetchAdminApplications(api) {
   // The current backend does not have one aggregate admin queue endpoint, so
   // the frontend loads each status bucket and merges them into one collection.

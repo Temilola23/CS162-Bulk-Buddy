@@ -8,6 +8,9 @@ import { formatCalendarDate } from '../../utils/dateFormatting';
 import { formatStatus, getStatusMarkerPosition, getStatusProgress } from '../../utils/orderStatus';
 import './MyOrders.css';
 
+/**
+ * Renders the shopper order history with date and order navigation.
+ */
 export default function MyOrders() {
   const {
     isScrolled,

@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import useAdminLoginForm from '../../hooks/useAdminLoginForm';
 import './AdminLogin.css';
 
+/**
+ * Renders the admin sign-in page.
+ */
 export default function AdminLogin() {
   const {
     form,

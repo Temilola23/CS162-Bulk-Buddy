@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import useAdminRegisterForm from '../../hooks/useAdminRegisterForm';
 import './AdminRegister.css';
 
+/**
+ * Renders the admin registration page and token form.
+ */
 export default function AdminRegister() {
   const {
     form,

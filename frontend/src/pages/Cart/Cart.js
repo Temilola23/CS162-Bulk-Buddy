@@ -3,6 +3,9 @@ import ShopperHeader from '../../components/ShopperHeader';
 import useCartPageState from '../../hooks/useCartPageState';
 import './Cart.css';
 
+/**
+ * Renders the cart page grouped by driver trip.
+ */
 export default function Cart() {
   const {
     isScrolled,

@@ -1,3 +1,6 @@
+/**
+ * Renders the reusable chevron used by order carousel controls.
+ */
 export default function ChevronIcon() {
   return (
     <svg fill="none" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">

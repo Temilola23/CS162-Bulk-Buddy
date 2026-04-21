@@ -4,6 +4,9 @@ import { useApi } from '../contexts/ApiProvider';
 import { getOrderStatusStepIndex } from '../utils/orderStatus';
 import useShopperOrdersData from './useShopperOrdersData';
 
+/**
+ * Builds editable quantity drafts keyed by order and item.
+ */
 function getInitialQuantitiesByOrder(orders) {
   return orders.reduce((orderAccumulator, order) => {
     orderAccumulator[order.id] = order.items.reduce((itemAccumulator, item) => {
@@ -15,6 +18,9 @@ function getInitialQuantitiesByOrder(orders) {
   }, {});
 }
 
+/**
+ * Initializes per-order pickup/completion slider state.
+ */
 function getInitialClaimStates(orders) {
   return orders.reduce((accumulator, order) => {
     accumulator[order.id] = order.bucket === 'past' ? 'completed' : 'picked-up';
@@ -22,6 +28,9 @@ function getInitialClaimStates(orders) {
   }, {});
 }
 
+/**
+ * Manages linked order detail, quantity drafts, and completion actions.
+ */
 export default function useTripDetailState() {
   const api = useApi();
   const { orders, isOrdersLoading, ordersError } = useShopperOrdersData();

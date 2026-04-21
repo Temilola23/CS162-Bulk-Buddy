@@ -4,6 +4,9 @@ import { howItWorksSteps, landingSlides } from '../../data/landingContent';
 import useLandingPageState from '../../hooks/useLandingPageState';
 import './Landing.css';
 
+/**
+ * Renders the public marketing landing page and carousel.
+ */
 export default function Landing() {
   const {
     isScrolled,

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useApi } from '../contexts/ApiProvider';
 import { markAuthLoaderRequested } from './useAppLoader';
 
+/**
+ * Manages shopper login form state and post-login redirect behavior.
+ */
 export default function useLoginForm(redirectPath = '/trip-feed') {
   const api = useApi();
   const [form, setForm] = useState({

@@ -5,6 +5,9 @@ import useProfilePageState from '../../hooks/useProfilePageState';
 import { getProfileFromUser } from '../../utils/profileAdapters';
 import './Profile.css';
 
+/**
+ * Renders shopper profile details and the driver application form/status.
+ */
 export default function Profile() {
   const { currentUser } = useSession();
   const {

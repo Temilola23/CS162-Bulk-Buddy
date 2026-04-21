@@ -7,6 +7,9 @@ import useLogoutAction from '../hooks/useLogoutAction';
 import { getProfileFromUser } from '../utils/profileAdapters';
 import './ShopperHeader.css';
 
+/**
+ * Renders the shared shopper navigation, cart badge, and profile menu.
+ */
 export default function ShopperHeader({ activePage, isScrolled, scrollProgress }) {
   const { menuOpen, profileMenuRef, navItems, toggleMenu } = useShopperHeaderState();
   const { currentUser } = useSession();

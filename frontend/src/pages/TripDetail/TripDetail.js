@@ -11,10 +11,16 @@ import {
 import { currencyFormatter } from '../../utils/currency';
 import './TripDetail.css';
 
+/**
+ * Formats item share counts with the correct singular/plural label.
+ */
 function formatShareCount(count) {
   return `${count} ${count === 1 ? 'share' : 'shares'}`;
 }
 
+/**
+ * Renders a linked order detail page with status and item controls.
+ */
 export default function TripDetail() {
   const {
     isScrolled,

@@ -2,6 +2,9 @@ import ShopperHeader from '../../components/ShopperHeader';
 import useDriverTripsPageState from '../../hooks/useDriverTripsPageState';
 import './DriverTrips.css';
 
+/**
+ * Renders the driver trip creation and posted-trip management page.
+ */
 export default function DriverTrips() {
   const {
     isScrolled,

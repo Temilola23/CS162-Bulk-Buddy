@@ -4,6 +4,9 @@ import { useApi } from '../contexts/ApiProvider';
 import { buildAdminAuthRedirectUrl } from './useAdminPostAuthRedirect';
 import { ADMIN_STATUS_TABS, fetchAdminApplications } from '../utils/adminApplicationAdapters';
 
+/**
+ * Loads admin application queues and filters them by selected status tab.
+ */
 export default function useAdminApplications() {
   const api = useApi();
   const location = useLocation();

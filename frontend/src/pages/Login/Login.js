@@ -3,6 +3,9 @@ import useLoginForm from '../../hooks/useLoginForm';
 import usePostAuthRedirect from '../../hooks/usePostAuthRedirect';
 import './Login.css';
 
+/**
+ * Renders the shopper login page.
+ */
 export default function Login() {
   // Use any ?next= target already present in the auth URL so successful login
   // can return the shopper to the protected page they originally requested.

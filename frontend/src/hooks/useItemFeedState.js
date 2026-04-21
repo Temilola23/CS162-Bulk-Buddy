@@ -13,6 +13,9 @@ import {
 } from '../utils/itemFeed';
 import { rememberLinkedOrderSelection } from './useLinkedOrderSelection';
 
+/**
+ * Loads claimable inventory, tracks draft quantities, and creates/updates orders.
+ */
 export default function useItemFeedState() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();

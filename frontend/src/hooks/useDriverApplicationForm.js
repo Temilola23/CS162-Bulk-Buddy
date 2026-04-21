@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react';
 import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
 
+/**
+ * Returns the empty driver application form shape.
+ */
 function getInitialApplicationForm() {
   return {
     licenseNumber: '',
@@ -9,6 +12,9 @@ function getInitialApplicationForm() {
   };
 }
 
+/**
+ * Splits persisted license metadata back into separate display fields.
+ */
 function parseLicenseInfo(licenseInfo) {
   const normalizedLicenseInfo = (licenseInfo || '').trim();
   if (!normalizedLicenseInfo) {
@@ -31,6 +37,9 @@ function parseLicenseInfo(licenseInfo) {
   };
 }
 
+/**
+ * Manages driver application form state, submission, and approval status.
+ */
 export default function useDriverApplicationForm() {
   const api = useApi();
   const { currentUser, driverApplication, refreshSession } = useSession();

@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
+/**
+ * Manages landing-page slide navigation, wheel gestures, and touch swipes.
+ */
 export default function useLandingCarousel(slideCount) {
   const [activeSlide, setActiveSlide] = useState(0);
   const swipeStart = useRef(null);

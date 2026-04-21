@@ -9,6 +9,9 @@ const INITIAL_FORM = {
   password: '',
 };
 
+/**
+ * Manages admin login form state and redirects admins after authentication.
+ */
 export default function useAdminLoginForm() {
   const api = useApi();
   const navigate = useNavigate();

@@ -2,6 +2,9 @@ import usePageScrollProgress from './usePageScrollProgress';
 import { landingSlides } from '../data/landingContent';
 import useLandingCarousel from './useLandingCarousel';
 
+/**
+ * Provides landing-page carousel, scroll, and year state.
+ */
 export default function useLandingPageState() {
   const { isScrolled, scrollProgress } = usePageScrollProgress();
   const carousel = useLandingCarousel(landingSlides.length);

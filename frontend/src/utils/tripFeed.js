@@ -1,7 +1,20 @@
+/**
+ * Converts degrees into radians for distance math.
+ *
+ * @param {number} value - Angle in degrees.
+ * @returns {number} Angle in radians.
+ */
 function toRadians(value) {
   return (value * Math.PI) / 180;
 }
 
+/**
+ * Calculates miles between two latitude/longitude points.
+ *
+ * @param {{lat: number, lng: number}} start - Starting coordinate.
+ * @param {{lat: number, lng: number}} end - Ending coordinate.
+ * @returns {number} Distance in miles.
+ */
 export function getDistanceMiles(start, end) {
   // Use the haversine formula so trip sorting is based on actual map distance,
   // not a naive straight subtraction of latitude/longitude degrees.
@@ -19,6 +32,12 @@ export function getDistanceMiles(start, end) {
   return earthRadiusMiles * c;
 }
 
+/**
+ * Resolves the pickup location used for distance and display.
+ *
+ * @param {Object} trip - UI trip object with pickup or driver location data.
+ * @returns {{lat: number, lng: number, label: string}} Pickup location details.
+ */
 export function getPickupLocation(trip) {
   if (trip.pickupLocation) {
     return trip.pickupLocation;
@@ -32,10 +51,23 @@ export function getPickupLocation(trip) {
   };
 }
 
+/**
+ * Formats a distance value for shopper-facing copy.
+ *
+ * @param {number} distanceMiles - Distance in miles.
+ * @returns {string} Human-readable distance label.
+ */
 export function formatDistance(distanceMiles) {
   return `${distanceMiles.toFixed(1)} miles away`;
 }
 
+/**
+ * Adds distance metadata and sorts trips from nearest to farthest.
+ *
+ * @param {Object[]} trips - Trip UI objects to sort.
+ * @param {{lat: number, lng: number}} shopperLocation - Shopper coordinate.
+ * @returns {Object[]} Trips with distance fields sorted by proximity.
+ */
 export function buildSortedTrips(trips, shopperLocation) {
   return trips
     .map((trip) => {
@@ -53,6 +85,13 @@ export function buildSortedTrips(trips, shopperLocation) {
     .sort((left, right) => left.distanceMiles - right.distanceMiles);
 }
 
+/**
+ * Converts selected item quantities into cart-ready line items.
+ *
+ * @param {Object|null} selectedTrip - Currently selected trip.
+ * @param {Object} draftQuantities - Quantity selections keyed by item ID.
+ * @returns {Object[]} Items with positive selected quantities.
+ */
 export function buildChosenItems(selectedTrip, draftQuantities) {
   if (!selectedTrip) {
     return [];
@@ -66,6 +105,14 @@ export function buildChosenItems(selectedTrip, draftQuantities) {
     .filter((item) => item.quantity > 0);
 }
 
+/**
+ * Adds selected items into the cart group for their driver trip.
+ *
+ * @param {Object[]} currentCart - Existing cart groups.
+ * @param {Object} selectedTrip - Trip that owns the selected items.
+ * @param {Object[]} chosenItems - Selected item lines to merge.
+ * @returns {Object[]} Updated cart groups.
+ */
 export function mergeCartGroups(currentCart, selectedTrip, chosenItems) {
   const nextCart = [...currentCart];
   const tripIndex = nextCart.findIndex((tripGroup) => tripGroup.tripId === selectedTrip.id);
@@ -110,6 +157,13 @@ export function mergeCartGroups(currentCart, selectedTrip, chosenItems) {
   return [...nextCart, nextGroup];
 }
 
+/**
+ * Clears quantity drafts for items that were just added to cart.
+ *
+ * @param {Object} currentDrafts - Current draft quantities keyed by item ID.
+ * @param {Object[]} chosenItems - Items that were added to cart.
+ * @returns {Object} Draft quantity map with added items reset to zero.
+ */
 export function resetDraftQuantities(currentDrafts, chosenItems) {
   const nextDrafts = { ...currentDrafts };
   chosenItems.forEach((item) => {
@@ -118,6 +172,13 @@ export function resetDraftQuantities(currentDrafts, chosenItems) {
   return nextDrafts;
 }
 
+/**
+ * Counts selected quantities for the currently selected trip.
+ *
+ * @param {Object|null} selectedTrip - Currently selected trip.
+ * @param {Object} draftQuantities - Quantity selections keyed by item ID.
+ * @returns {number} Total selected quantity.
+ */
 export function getSelectedQuantityCount(selectedTrip, draftQuantities) {
   if (!selectedTrip) {
     return 0;
@@ -126,6 +187,12 @@ export function getSelectedQuantityCount(selectedTrip, draftQuantities) {
   return selectedTrip.items.reduce((sum, item) => sum + (draftQuantities[item.id] || 0), 0);
 }
 
+/**
+ * Adds subtotal and line-count metadata to cart groups.
+ *
+ * @param {Object[]} cartGroups - Raw cart groups.
+ * @returns {Object[]} Cart groups with subtotal and line count fields.
+ */
 export function enrichCartGroups(cartGroups) {
   return cartGroups.map((tripGroup) => ({
     ...tripGroup,
@@ -134,10 +201,22 @@ export function enrichCartGroups(cartGroups) {
   }));
 }
 
+/**
+ * Counts all item quantities across cart groups.
+ *
+ * @param {Object[]} cartGroups - Enriched cart groups.
+ * @returns {number} Total item quantity.
+ */
 export function getCartLineCount(cartGroups) {
   return cartGroups.reduce((sum, tripGroup) => sum + tripGroup.lineCount, 0);
 }
 
+/**
+ * Totals all cart group subtotals.
+ *
+ * @param {Object[]} cartGroups - Enriched cart groups.
+ * @returns {number} Total cart subtotal.
+ */
 export function getCartSubtotal(cartGroups) {
   return cartGroups.reduce((sum, tripGroup) => sum + tripGroup.subtotal, 0);
 }

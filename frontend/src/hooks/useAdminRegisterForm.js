@@ -5,6 +5,11 @@ import { useSession } from '../contexts/SessionProvider';
 import { markAuthLoaderRequested } from './useAppLoader';
 import useAdminPostAuthRedirect from './useAdminPostAuthRedirect';
 
+/**
+ * Returns the empty admin registration form shape.
+ *
+ * @returns {Object} Default admin registration form values.
+ */
 function getInitialForm() {
   return {
     firstName: '',
@@ -20,6 +25,11 @@ function getInitialForm() {
   };
 }
 
+/**
+ * Manages admin registration, token submission, auto-login, and redirect.
+ *
+ * @returns {Object} Admin registration form values, status flags, and handlers.
+ */
 export default function useAdminRegisterForm() {
   const api = useApi();
   const navigate = useNavigate();

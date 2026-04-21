@@ -12,6 +12,9 @@ import {
   resetDraftQuantities,
 } from '../utils/tripFeed';
 
+/**
+ * Loads trips, tracks item quantities, and adds selected items to the cart.
+ */
 export default function useTripFeedState() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();
