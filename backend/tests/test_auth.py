@@ -187,6 +187,19 @@ class TestLogin:
         assert response.status_code == 401
         assert "user not found" in response.json["message"]
 
+    def test_rejects_non_json_content_type(self, client):
+        """POST with non-JSON content type returns 415."""
+        response = client.post(
+            "/api/login",
+            data="email=test@example.com&password=test",
+            content_type="application/x-www-form-urlencoded",
+        )
+        assert response.status_code == 415
+        assert (
+            response.get_json()["message"]
+            == "Content-Type must be application/json"
+        )
+
 
 class TestLogout:
     """Tests for POST /api/logout."""
