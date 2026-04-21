@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import AdminShell from './AdminShell';
-import useAdminApplications from '../hooks/useAdminApplications';
+import AdminShell from '../../components/AdminShell';
+import useAdminApplications from '../../hooks/useAdminApplications';
 import './AdminApplications.css';
 
 export default function AdminApplications() {

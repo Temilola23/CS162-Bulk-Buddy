@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import useRegisterForm from '../hooks/useRegisterForm';
-import usePostAuthRedirect from '../hooks/usePostAuthRedirect';
+import useRegisterForm from '../../hooks/useRegisterForm';
+import usePostAuthRedirect from '../../hooks/usePostAuthRedirect';
 import './Register.css';
 
 export default function Register() {

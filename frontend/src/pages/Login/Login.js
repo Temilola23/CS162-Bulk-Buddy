@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import useLoginForm from '../hooks/useLoginForm';
-import usePostAuthRedirect from '../hooks/usePostAuthRedirect';
+import useLoginForm from '../../hooks/useLoginForm';
+import usePostAuthRedirect from '../../hooks/usePostAuthRedirect';
 import './Login.css';
 
 export default function Login() {

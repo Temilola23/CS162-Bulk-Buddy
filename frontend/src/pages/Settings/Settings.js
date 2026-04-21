@@ -1,5 +1,5 @@
-import ShopperHeader from './ShopperHeader';
-import useSettingsPageState from '../hooks/useSettingsPageState';
+import ShopperHeader from '../../components/ShopperHeader';
+import useSettingsPageState from '../../hooks/useSettingsPageState';
 import './Settings.css';
 
 export default function Settings() {

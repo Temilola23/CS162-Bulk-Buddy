@@ -12,21 +12,21 @@ jest.mock('./hooks/useAppLoader', () => () => ({
   loaderIsLeaving: false,
 }));
 
-jest.mock('./components/Landing', () => () => <div>Landing Page</div>);
-jest.mock('./components/Login', () => () => <div>Login Page</div>);
-jest.mock('./components/Register', () => () => <div>Register Page</div>);
-jest.mock('./components/TripFeed', () => () => <div>Trip Feed Page</div>);
-jest.mock('./components/ItemFeed', () => () => <div>Item Feed Page</div>);
-jest.mock('./components/Cart', () => () => <div>Cart Page</div>);
-jest.mock('./components/MyOrders', () => () => <div>My Orders Page</div>);
-jest.mock('./components/TripDetail', () => () => <div>Trip Detail Page</div>);
-jest.mock('./components/Profile', () => () => <div>Profile Page</div>);
-jest.mock('./components/Settings', () => () => <div>Settings Page</div>);
-jest.mock('./components/DriverTrips', () => () => <div>Driver Trips Page</div>);
-jest.mock('./components/AdminLogin', () => () => <div>Admin Login Page</div>);
-jest.mock('./components/AdminRegister', () => () => <div>Admin Register Page</div>);
-jest.mock('./components/AdminApplications', () => () => <div>Admin Applications Page</div>);
-jest.mock('./components/AdminApplicationReview', () => () => <div>Admin Review Page</div>);
+jest.mock('./pages/Landing', () => () => <div>Landing Page</div>);
+jest.mock('./pages/Login', () => () => <div>Login Page</div>);
+jest.mock('./pages/Register', () => () => <div>Register Page</div>);
+jest.mock('./pages/TripFeed', () => () => <div>Trip Feed Page</div>);
+jest.mock('./pages/ItemFeed', () => () => <div>Item Feed Page</div>);
+jest.mock('./pages/Cart', () => () => <div>Cart Page</div>);
+jest.mock('./pages/MyOrders', () => () => <div>My Orders Page</div>);
+jest.mock('./pages/TripDetail', () => () => <div>Trip Detail Page</div>);
+jest.mock('./pages/Profile', () => () => <div>Profile Page</div>);
+jest.mock('./pages/Settings', () => () => <div>Settings Page</div>);
+jest.mock('./pages/DriverTrips', () => () => <div>Driver Trips Page</div>);
+jest.mock('./pages/AdminLogin', () => () => <div>Admin Login Page</div>);
+jest.mock('./pages/AdminRegister', () => () => <div>Admin Register Page</div>);
+jest.mock('./pages/AdminApplications', () => () => <div>Admin Applications Page</div>);
+jest.mock('./pages/AdminApplicationReview', () => () => <div>Admin Review Page</div>);
 
 function LocationProbe() {
   const location = useLocation();

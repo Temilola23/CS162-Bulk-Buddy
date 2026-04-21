@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import ShopperHeader from './ShopperHeader';
-import useCartPageState from '../hooks/useCartPageState';
+import ShopperHeader from '../../components/ShopperHeader';
+import useCartPageState from '../../hooks/useCartPageState';
 import './Cart.css';
 
 export default function Cart() {

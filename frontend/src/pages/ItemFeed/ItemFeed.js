@@ -1,5 +1,5 @@
-import ShopperHeader from './ShopperHeader';
-import useItemFeedPageState from '../hooks/useItemFeedPageState';
+import ShopperHeader from '../../components/ShopperHeader';
+import useItemFeedPageState from '../../hooks/useItemFeedPageState';
 import './ItemFeed.css';
 
 function getOrderContextLabel(item) {

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import ShopperHeader from './ShopperHeader';
-import useTripFeedPageState from '../hooks/useTripFeedPageState';
+import ShopperHeader from '../../components/ShopperHeader';
+import useTripFeedPageState from '../../hooks/useTripFeedPageState';
 import './TripFeed.css';
 
 export default function TripFeed() {
