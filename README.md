@@ -24,8 +24,7 @@ CS162-Bulk-Buddy/
 │   ├── tests/                     # Backend tests
 │   └── README.md
 │
-├── docker/
-│   └── docker-compose.yml         # Local development environment
+├── docker-compose.yml             # Local development environment
 │
 └── scripts/
     ├── dev.sh                     # Start local dev environment
@@ -70,8 +69,16 @@ CS162-Bulk-Buddy/
 
 From the repo root:
 
+1. Copy the backend environment example into a local `.env` file:
+
 ```bash
-docker compose -f docker/docker-compose.yml up --build
+cp backend/.env.example backend/.env
+```
+
+2. Start the containers:
+
+```bash
+docker compose --env-file backend/.env up -d
 ```
 
 Apps:
@@ -82,7 +89,7 @@ Apps:
 Stop:
 
 ```bash
-docker compose -f docker/docker-compose.yml down
+docker compose down
 ```
 
 ## Team
