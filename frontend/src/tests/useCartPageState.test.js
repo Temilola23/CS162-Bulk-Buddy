@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
 import { useCart } from '../contexts/CartProvider';
-import useCartPageState from './useCartPageState';
+import useCartPageState from '../hooks/useCartPageState';
 
 jest.mock('../contexts/ApiProvider', () => ({
   useApi: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('../contexts/CartProvider', () => ({
   useCart: jest.fn(),
 }));
 
-jest.mock('./usePageScrollProgress', () => () => ({
+jest.mock('../hooks/usePageScrollProgress', () => () => ({
   isScrolled: false,
   scrollProgress: 0,
 }));

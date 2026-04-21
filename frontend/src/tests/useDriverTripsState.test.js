@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
-import useDriverTripsState from './useDriverTripsState';
+import useDriverTripsState from '../hooks/useDriverTripsState';
 
 jest.mock('../contexts/ApiProvider', () => ({
   useApi: jest.fn(),

@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import App from './App';
-import ApiProvider from './contexts/ApiProvider';
-import { SessionProvider } from './contexts/SessionProvider';
+import App from '../App';
+import ApiProvider from '../contexts/ApiProvider';
+import { SessionProvider } from '../contexts/SessionProvider';
 
 test('renders landing headline', () => {
   // Basic smoke test: the default route should still load the landing page hero.
