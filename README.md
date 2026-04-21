@@ -36,23 +36,20 @@ CS162-Bulk-Buddy/
 ## Getting Started
 
 1. Clone the repo:
-   ```bash
+  ```bash
    git clone https://github.com/Temilola23/CS162-Bulk-Buddy.git
    cd CS162-Bulk-Buddy
-   ```
-
+  ```
 2. Create a feature branch:
-   ```bash
+  ```bash
    git checkout -b feature/your-feature-name
-   ```
-
+  ```
 3. Make your changes, commit, and push:
-   ```bash
+  ```bash
    git add .
    git commit -m "feat: describe your change"
    git push -u origin feature/your-feature-name
-   ```
-
+  ```
 4. Open a Pull Request on GitHub targeting `main`.
 
 ## Workflow Rules
@@ -67,7 +64,26 @@ CS162-Bulk-Buddy/
 - **Frontend**: React
 - **Backend**: Python (Flask)
 - **Database**: SQLite
-- **Deployment**: TBD
+- **Deployment/Dev Containers**: Docker Compose
+
+## Run with Docker (simple local setup)
+
+From the repo root:
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+Apps:
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5001`
+
+Stop:
+
+```bash
+docker compose -f docker/docker-compose.yml down
+```
 
 ## Team
 
@@ -76,7 +92,6 @@ CS162-Bulk-Buddy/
 - Jonathan - Frontend
 - Tara - PM/Design
 - Temilola - Backend/DB
-
 
 ## License
 
