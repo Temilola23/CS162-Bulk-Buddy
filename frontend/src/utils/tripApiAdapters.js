@@ -23,6 +23,7 @@ export function mapApiTripToUi(trip) {
   return {
     id: String(trip.trip_id),
     tripId: trip.trip_id,
+    storeName: trip.store_name || 'Warehouse trip',
     driver: {
       name: driverName,
       photo: createAvatarImage(driverName),

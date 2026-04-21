@@ -55,6 +55,7 @@ export default function TripFeed() {
                 onClick={() => setSelectedTripId(trip.id)}
                 type="button"
               >
+                <p className="trip-list-store">{trip.storeName}</p>
                 <div className="trip-list-row">
                   <div className="trip-list-driver">
                     <img alt={`${trip.driver.name} profile`} className="driver-avatar driver-avatar-small" src={trip.driver.photo} />
@@ -74,13 +75,16 @@ export default function TripFeed() {
             <>
               {/* Feed detail stays inline for now so shoppers can compare trips quickly. */}
               <header className="trip-detail-header">
-                <div className="trip-detail-driver">
-                  <img
-                    alt={`${selectedTrip.driver.name} profile`}
-                    className="driver-avatar"
-                    src={selectedTrip.driver.photo}
-                  />
-                  <h2>{selectedTrip.driver.name}</h2>
+                <div className="trip-detail-heading">
+                  <p className="trip-detail-store">{selectedTrip.storeName}</p>
+                  <div className="trip-detail-driver">
+                    <img
+                      alt={`${selectedTrip.driver.name} profile`}
+                      className="driver-avatar"
+                      src={selectedTrip.driver.photo}
+                    />
+                    <h2>{selectedTrip.driver.name}</h2>
+                  </div>
                 </div>
                 <p>{selectedTrip.distanceLabel}</p>
               </header>
