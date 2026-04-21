@@ -1,2 +1,24 @@
-# Docker Compose for Bulk Buddy
-# This file will be configured once frontend and backend are initialized.
+# Local containerized development for Bulk Buddy.
+# - Backend Flask API runs on 5001
+# - Frontend React app runs on 3000 and proxies /api to backend
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: bulk-buddy-backend
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_APP=app:create_app
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: bulk-buddy-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
