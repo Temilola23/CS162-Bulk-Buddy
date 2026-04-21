@@ -134,6 +134,7 @@
   padding: 12px;
   display: grid;
   gap: 5px;
+  align-content: start;
 }
 
 .item-feed-meta-grid dt {
@@ -151,6 +152,7 @@
   line-height: 1.45;
   min-width: 0;
   overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .item-feed-driver {
@@ -269,6 +271,10 @@
   .item-feed-card-footer,
   .item-feed-status-panel {
     align-items: stretch;
+  }
+
+  .item-feed-card-header {
+    flex-direction: column;
   }
 
   .item-feed-meta-grid {
