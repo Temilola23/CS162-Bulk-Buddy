@@ -1,0 +1,40 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments and local tooling
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Local database/runtime state
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Test and development-only files
+tests/
+.flake8
+
+# Editor, OS, and VCS noise
+.git/
+.gitignore
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Docker metadata not needed inside the image
+Dockerfile
+.dockerignore

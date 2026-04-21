@@ -4,21 +4,26 @@
 services:
   backend:
     build:
-      context: ../backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: bulk-buddy-backend
     ports:
       - "5001:5001"
     environment:
       - FLASK_APP=app:create_app
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
       - PYTHONUNBUFFERED=1
+    volumes:
+      - backend_data:/app/instance
 
   frontend:
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: bulk-buddy-frontend
     depends_on:
       - backend
     ports:
       - "3000:3000"
+volumes:
+  backend_data:
