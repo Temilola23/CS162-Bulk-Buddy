@@ -129,6 +129,22 @@ function persistLinkedOrderSelection(pathname, selection) {
   window.history.replaceState({}, '', buildLinkedOrderHref(pathname, selection));
 }
 
+
+export function rememberLinkedOrderSelection(selection) {
+  if (typeof window === 'undefined' || !selection) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      ORDER_SELECTION_STORAGE_KEY,
+      JSON.stringify(selection),
+    );
+  } catch {
+    // Ignore storage failures and keep navigation working without persistence.
+  }
+}
+
 // Keeps shopper pages in sync by exposing one shared selection model for
 // bucket/date/order, then mirroring it into the URL and local storage.
 export default function useLinkedOrderSelection(orders, fallbackBucket = '') {
