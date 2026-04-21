@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
-import useItemFeedState from './useItemFeedState';
+import useItemFeedState from '../hooks/useItemFeedState';
 
 jest.mock('../contexts/ApiProvider', () => ({
   useApi: jest.fn(),
