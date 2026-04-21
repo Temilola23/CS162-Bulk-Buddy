@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import useAdminRegisterForm from '../hooks/useAdminRegisterForm';
+import useAdminRegisterForm from '../../hooks/useAdminRegisterForm';
 import './AdminRegister.css';
 
 export default function AdminRegister() {

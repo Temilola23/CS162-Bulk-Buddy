@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import ShopperHeader from './ShopperHeader';
-import { useSession } from '../contexts/SessionProvider';
-import useProfilePageState from '../hooks/useProfilePageState';
-import { getProfileFromUser } from '../utils/profileAdapters';
+import ShopperHeader from '../../components/ShopperHeader';
+import { useSession } from '../../contexts/SessionProvider';
+import useProfilePageState from '../../hooks/useProfilePageState';
+import { getProfileFromUser } from '../../utils/profileAdapters';
 import './Profile.css';
 
 export default function Profile() {

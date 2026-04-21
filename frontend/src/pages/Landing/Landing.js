@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import HeaderScrollProgress from './HeaderScrollProgress';
-import { howItWorksSteps, landingSlides } from '../data/landingContent';
-import useLandingPageState from '../hooks/useLandingPageState';
+import HeaderScrollProgress from '../../components/HeaderScrollProgress';
+import { howItWorksSteps, landingSlides } from '../../data/landingContent';
+import useLandingPageState from '../../hooks/useLandingPageState';
 import './Landing.css';
 
 export default function Landing() {

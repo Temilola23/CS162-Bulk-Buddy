@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import ShopperHeader from './ShopperHeader';
-import ChevronIcon from './shared/ChevronIcon';
-import { buildLinkedOrderHref } from '../utils/linkedOrderHref';
-import { statusSteps } from '../data/shopperOrders';
-import useMyOrdersPageState from '../hooks/useMyOrdersPageState';
-import { formatCalendarDate } from '../utils/dateFormatting';
-import { formatStatus, getStatusMarkerPosition, getStatusProgress } from '../utils/orderStatus';
+import ShopperHeader from '../../components/ShopperHeader';
+import ChevronIcon from '../../components/shared/ChevronIcon';
+import { buildLinkedOrderHref } from '../../utils/linkedOrderHref';
+import { statusSteps } from '../../data/shopperOrders';
+import useMyOrdersPageState from '../../hooks/useMyOrdersPageState';
+import { formatCalendarDate } from '../../utils/dateFormatting';
+import { formatStatus, getStatusMarkerPosition, getStatusProgress } from '../../utils/orderStatus';
 import './MyOrders.css';
 
 export default function MyOrders() {

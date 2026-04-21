@@ -1,5 +1,5 @@
-import ShopperHeader from './ShopperHeader';
-import useDriverTripsPageState from '../hooks/useDriverTripsPageState';
+import ShopperHeader from '../../components/ShopperHeader';
+import useDriverTripsPageState from '../../hooks/useDriverTripsPageState';
 import './DriverTrips.css';
 
 export default function DriverTrips() {

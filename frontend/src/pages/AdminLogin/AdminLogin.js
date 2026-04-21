@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import useAdminLoginForm from '../hooks/useAdminLoginForm';
+import useAdminLoginForm from '../../hooks/useAdminLoginForm';
 import './AdminLogin.css';
 
 export default function AdminLogin() {

@@ -1,5 +1,5 @@
-import AdminShell from './AdminShell';
-import useAdminApplicationReview from '../hooks/useAdminApplicationReview';
+import AdminShell from '../../components/AdminShell';
+import useAdminApplicationReview from '../../hooks/useAdminApplicationReview';
 import './AdminApplicationReview.css';
 
 export default function AdminApplicationReview() {

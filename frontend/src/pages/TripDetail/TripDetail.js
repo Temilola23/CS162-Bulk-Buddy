@@ -1,14 +1,14 @@
-import ShopperHeader from './ShopperHeader';
-import ChevronIcon from './shared/ChevronIcon';
-import useTripDetailPageState from '../hooks/useTripDetailPageState';
-import { statusSteps, tripRules } from '../data/shopperOrders';
-import { formatCalendarDate } from '../utils/dateFormatting';
+import ShopperHeader from '../../components/ShopperHeader';
+import ChevronIcon from '../../components/shared/ChevronIcon';
+import useTripDetailPageState from '../../hooks/useTripDetailPageState';
+import { statusSteps, tripRules } from '../../data/shopperOrders';
+import { formatCalendarDate } from '../../utils/dateFormatting';
 import {
   formatStatus,
   getStatusMarkerPosition,
   getStatusProgress,
-} from '../utils/orderStatus';
-import { currencyFormatter } from '../utils/currency';
+} from '../../utils/orderStatus';
+import { currencyFormatter } from '../../utils/currency';
 import './TripDetail.css';
 
 function formatShareCount(count) {
