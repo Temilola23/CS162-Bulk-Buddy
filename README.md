@@ -4,6 +4,8 @@ CS162 Final Project | Minerva University
 
 Bulk Buddy connects cost-conscious San Francisco residents with drivers heading to warehouse stores, enabling coordinated bulk purchases. Shoppers claim item portions from upcoming trips, prepay their share, and pick up their goods -- unlocking bulk savings without needing a car or extra storage space.
 
+**[Demo Video (YouTube)](https://youtu.be/3uRMduFXuog)** | **[Project Drive](https://drive.google.com/drive/folders/117u7YsjzHVduDNZHlxhocAlWDxqhRJop?usp=sharing)**
+
 ## Quick Start
 
 See [docs/running-locally.md](docs/running-locally.md) for the full setup guide.

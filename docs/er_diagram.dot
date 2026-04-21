@@ -1,5 +1,5 @@
 digraph ER {
-    graph [rankdir=LR, pad="0.5", nodesep="0.6", ranksep="1.5", fontname="Courier New", fontsize=12];
+    graph [rankdir=TB, pad="0.5", nodesep="0.6", ranksep="1.0", fontname="Courier New", fontsize=12];
     node [shape=none, fontname="Courier New", fontsize=12, margin=0];
     edge [fontname="Courier New", fontsize=11, arrowhead=crow, arrowtail=tee, dir=both];
 
