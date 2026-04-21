@@ -310,27 +310,28 @@ export default function TripDetail() {
               <div className="trip-detail-slider-block">
                 <div
                   className={`trip-detail-status-slider ${
-                    activeClaimState === 'completed' ? 'is-completed' : 'is-picked-up'
+                    activeClaimState === 'completed' ? 'is-completed' : 'is-in-progress'
                   }`.trim()}
                   role="group"
                   aria-label="Order state"
                 >
                   <button
-                    aria-pressed={activeClaimState === 'picked-up'}
+                    aria-pressed={activeClaimState === 'in-progress'}
                     className={`trip-detail-status-option ${
-                      activeClaimState === 'picked-up' ? 'is-active' : ''
+                      activeClaimState === 'in-progress' ? 'is-active' : ''
                     }`.trim()}
-                    onClick={() => updateClaimState('picked-up')}
+                    onClick={() => updateClaimState('in-progress')}
                     type="button"
+                    disabled={activeClaimState === 'completed'}
                   >
-                    Picked up
+                    In progress
                   </button>
                   <button
                     aria-pressed={activeClaimState === 'completed'}
                     className={`trip-detail-status-option ${
                       activeClaimState === 'completed' ? 'is-active' : ''
                     }`.trim()}
-                    disabled={!canCompleteActiveOrder}
+                    disabled={!canCompleteActiveOrder || activeClaimState === 'completed'}
                     onClick={() => updateClaimState('completed')}
                     type="button"
                   >

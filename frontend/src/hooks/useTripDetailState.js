@@ -19,11 +19,11 @@ function getInitialQuantitiesByOrder(orders) {
 }
 
 /**
- * Initializes per-order pickup/completion slider state.
+ * Initializes per-order in-progress/completed slider state.
  */
 function getInitialClaimStates(orders) {
   return orders.reduce((accumulator, order) => {
-    accumulator[order.id] = order.bucket === 'past' ? 'completed' : 'picked-up';
+    accumulator[order.id] = order.bucket === 'past' ? 'completed' : 'in-progress';
     return accumulator;
   }, {});
 }
@@ -40,7 +40,7 @@ export default function useTripDetailState() {
   const [claimStatesByOrder, setClaimStatesByOrder] = useState({});
   const [claimStateMessage, setClaimStateMessage] = useState('');
   const activeOrder = selection.activeOrder;
-  const activeClaimState = activeOrder ? claimStatesByOrder[activeOrder.id] || 'picked-up' : null;
+  const activeClaimState = activeOrder ? claimStatesByOrder[activeOrder.id] || 'in-progress' : null;
   const canCompleteActiveOrder = activeOrder
     ? ['ready_for_pickup', 'completed'].includes(activeOrder.apiStatus)
     : false;
@@ -109,6 +109,11 @@ export default function useTripDetailState() {
       return;
     }
 
+    if (activeClaimState === 'completed' && nextState !== 'completed') {
+      setClaimStateMessage('Completed orders cannot be moved back to in progress.');
+      return;
+    }
+
     if (nextState === 'completed' && !canCompleteActiveOrder) {
       setClaimStateMessage('The driver needs to mark this trip ready for pickup first.');
       return;
@@ -126,7 +131,7 @@ export default function useTripDetailState() {
       if (!response.ok) {
         setClaimStatesByOrder((current) => ({
           ...current,
-          [activeOrder.id]: 'picked-up',
+          [activeOrder.id]: 'in-progress',
         }));
         setClaimStateMessage(response.body?.message || 'Unable to complete this order.');
       }
