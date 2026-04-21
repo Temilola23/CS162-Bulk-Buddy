@@ -26,6 +26,17 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      # Setup Node.js for frontend tests
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      # Install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
       # Setup our python library
       - name: Setup Python
         uses: actions/setup-python@v4
