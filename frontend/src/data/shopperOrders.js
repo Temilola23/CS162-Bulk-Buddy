@@ -16,7 +16,7 @@ export const tripRules = [
   },
   {
     label: 'Pickup confirmation',
-    value: 'Use the slider to mark the order as picked up or completed.',
+    value: 'Use the slider to mark the order completed once pickup is ready.',
   },
   {
     label: 'Oversell prevention',

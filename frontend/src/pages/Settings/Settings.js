@@ -2,6 +2,9 @@ import ShopperHeader from '../../components/ShopperHeader';
 import useSettingsPageState from '../../hooks/useSettingsPageState';
 import './Settings.css';
 
+/**
+ * Renders editable profile settings and notification preferences.
+ */
 export default function Settings() {
   const { isScrolled, scrollProgress, settings, saveMessage, saveError, isSaving, handleInputChange, handleSave } =
     useSettingsPageState();

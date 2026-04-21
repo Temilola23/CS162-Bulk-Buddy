@@ -4,6 +4,9 @@ import { useApi } from './ApiProvider';
 const SessionContext = createContext(undefined);
 const SESSION_STORAGE_KEY = 'bulk-buddy-session';
 
+/**
+ * Reads the last known session snapshot for faster reload rendering.
+ */
 function readStoredSession() {
   // Reuse the last successful session snapshot during full-page navigations so
   // the shopper header does not briefly fall back to placeholder content.
@@ -14,14 +17,23 @@ function readStoredSession() {
   }
 }
 
+/**
+ * Saves the current user/session snapshot in browser storage.
+ */
 function writeStoredSession(sessionSnapshot) {
   window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionSnapshot));
 }
 
+/**
+ * Removes cached session data after logout or failed refresh.
+ */
 function clearStoredSession() {
   window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
 }
 
+/**
+ * Owns the authenticated user session and exposes refresh/clear actions.
+ */
 export function SessionProvider({ children }) {
   const api = useApi();
   const storedSession = readStoredSession();
@@ -82,6 +94,9 @@ export function SessionProvider({ children }) {
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
+/**
+ * Returns the active session context for components and hooks.
+ */
 export function useSession() {
   const context = useContext(SessionContext);
   if (!context) {

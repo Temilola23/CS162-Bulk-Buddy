@@ -3,6 +3,9 @@ import useRegisterForm from '../../hooks/useRegisterForm';
 import usePostAuthRedirect from '../../hooks/usePostAuthRedirect';
 import './Register.css';
 
+/**
+ * Renders the shopper registration page.
+ */
 export default function Register() {
   // Preserve any pending protected-route destination if the shopper switches
   // from login to register before authenticating.

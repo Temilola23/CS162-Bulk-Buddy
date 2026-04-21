@@ -7,6 +7,9 @@ import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import { mapApiOrdersToUi } from '../utils/orderApiAdapters';
 import { getShopperLocationFromUser } from '../utils/tripApiAdapters';
 
+/**
+ * Fetches the signed-in shopper orders and maps them for order pages.
+ */
 export default function useShopperOrdersData() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();

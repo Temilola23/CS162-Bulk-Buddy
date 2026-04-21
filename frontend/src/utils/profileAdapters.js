@@ -1,5 +1,12 @@
 import { getInitials } from './avatar';
 
+/**
+ * Maps the current user API payload into the profile/header display shape.
+ *
+ * @param {Object|null} user - Current user API payload.
+ * @param {Object|null} fallbackProfile - Optional fallback profile values.
+ * @returns {Object|null} Profile display model or null when no user exists.
+ */
 export function getProfileFromUser(user, fallbackProfile = null) {
   if (!user) {
     return fallbackProfile;

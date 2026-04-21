@@ -1,6 +1,12 @@
 import { createAvatarImage } from './avatar';
 import { formatDistance, getDistanceMiles } from './tripFeed';
 
+/**
+ * Formats pickup timestamps for item feed cards.
+ *
+ * @param {string} dateValue - Pickup timestamp.
+ * @returns {string} Display pickup time.
+ */
 function formatPickupTime(dateValue) {
   return new Date(dateValue).toLocaleString('en-US', {
     weekday: 'long',
@@ -11,6 +17,13 @@ function formatPickupTime(dateValue) {
   }).replace(',', ' •');
 }
 
+/**
+ * Maps one inventory API item into the item feed card shape.
+ *
+ * @param {Object} item - Inventory API item with nested trip.
+ * @param {{lat: number, lng: number}} shopperLocation - Shopper coordinate.
+ * @returns {Object} Item feed card model.
+ */
 export function mapApiInventoryItemToUi(item, shopperLocation) {
   const trip = item.trip || {};
   const driverName = trip.driver?.full_name || 'Bulk Buddy Driver';
@@ -42,6 +55,13 @@ export function mapApiInventoryItemToUi(item, shopperLocation) {
   };
 }
 
+/**
+ * Maps and sorts inventory items alphabetically, then by pickup time.
+ *
+ * @param {Object[]} items - Inventory API items.
+ * @param {{lat: number, lng: number}} shopperLocation - Shopper coordinate.
+ * @returns {Object[]} Sorted item feed card models.
+ */
 export function mapApiInventoryToUi(items, shopperLocation) {
   return items
     .map((item) => mapApiInventoryItemToUi(item, shopperLocation))
@@ -67,6 +87,13 @@ export function mapApiInventoryToUi(items, shopperLocation) {
     });
 }
 
+/**
+ * Finds the shopper active order for a specific trip.
+ *
+ * @param {Object[]} orders - Shopper order API payloads.
+ * @param {number|string} tripId - Trip ID to match.
+ * @returns {Object|null} Matching active order, if present.
+ */
 export function getActiveOrderForTrip(orders, tripId) {
   return (
     orders.find(
@@ -75,6 +102,13 @@ export function getActiveOrderForTrip(orders, tripId) {
   );
 }
 
+/**
+ * Returns the quantity already claimed for an item in an order.
+ *
+ * @param {Object|null} order - Shopper order API payload.
+ * @param {number|string} itemId - Item ID to match.
+ * @returns {number} Claimed quantity for the item.
+ */
 export function getOrderItemQuantity(order, itemId) {
   const orderItem = (order?.order_items || []).find(
     (item) => String(item.item_id) === String(itemId),

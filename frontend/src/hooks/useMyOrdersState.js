@@ -2,6 +2,9 @@ import useLinkedOrderSelection from './useLinkedOrderSelection';
 import useShopperOrdersData from './useShopperOrdersData';
 import { getOrderStatusStepIndex } from '../utils/orderStatus';
 
+/**
+ * Derives active order, date navigation, and status progress for My Orders.
+ */
 export default function useMyOrdersState() {
   const { orders, isOrdersLoading, ordersError } = useShopperOrdersData();
   // My Orders stays bucketed so the page can switch cleanly between Upcoming and Past.

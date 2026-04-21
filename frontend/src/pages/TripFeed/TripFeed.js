@@ -3,6 +3,9 @@ import ShopperHeader from '../../components/ShopperHeader';
 import useTripFeedPageState from '../../hooks/useTripFeedPageState';
 import './TripFeed.css';
 
+/**
+ * Renders nearby driver trips and lets shoppers add selected items to cart.
+ */
 export default function TripFeed() {
   const {
     isScrolled,

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from '../contexts/SessionProvider';
 
+/**
+ * Manages shopper header profile menu state and outside-click closing.
+ */
 export default function useShopperHeaderState() {
   const [menuOpen, setMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);

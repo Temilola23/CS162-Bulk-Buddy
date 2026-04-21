@@ -1,5 +1,11 @@
 import { formatDistance, getDistanceMiles } from './tripFeed';
 
+/**
+ * Formats a trip pickup timestamp for order page headings.
+ *
+ * @param {string} dateValue - Trip pickup timestamp.
+ * @returns {string} Display heading for the pickup time.
+ */
 function formatTripHeading(dateValue) {
   const date = new Date(dateValue);
   return date.toLocaleString('en-US', {
@@ -11,6 +17,12 @@ function formatTripHeading(dateValue) {
   }).replace(',', ' •');
 }
 
+/**
+ * Converts backend order status into the UI status-step index.
+ *
+ * @param {string} status - Backend order status.
+ * @returns {number} UI status step index.
+ */
 function getStatusStepIndexFromApiStatus(status) {
   switch (status) {
     case 'purchased':
@@ -25,6 +37,13 @@ function getStatusStepIndexFromApiStatus(status) {
   }
 }
 
+/**
+ * Places an order into upcoming or past based on status and pickup time.
+ *
+ * @param {string} tripPickupTime - Trip pickup timestamp.
+ * @param {string} status - Backend order status.
+ * @returns {string} Order bucket, either upcoming or past.
+ */
 function getBucketFromOrder(tripPickupTime, status) {
   // Completed orders always belong in history, and any pickup window that is
   // already in the past should render under the "Past" bucket as well.
@@ -35,6 +54,12 @@ function getBucketFromOrder(tripPickupTime, status) {
   return 'upcoming';
 }
 
+/**
+ * Converts backend trip status values into readable labels.
+ *
+ * @param {string} status - Backend trip status.
+ * @returns {string} Display status label.
+ */
 function formatTripStatus(status) {
   return status
     ? status
@@ -44,6 +69,13 @@ function formatTripStatus(status) {
     : 'Open';
 }
 
+/**
+ * Maps backend order payloads into the shared My Orders/Trip Detail shape.
+ *
+ * @param {Object[]} orders - Order API payloads.
+ * @param {{lat: number, lng: number}} shopperLocation - Shopper coordinate.
+ * @returns {Object[]} UI order models for order pages.
+ */
 export function mapApiOrdersToUi(orders, shopperLocation) {
   return orders.map((order) => {
     const trip = order.trip;

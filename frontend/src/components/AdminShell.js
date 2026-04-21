@@ -2,6 +2,9 @@ import { Link, NavLink } from 'react-router-dom';
 import useAdminLogoutAction from '../hooks/useAdminLogoutAction';
 import './AdminShell.css';
 
+/**
+ * Provides the shared header and content frame for admin pages.
+ */
 export default function AdminShell({ title, subtitle, children }) {
   const logout = useAdminLogoutAction();
 

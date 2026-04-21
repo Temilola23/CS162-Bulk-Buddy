@@ -7,8 +7,12 @@ const defaultOptions = {
   scope: 'bucketed',
 };
 
-// Allow callers to either pass a simple fallback bucket string or a fuller
-// options object when a page needs different selection behavior.
+/**
+ * Converts simple or object options into one consistent selection config.
+ *
+ * @param {string|Object} optionsOrFallbackBucket - Fallback bucket or options object.
+ * @returns {Object} Normalized linked-order options.
+ */
 function normalizeOptions(optionsOrFallbackBucket) {
   if (typeof optionsOrFallbackBucket === 'string') {
     return {
@@ -23,8 +27,11 @@ function normalizeOptions(optionsOrFallbackBucket) {
   };
 }
 
-// Read the current linked order context from both the URL and local storage.
-// URL params win so deep links can intentionally override the last saved state.
+/**
+ * Reads linked order selection from URL params and local storage.
+ *
+ * @returns {{bucket: string, date: string, orderId: string}|Object} Stored selection.
+ */
 function getBrowserSelection() {
   if (typeof window === 'undefined') {
     return {};
@@ -54,17 +61,34 @@ function getBrowserSelection() {
   };
 }
 
+/**
+ * Returns the available order buckets from a list of orders.
+ *
+ * @param {Object[]} orders - UI order models.
+ * @returns {string[]} Unique order buckets.
+ */
 function getUniqueBuckets(orders) {
   return Array.from(new Set(orders.map((order) => order.bucket)));
 }
 
+/**
+ * Returns sorted unique pickup dates for order navigation.
+ *
+ * @param {Object[]} orders - UI order models.
+ * @returns {string[]} Sorted unique pickup dates.
+ */
 function getUniqueDates(orders) {
   return Array.from(new Set(orders.map((order) => order.date))).sort();
 }
 
-// Normalize any partial selection into a valid order/date/bucket combination.
-// "bucketed" mode keeps the selection inside one My Orders bucket, while "all"
-// mode lets Trip Detail browse any linked order regardless of bucket.
+/**
+ * Normalizes a partial bucket/date/order selection to an existing order.
+ *
+ * @param {Object[]} orders - UI order models.
+ * @param {Object} candidateSelection - Partial selection from state, URL, or storage.
+ * @param {string|Object} fallbackBucket - Bucket fallback or normalized options.
+ * @returns {{bucket: string, date: string, orderId: string}} Valid selection.
+ */
 export function resolveLinkedOrderSelection(orders, candidateSelection = {}, fallbackBucket = '') {
   const options = normalizeOptions(fallbackBucket);
 
@@ -108,6 +132,14 @@ export function resolveLinkedOrderSelection(orders, candidateSelection = {}, fal
   };
 }
 
+/**
+ * Builds a URL to another page while preserving the active order context.
+ *
+ * @param {string} pathname - Target route path.
+ * @param {Object[]} orders - UI order models.
+ * @param {string} fallbackBucket - Preferred fallback bucket.
+ * @returns {string} URL with linked-order params.
+ */
 export function getLinkedOrderHref(pathname, orders, fallbackBucket = '') {
   return buildLinkedOrderHref(
     pathname,
@@ -115,6 +147,13 @@ export function getLinkedOrderHref(pathname, orders, fallbackBucket = '') {
   );
 }
 
+/**
+ * Mirrors the active linked-order selection into storage and the URL.
+ *
+ * @param {string} pathname - Current route path.
+ * @param {Object} selection - Linked order selection to persist.
+ * @returns {void}
+ */
 function persistLinkedOrderSelection(pathname, selection) {
   if (typeof window === 'undefined') {
     return;
@@ -130,6 +169,12 @@ function persistLinkedOrderSelection(pathname, selection) {
 }
 
 
+/**
+ * Stores an order selection for the next order-aware page visit.
+ *
+ * @param {Object} selection - Linked order selection to save.
+ * @returns {void}
+ */
 export function rememberLinkedOrderSelection(selection) {
   if (typeof window === 'undefined' || !selection) {
     return;
@@ -145,8 +190,13 @@ export function rememberLinkedOrderSelection(selection) {
   }
 }
 
-// Keeps shopper pages in sync by exposing one shared selection model for
-// bucket/date/order, then mirroring it into the URL and local storage.
+/**
+ * Keeps My Orders and Trip Detail synchronized on bucket, date, and order.
+ *
+ * @param {Object[]} orders - UI order models.
+ * @param {string|Object} fallbackBucket - Preferred fallback bucket or options.
+ * @returns {Object} Active selection, selected orders, and navigation handlers.
+ */
 export default function useLinkedOrderSelection(orders, fallbackBucket = '') {
   const options = normalizeOptions(fallbackBucket);
   const [selectionState, setSelectionState] = useState(() =>

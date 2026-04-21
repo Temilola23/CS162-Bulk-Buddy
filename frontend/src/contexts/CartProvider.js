@@ -17,6 +17,9 @@ import {
 const CartContext = createContext(undefined);
 const CART_STORAGE_KEY = 'bulk-buddy-cart-groups';
 
+/**
+ * Reads all session-scoped carts from browser storage.
+ */
 function readStoredCarts() {
   try {
     return JSON.parse(window.sessionStorage.getItem(CART_STORAGE_KEY) || '{}');
@@ -25,6 +28,9 @@ function readStoredCarts() {
   }
 }
 
+/**
+ * Returns the stored cart for the signed-in shopper email.
+ */
 function readStoredCartForUser(userEmail) {
   if (!userEmail) {
     return [];
@@ -33,6 +39,9 @@ function readStoredCartForUser(userEmail) {
   return readStoredCarts()[userEmail] || [];
 }
 
+/**
+ * Persists the current shopper cart without overwriting other shoppers.
+ */
 function writeStoredCartForUser(userEmail, cartGroups) {
   if (!userEmail) {
     return;
@@ -43,6 +52,9 @@ function writeStoredCartForUser(userEmail, cartGroups) {
   window.sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(storedCarts));
 }
 
+/**
+ * Stores cart groups globally and persists them across page reloads.
+ */
 export function CartProvider({ children }) {
   const { currentUser, isSessionLoading } = useSession();
   const userEmail = currentUser?.email || '';
@@ -110,6 +122,9 @@ export function CartProvider({ children }) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
+/**
+ * Returns the shared cart state and cart actions.
+ */
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {

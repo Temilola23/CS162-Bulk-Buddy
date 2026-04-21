@@ -1,7 +1,8 @@
 import './HeaderScrollProgress.css';
 
-// Shared progress bar used under both the landing header and authenticated
-// shopper header so the scroll treatment stays visually consistent.
+/**
+ * Shows the moving car progress indicator tied to page scroll position.
+ */
 export default function HeaderScrollProgress({ scrollProgress }) {
   const progressFillStyle = { width: `${scrollProgress}%` };
   const carStyle = { left: `${Math.min(98, Math.max(2, scrollProgress))}%` };

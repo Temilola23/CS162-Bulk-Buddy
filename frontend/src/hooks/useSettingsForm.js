@@ -3,6 +3,9 @@ import { useApi } from '../contexts/ApiProvider';
 import { useSession } from '../contexts/SessionProvider';
 import { getProfileFromUser } from '../utils/profileAdapters';
 
+/**
+ * Returns the default settings form shape.
+ */
 function getInitialSettings() {
   return {
     displayName: '',
@@ -16,6 +19,9 @@ function getInitialSettings() {
   };
 }
 
+/**
+ * Manages profile/settings form state and saves editable user fields.
+ */
 export default function useSettingsForm() {
   const api = useApi();
   const { currentUser, refreshSession } = useSession();

@@ -3,6 +3,13 @@ import { buildSortedTrips, formatDistance, getDistanceMiles } from './tripFeed';
 
 const DEFAULT_DRIVER_VEHICLE = 'Verified Bulk Buddy driver';
 
+/**
+ * Resolves shopper coordinates, falling back when backend geocoding is absent.
+ *
+ * @param {Object|null} user - Current user API payload.
+ * @param {{label: string, lat: number, lng: number}} fallbackLocation - Default shopper location.
+ * @returns {{label: string, lat: number, lng: number}} Resolved shopper location.
+ */
 export function getShopperLocationFromUser(user, fallbackLocation) {
   // The backend may not have geocoded coordinates for every seeded user yet,
   // so distance-based sorting falls back to the prototype shopper location.
@@ -17,6 +24,12 @@ export function getShopperLocationFromUser(user, fallbackLocation) {
   return fallbackLocation;
 }
 
+/**
+ * Maps one trip API payload into the trip feed/detail UI shape.
+ *
+ * @param {Object} trip - Trip API payload.
+ * @returns {Object} Trip UI model.
+ */
 export function mapApiTripToUi(trip) {
   const driverName = trip.driver?.full_name || 'Bulk Buddy Driver';
 
@@ -61,10 +74,24 @@ export function mapApiTripToUi(trip) {
   };
 }
 
+/**
+ * Maps and sorts trips by distance from the shopper.
+ *
+ * @param {Object[]} trips - Trip API payloads.
+ * @param {{lat: number, lng: number}} shopperLocation - Shopper coordinate.
+ * @returns {Object[]} Trip UI models sorted by distance.
+ */
 export function mapApiTripsToUi(trips, shopperLocation) {
   return buildSortedTrips(trips.map(mapApiTripToUi), shopperLocation);
 }
 
+/**
+ * Computes the display distance label for a trip.
+ *
+ * @param {Object} trip - Trip UI model.
+ * @param {{lat: number, lng: number}} shopperLocation - Shopper coordinate.
+ * @returns {string} Display distance label.
+ */
 export function getTripDistanceLabel(trip, shopperLocation) {
   const distanceMiles = getDistanceMiles(shopperLocation, trip.pickupLocation || trip.driverLocation);
   return formatDistance(distanceMiles);

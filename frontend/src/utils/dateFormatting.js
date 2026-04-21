@@ -4,6 +4,12 @@ const calendarDateFormatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
 });
 
+/**
+ * Formats an ISO date string for calendar headings.
+ *
+ * @param {string} dateValue - Date string in YYYY-MM-DD format.
+ * @returns {string} Human-readable calendar date.
+ */
 export function formatCalendarDate(dateValue) {
   if (!dateValue) {
     return 'Choose a date';

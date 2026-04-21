@@ -2,6 +2,9 @@ import AdminShell from '../../components/AdminShell';
 import useAdminApplicationReview from '../../hooks/useAdminApplicationReview';
 import './AdminApplicationReview.css';
 
+/**
+ * Renders the admin screen for reviewing one driver application.
+ */
 export default function AdminApplicationReview() {
   const {
     application,

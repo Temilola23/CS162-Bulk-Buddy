@@ -1,5 +1,8 @@
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 
+/**
+ * Renders a safe fallback when a React rendering error reaches the boundary.
+ */
 function ErrorFallback() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -9,6 +12,9 @@ function ErrorFallback() {
   );
 }
 
+/**
+ * Wraps child routes in a reusable React error boundary.
+ */
 export default function ErrorBoundary({ children }) {
   return (
     <ReactErrorBoundary FallbackComponent={ErrorFallback}>

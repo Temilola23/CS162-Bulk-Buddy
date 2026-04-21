@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useApi } from '../contexts/ApiProvider';
 import { markAuthLoaderRequested } from './useAppLoader';
 
+/**
+ * Returns the empty shopper registration form shape.
+ */
 function getInitialForm() {
   return {
     firstName: '',
@@ -16,6 +19,9 @@ function getInitialForm() {
   };
 }
 
+/**
+ * Manages shopper registration, auto-login, and redirect behavior.
+ */
 export default function useRegisterForm(redirectPath = '/trip-feed') {
   const api = useApi();
   const [form, setForm] = useState(getInitialForm);

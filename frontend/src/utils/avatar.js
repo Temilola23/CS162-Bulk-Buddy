@@ -1,3 +1,9 @@
+/**
+ * Builds two-letter initials from a display name.
+ *
+ * @param {string} name - User display name.
+ * @returns {string} Two-letter initials, or BB fallback.
+ */
 export function getInitials(name = '') {
   const segments = name.trim().split(/\s+/).filter(Boolean);
   if (!segments.length) {
@@ -11,6 +17,13 @@ export function getInitials(name = '') {
     .toUpperCase();
 }
 
+/**
+ * Creates an inline SVG avatar data URL for users without profile images.
+ *
+ * @param {string} name - User display name used for initials.
+ * @param {string} backgroundColor - SVG background color.
+ * @returns {string} Encoded SVG data URL.
+ */
 export function createAvatarImage(name, backgroundColor = '#4d216a') {
   const initials = getInitials(name);
   const svg = `

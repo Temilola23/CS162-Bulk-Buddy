@@ -2,6 +2,9 @@ import ShopperHeader from '../../components/ShopperHeader';
 import useItemFeedPageState from '../../hooks/useItemFeedPageState';
 import './ItemFeed.css';
 
+/**
+ * Describes whether the shopper already has an order for an item/trip.
+ */
 function getOrderContextLabel(item) {
   if (item.existingQuantity > 0) {
     return `You already claimed ${item.existingQuantity} ${item.unit}`;
@@ -14,6 +17,9 @@ function getOrderContextLabel(item) {
   return 'No order from this trip yet';
 }
 
+/**
+ * Renders all claimable inventory from open driver trips.
+ */
 export default function ItemFeed() {
   const {
     isScrolled,

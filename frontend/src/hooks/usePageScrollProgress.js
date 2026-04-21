@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
-// Centralizes scroll state so headers can switch into the scrolled style and
-// drive the moving progress bar without duplicating window listeners.
+/**
+ * Tracks whether the page is scrolled and computes scroll progress percent.
+ */
 export default function usePageScrollProgress() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);

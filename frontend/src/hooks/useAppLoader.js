@@ -12,6 +12,9 @@ const LOADER_TIMINGS = {
   },
 };
 
+/**
+ * Normalizes the current browser path for route-specific loader behavior.
+ */
 function getCurrentPathname() {
   if (typeof window === 'undefined') {
     return '/';
@@ -21,6 +24,9 @@ function getCurrentPathname() {
   return window.location.pathname.replace(/\/+$/, '') || '/';
 }
 
+/**
+ * Chooses whether the app should show the loader on initial mount.
+ */
 function getInitialLoaderMode() {
   const pathname = getCurrentPathname();
 
@@ -36,6 +42,9 @@ function getInitialLoaderMode() {
   }
 }
 
+/**
+ * Requests the loader for the next auth-driven navigation.
+ */
 export function markAuthLoaderRequested() {
   try {
     window.sessionStorage.setItem(AUTH_LOADER_STORAGE_KEY, 'true');
@@ -44,6 +53,9 @@ export function markAuthLoaderRequested() {
   }
 }
 
+/**
+ * Controls the full-screen car loader and its exit animation.
+ */
 export default function useAppLoader() {
   const [loaderMode, setLoaderMode] = useState(getInitialLoaderMode);
   const [loaderIsLeaving, setLoaderIsLeaving] = useState(false);

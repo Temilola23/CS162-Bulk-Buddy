@@ -5,6 +5,9 @@ import { useCart } from '../contexts/CartProvider';
 import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import usePageScrollProgress from './usePageScrollProgress';
 
+/**
+ * Provides cart totals and checkout behavior for the cart page.
+ */
 export default function useCartPageState() {
   const api = useApi();
   const navigate = useNavigate();

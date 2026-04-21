@@ -4,6 +4,9 @@ import { useApi } from '../contexts/ApiProvider';
 import { fetchAdminApplications } from '../utils/adminApplicationAdapters';
 import { buildAdminAuthRedirectUrl } from './useAdminPostAuthRedirect';
 
+/**
+ * Loads one driver application and exposes approve/decline actions.
+ */
 export default function useAdminApplicationReview() {
   const api = useApi();
   const location = useLocation();

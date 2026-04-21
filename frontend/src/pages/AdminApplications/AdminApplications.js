@@ -3,6 +3,9 @@ import AdminShell from '../../components/AdminShell';
 import useAdminApplications from '../../hooks/useAdminApplications';
 import './AdminApplications.css';
 
+/**
+ * Renders the admin driver application queue with status tabs.
+ */
 export default function AdminApplications() {
   const {
     tabs,

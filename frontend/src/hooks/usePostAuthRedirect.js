@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
+/**
+ * Sanitizes shopper redirect targets to internal app paths only.
+ */
 function normalizeRedirectPath(target, fallbackPath) {
   if (!target || typeof target !== 'string') {
     return fallbackPath;
@@ -19,11 +22,17 @@ function normalizeRedirectPath(target, fallbackPath) {
   return target;
 }
 
+/**
+ * Builds the shopper login URL with the requested next path.
+ */
 export function buildAuthRedirectUrl(targetPath) {
   const encodedTarget = encodeURIComponent(targetPath);
   return `/login?next=${encodedTarget}`;
 }
 
+/**
+ * Resolves where a shopper should land after login or registration.
+ */
 export default function usePostAuthRedirect(fallbackPath = '/trip-feed', preferredRedirectPath = null) {
   const location = useLocation();
 
