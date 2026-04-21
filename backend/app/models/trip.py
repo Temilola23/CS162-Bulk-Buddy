@@ -37,7 +37,9 @@ class Trip(db.Model):
 
     trip_id = db.Column(db.Integer, primary_key=True)
     driver_id = db.Column(
-        db.Integer, db.ForeignKey("users.user_id"), nullable=False
+        db.Integer,
+        db.ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False,
     )
     store_name = db.Column(db.String(150), nullable=False)
     pickup_location_text = db.Column(db.String(255), nullable=False)

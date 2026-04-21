@@ -32,7 +32,7 @@ class DriverApplication(db.Model):
     driver_application_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.user_id"),
+        db.ForeignKey("users.user_id", ondelete="CASCADE"),
         nullable=False,
     )
     status = db.Column(

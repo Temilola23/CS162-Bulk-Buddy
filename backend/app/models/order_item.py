@@ -26,12 +26,12 @@ class OrderItem(db.Model):
     order_item_id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(
         db.Integer,
-        db.ForeignKey("orders.order_id"),
+        db.ForeignKey("orders.order_id", ondelete="CASCADE"),
         nullable=False,
     )
     item_id = db.Column(
         db.Integer,
-        db.ForeignKey("items.item_id"),
+        db.ForeignKey("items.item_id", ondelete="CASCADE"),
         nullable=False,
     )
     quantity = db.Column(db.Integer, nullable=False)
