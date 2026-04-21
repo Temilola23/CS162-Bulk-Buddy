@@ -4,54 +4,64 @@ The backend API for Bulk Buddy, built with Python (Flask) and SQLAlchemy ORM.
 
 ## Setup
 
-1. Create a virtual environment and activate it:
+1. Copy the environment file:
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+   Edit `backend/.env` and set `SECRET_KEY` and `ADMIN_TOKEN`.
+
+2. Create a virtual environment and activate it:
    ```bash
    cd backend
-   python -m venv .venv
+   python3 -m venv .venv
    source .venv/bin/activate   # macOS/Linux
    .venv\Scripts\activate      # Windows
    ```
 
-2. Install dependencies:
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Initialize the database:
-   ```python
-   from app import create_app
-   app = create_app()
-   # Tables are created automatically on app startup
-   ```
+The database (`bulkbuddy.db`) is created automatically in `backend/instance/` on first run.
 
 ## Structure
 
 ```
 backend/
 ├── app/
-│   ├── __init__.py            # Flask app factory
+│   ├── __init__.py            # Flask app factory and blueprint registration
 │   ├── extensions.py          # SQLAlchemy instance
-│   └── models/
-│       ├── __init__.py        # Exports all models
-│       ├── user.py            # User accounts and location
-│       ├── trip.py            # Driver trips to stores
-│       ├── item.py            # Items on a trip
-│       ├── order.py           # Shopper orders against trips
-│       ├── order_item.py      # Line items in an order
-│       └── driver_application.py  # Driver verification flow
-├── tests/                     # Backend tests
-├── requirements.txt           # Python dependencies
+│   ├── decorators.py          # @admin_required decorator
+│   ├── models/
+│   │   ├── enums.py           # UserRole, TripStatus, OrderStatus, ApplicationStatus
+│   │   ├── user.py            # User accounts and geocoded location
+│   │   ├── trip.py            # Driver trips to stores
+│   │   ├── item.py            # Items on a trip (with claimed_quantity denorm)
+│   │   ├── order.py           # Shopper orders against trips
+│   │   ├── order_item.py      # Line items in an order
+│   │   └── driver_application.py  # Driver verification workflow
+│   ├── routes/
+│   │   ├── auth.py            # POST /api/login, /api/signup, /api/logout
+│   │   ├── admin.py           # /admin/* driver application review
+│   │   ├── driver.py          # POST /api/driver/apply
+│   │   ├── trip.py            # /api/trips* and /api/me/trips*
+│   │   └── me.py              # /api/me* profile and orders
+│   └── services/
+│       ├── auth_service.py
+│       ├── admin_service.py
+│       ├── driver_service.py
+│       ├── trip_service.py
+│       ├── order_service.py
+│       ├── inventory_service.py
+│       └── user_service.py
+├── tests/                     # pytest test suite
+├── .env.example               # Environment variable template
+├── requirements.txt
 └── README.md
 ```
 
-## Database
-
-- **ORM**: SQLAlchemy via Flask-SQLAlchemy
-- **Engine**: SQLite (file-based, no server needed)
-- **Schema**: 6 tables in third normal form (3NF) -- see [docs/DATABASE.md](../docs/DATABASE.md) for full details
-
-The database file (`bulkbuddy.db`) is created automatically in `backend/instance/`
-when the Flask app starts for the first time.
+See [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) for a full API reference and schema diagram.
 
 ## Running Locally
 
