@@ -1,28 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
+import { useCart } from '../contexts/CartProvider';
 import { useSession } from '../contexts/SessionProvider';
 import { shopperLocation } from '../data/tripFeedData';
 import { buildAuthRedirectUrl } from './usePostAuthRedirect';
 import { getShopperLocationFromUser, mapApiTripsToUi } from '../utils/tripApiAdapters';
 import {
   buildChosenItems,
-  enrichCartGroups,
-  getCartLineCount,
-  getCartSubtotal,
   getSelectedQuantityCount,
-  mergeCartGroups,
   resetDraftQuantities,
 } from '../utils/tripFeed';
 
 export default function useTripFeedState() {
   const api = useApi();
   const { currentUser, isSessionLoading } = useSession();
+  const { addTripItems, cart, cartLineCount, cartSubtotal } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [draftQuantities, setDraftQuantities] = useState({});
-  const [cartGroups, setCartGroups] = useState([]);
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
@@ -64,14 +61,26 @@ export default function useTripFeedState() {
         return;
       }
 
-      const nextTrips = mapApiTripsToUi(response.body?.trips || [], shopperLocationForTrips);
+      const nextTrips = mapApiTripsToUi(
+        response.body?.trips || [],
+        shopperLocationForTrips,
+      );
       setTrips(nextTrips);
       setTripFeedError('');
       setIsTripsLoading(false);
     }
 
     fetchTrips();
-  }, [api, currentUser, isSessionLoading, location.hash, location.pathname, location.search, navigate, shopperLocationForTrips]);
+  }, [
+    api,
+    currentUser,
+    isSessionLoading,
+    location.hash,
+    location.pathname,
+    location.search,
+    navigate,
+    shopperLocationForTrips,
+  ]);
 
   useEffect(() => {
     // Initialize the page with the closest trip selected by default.
@@ -123,9 +132,6 @@ export default function useTripFeedState() {
     () => getSelectedQuantityCount(selectedTrip, draftQuantities),
     [selectedTrip, draftQuantities],
   );
-  const cart = useMemo(() => enrichCartGroups(cartGroups), [cartGroups]);
-  const cartLineCount = useMemo(() => getCartLineCount(cart), [cart]);
-  const cartSubtotal = useMemo(() => getCartSubtotal(cart), [cart]);
 
   function setItemQuantity(itemId, nextValue, maxValue) {
     const clampedValue = Math.max(0, Math.min(maxValue, nextValue));
@@ -145,39 +151,9 @@ export default function useTripFeedState() {
     }
 
     // Keep cart lines grouped under the driver trip they came from.
-    setCartGroups((currentCart) => mergeCartGroups(currentCart, selectedTrip, chosenItems));
+    addTripItems(selectedTrip, chosenItems);
     setDraftQuantities((current) => resetDraftQuantities(current, chosenItems));
     setCheckoutMessage(`Items added under ${selectedTrip.driver.name}.`);
-  }
-
-  async function handleCheckout() {
-    if (cart.length === 0) {
-      setCheckoutMessage('Your cart is empty.');
-      return;
-    }
-
-    const responses = await Promise.all(
-      cart.map((tripGroup) =>
-        api.post('/me/orders', {
-          trip_id: Number(tripGroup.tripId),
-          items: tripGroup.items.map((item) => ({
-            item_id: Number(item.id),
-            quantity: item.quantity,
-          })),
-        }),
-      ),
-    );
-
-    const failedResponse = responses.find((response) => !response.ok);
-    if (failedResponse) {
-      setCheckoutMessage(failedResponse.body?.message || 'Checkout failed.');
-      return;
-    }
-
-    setCheckoutMessage(
-      `Checkout complete for ${cartLineCount} items across ${cart.length} driver trips.`,
-    );
-    setCartGroups([]);
   }
 
   return {
@@ -195,6 +171,5 @@ export default function useTripFeedState() {
     tripFeedError,
     setItemQuantity,
     handleAddToCart,
-    handleCheckout,
   };
 }

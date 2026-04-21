@@ -30,13 +30,16 @@
   margin: 0 auto;
   min-height: 100px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-areas: 'brand nav cart profile';
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .shopper-brand {
+  grid-area: brand;
   justify-self: start;
+  margin-left: -12px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -55,6 +58,7 @@
 }
 
 .shopper-nav {
+  grid-area: nav;
   justify-self: center;
   display: inline-flex;
   align-items: center;
@@ -95,8 +99,16 @@
 }
 
 .shopper-profile-shell {
+  grid-area: profile;
   position: relative;
   justify-self: end;
+  margin-right: -12px;
+  margin-left: 5px;
+}
+
+.shopper-header-cart {
+  grid-area: cart;
+  justify-self: center;
 }
 
 .shopper-profile-trigger {
@@ -137,6 +149,55 @@
   box-shadow: 0 10px 24px rgba(90, 44, 124, 0.28);
 }
 
+.shopper-cart-link {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  margin-left: -60px;
+  flex: 0 0 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4d216a;
+  background: transparent;
+  box-shadow: none;
+  text-decoration: none;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.shopper-cart-link:hover,
+.shopper-cart-link:focus-visible,
+.shopper-cart-link.is-active {
+  color: #301746;
+  background: transparent;
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.shopper-cart-link i {
+  font-size: 1.5rem;
+}
+
+.shopper-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3c94a;
+  color: #4d216a;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .shopper-profile-caret {
   width: 18px;
   height: 18px;
@@ -149,7 +210,7 @@
 
 .shopper-profile-caret svg {
   width: 12px;
-  height: 8x;
+  height: 8px;
   display: block;
 }
 
@@ -199,7 +260,10 @@
 
 @media (max-width: 900px) {
   .shopper-header-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto auto auto;
+    grid-template-areas:
+      'brand cart profile'
+      'nav nav nav';
     justify-items: center;
     padding: 12px 0;
   }

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import ShopperHeader from './ShopperHeader';
 import useTripFeedPageState from '../hooks/useTripFeedPageState';
 import './TripFeed.css';
@@ -19,7 +20,6 @@ export default function TripFeed() {
     tripFeedError,
     setItemQuantity,
     handleAddToCart,
-    handleCheckout,
   } = useTripFeedPageState();
 
   return (
@@ -34,15 +34,20 @@ export default function TripFeed() {
         <p className="trip-feed-kicker">Trip feed</p>
         <h1>Nearby Driver Trips</h1>
         <p>
-          Distances are calculated from the pickup point. If a trip has no explicit pickup point,
-          the driver location is used by default.
+          Distances are calculated from the pickup point. If a trip has no explicit pickup
+          point, the driver location is used by default.
         </p>
       </section>
 
       <section className="trip-feed-layout">
         <aside className="trip-list-panel">
           <div className="trip-panel-title">
-            <img alt="" aria-hidden="true" className="trip-panel-title-icon" src="/images/available-trips.png" />
+            <img
+              alt=""
+              aria-hidden="true"
+              className="trip-panel-title-icon"
+              src="/images/available-trips.png"
+            />
             <h2>Available trips</h2>
           </div>
           <div className="trip-list">
@@ -58,7 +63,11 @@ export default function TripFeed() {
                 <p className="trip-list-store">{trip.storeName}</p>
                 <div className="trip-list-row">
                   <div className="trip-list-driver">
-                    <img alt={`${trip.driver.name} profile`} className="driver-avatar driver-avatar-small" src={trip.driver.photo} />
+                    <img
+                      alt={`${trip.driver.name} profile`}
+                      className="driver-avatar driver-avatar-small"
+                      src={trip.driver.photo}
+                    />
                     <strong>{trip.driver.name}</strong>
                   </div>
                   <span>{trip.distanceLabel}</span>
@@ -114,7 +123,9 @@ export default function TripFeed() {
                 {selectedTrip.items.map((item) => (
                   <article className="trip-item-card" key={item.id}>
                     <h3>{item.name}</h3>
-                    <p>Available: {item.availableQty} {item.unit}</p>
+                    <p>
+                      Available: {item.availableQty} {item.unit}
+                    </p>
                     <p>Approx ${item.unitPrice.toFixed(2)} each</p>
 
                     <div className="quantity-stepper">
@@ -226,9 +237,9 @@ export default function TripFeed() {
             <p className="cart-empty">Add items from a trip card to start checkout.</p>
           )}
 
-          <button className="trip-checkout-button" onClick={handleCheckout} type="button">
-            Checkout
-          </button>
+          <Link className="trip-checkout-button" to="/cart">
+            View cart
+          </Link>
 
           {checkoutMessage ? <p className="checkout-message">{checkoutMessage}</p> : null}
         </aside>

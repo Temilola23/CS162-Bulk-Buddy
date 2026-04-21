@@ -446,3 +446,11 @@
     max-height: 46vh;
   }
 }
+
+.trip-checkout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+

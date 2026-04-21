@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import TripFeed from './components/TripFeed';
 import ItemFeed from './components/ItemFeed';
+import Cart from './components/Cart';
 import MyOrders from './components/MyOrders';
 import TripDetail from './components/TripDetail';
 import Profile from './components/Profile';
@@ -94,6 +95,7 @@ function App() {
         <Route element={<Navigate replace to="/trip-feed" />} path="/trips" />
         <Route element={<TripFeed />} path="/trip-feed" />
         <Route element={<ItemFeed />} path="/item-feed" />
+        <Route element={<Cart />} path="/cart" />
         <Route element={<MyOrders />} path="/my-orders" />
         <Route element={<TripDetail />} path="/trip-detail" />
         <Route element={<Profile />} path="/profile" />
