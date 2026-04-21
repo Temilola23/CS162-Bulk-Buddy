@@ -12,7 +12,17 @@ from app.models.enums import (
 
 
 def _cascade_order_status(trip_id, expected_order_status, next_order_status):
-    """Apply a trip-driven status to orders in the expected prior state."""
+    """
+    Update all orders for a trip from one status to another.
+
+    Args:
+        trip_id: The trip's primary key.
+        expected_order_status: Orders must have this status to be updated.
+        next_order_status: The new status to set.
+
+    Returns:
+        None
+    """
     orders = Order.query.filter_by(
         trip_id=trip_id,
         status=expected_order_status,
