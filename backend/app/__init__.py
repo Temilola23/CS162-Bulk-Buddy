@@ -7,7 +7,7 @@ from app.routes.driver import driver
 from app.routes.me import me
 from app.routes.trip import trip
 from app.routes.admin import admin
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_login import LoginManager
 
@@ -90,6 +90,20 @@ def create_app(test_config=None):
     app.register_blueprint(me)
     app.register_blueprint(trip)
     app.register_blueprint(admin)
+
+    @app.before_request
+    def require_json_content_type():
+        """Reject non-JSON content types on API mutation endpoints."""
+        if (
+            request.method in ("POST", "PUT", "PATCH")
+            and request.path.startswith("/api/")
+            and request.content_type
+            and "application/json" not in request.content_type
+        ):
+            return (
+                jsonify({"message": "Content-Type must be application/json"}),
+                415,
+            )
 
     # Add security headers to all responses
     @app.after_request

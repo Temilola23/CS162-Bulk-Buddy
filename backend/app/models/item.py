@@ -33,7 +33,7 @@ class Item(db.Model):
     item_id = db.Column(db.Integer, primary_key=True)
     trip_id = db.Column(
         db.Integer,
-        db.ForeignKey("trips.trip_id"),
+        db.ForeignKey("trips.trip_id", ondelete="CASCADE"),
         nullable=False,
     )
     name = db.Column(db.String(200), nullable=False)

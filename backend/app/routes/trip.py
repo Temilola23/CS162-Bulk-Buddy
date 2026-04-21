@@ -411,6 +411,6 @@ def get_orders(trip_id):
     orders, error, status = get_trip_orders(trip_id, current_user.user_id)
 
     if error:
-        return jsonify({"error": error}), status
+        return jsonify({"message": error}), status
 
     return jsonify({"orders": orders}), status

@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { useApi } from '../contexts/ApiProvider';
-import useAdminApplicationReview from './useAdminApplicationReview';
+import useAdminApplicationReview from '../hooks/useAdminApplicationReview';
 
 jest.mock('../contexts/ApiProvider', () => ({
   useApi: jest.fn(),

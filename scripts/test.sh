@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run tests for both frontend and backend
+# Run tests for both frontend and backend.
 
 set -e
 
@@ -13,6 +13,6 @@ python3 -m pytest tests/ -v --cov=app --cov-fail-under=85
 # Frontend tests
 echo "Testing frontend..."
 cd ../frontend
-# TBD: add frontend test command (e.g., npm test)
+CI=true npm test -- --watchAll=false
 
 echo "All tests complete."
