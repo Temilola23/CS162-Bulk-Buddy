@@ -53,6 +53,12 @@ npm start
 
 </details>
 
+## Database Schema
+
+![ER Diagram](docs/er_diagram.png)
+
+> `claimed_quantity` on `items` is a denormalized counter kept in sync with `SUM(order_items.quantity)`, updated atomically on every order create/cancel.
+
 ## Repository Structure
 
 ```
