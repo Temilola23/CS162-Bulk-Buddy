@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from sqlalchemy import event
 from app.extensions import db
@@ -31,7 +32,9 @@ def create_app(test_config=None):
     )
 
     # Configuration
-    app.config["SECRET_KEY"] = "your-secret-key-change-in-production"
+    app.config["SECRET_KEY"] = os.environ.get(
+        "SECRET_KEY", "dev-secret-key-change-in-production"
+    )
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
