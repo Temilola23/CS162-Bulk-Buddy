@@ -33,11 +33,13 @@ class Order(db.Model):
 
     order_id = db.Column(db.Integer, primary_key=True)
     shopper_id = db.Column(
-        db.Integer, db.ForeignKey("users.user_id"), nullable=False
+        db.Integer,
+        db.ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False,
     )
     trip_id = db.Column(
         db.Integer,
-        db.ForeignKey("trips.trip_id"),
+        db.ForeignKey("trips.trip_id", ondelete="CASCADE"),
         nullable=False,
     )
     status = db.Column(
