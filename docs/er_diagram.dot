@@ -1,0 +1,105 @@
+digraph ER {
+    graph [rankdir=TB, pad="0.5", nodesep="0.6", ranksep="1.0", fontname="Courier New", fontsize=12];
+    node [shape=none, fontname="Courier New", fontsize=12, margin=0];
+    edge [fontname="Courier New", fontsize=11, arrowhead=crow, arrowtail=tee, dir=both];
+
+    USERS [label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+            <TR><TD ALIGN="CENTER"><B>USERS</B></TD></TR>
+            <HR/>
+            <TR><TD ALIGN="LEFT"><B>id</B> (PK)</TD></TR>
+            <TR><TD ALIGN="LEFT">email (UNIQUE)</TD></TR>
+            <TR><TD ALIGN="LEFT">password_hash</TD></TR>
+            <TR><TD ALIGN="LEFT">first_name</TD></TR>
+            <TR><TD ALIGN="LEFT">last_name</TD></TR>
+            <TR><TD ALIGN="LEFT">role (shopper/driver/admin)</TD></TR>
+            <TR><TD ALIGN="LEFT">address_street</TD></TR>
+            <TR><TD ALIGN="LEFT">address_city</TD></TR>
+            <TR><TD ALIGN="LEFT">address_state</TD></TR>
+            <TR><TD ALIGN="LEFT">address_zip</TD></TR>
+            <TR><TD ALIGN="LEFT">latitude</TD></TR>
+            <TR><TD ALIGN="LEFT">longitude</TD></TR>
+            <TR><TD ALIGN="LEFT">created_at</TD></TR>
+            <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+        </TABLE>
+    >]
+
+    TRIPS [label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+            <TR><TD ALIGN="CENTER"><B>TRIPS</B></TD></TR>
+            <HR/>
+            <TR><TD ALIGN="LEFT"><B>id</B> (PK)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>driver_id</B> (FK -&gt; users.id)</TD></TR>
+            <TR><TD ALIGN="LEFT">store_name</TD></TR>
+            <TR><TD ALIGN="LEFT">pickup_location_text</TD></TR>
+            <TR><TD ALIGN="LEFT">pickup_lat</TD></TR>
+            <TR><TD ALIGN="LEFT">pickup_lng</TD></TR>
+            <TR><TD ALIGN="LEFT">pickup_time</TD></TR>
+            <TR><TD ALIGN="LEFT">status (open/closed/purchased/ready_for_pickup/completed/cancelled)</TD></TR>
+            <TR><TD ALIGN="LEFT">created_at</TD></TR>
+            <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+        </TABLE>
+    >]
+
+    ITEMS [label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+            <TR><TD ALIGN="CENTER"><B>ITEMS</B></TD></TR>
+            <HR/>
+            <TR><TD ALIGN="LEFT"><B>id</B> (PK)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>trip_id</B> (FK -&gt; trip.id)</TD></TR>
+            <TR><TD ALIGN="LEFT">name</TD></TR>
+            <TR><TD ALIGN="LEFT">unit</TD></TR>
+            <TR><TD ALIGN="LEFT">total_quantity</TD></TR>
+            <TR><TD ALIGN="LEFT">claimed_quantity</TD></TR>
+            <TR><TD ALIGN="LEFT">price_per_unit</TD></TR>
+            <TR><TD ALIGN="LEFT">created_at</TD></TR>
+            <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+        </TABLE>
+    >]
+
+    ORDERS [label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+            <TR><TD ALIGN="CENTER"><B>ORDERS</B></TD></TR>
+            <HR/>
+            <TR><TD ALIGN="LEFT"><B>id</B> (PK)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>shopper_id</B> (FK -&gt; users.id)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>trip_id</B> (FK -&gt; trips.id)</TD></TR>
+            <TR><TD ALIGN="LEFT">status (claimed/purchased/ready_for_pickup/completed/cancelled)</TD></TR>
+            <TR><TD ALIGN="LEFT">created_at</TD></TR>
+            <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+        </TABLE>
+    >]
+
+    ORDER_ITEMS [label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+            <TR><TD ALIGN="CENTER"><B>ORDER_ITEMS</B></TD></TR>
+            <HR/>
+            <TR><TD ALIGN="LEFT"><B>id</B> (PK)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>order_id</B> (FK -&gt; order.id)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>item_id</B> (FK -&gt; items.id)</TD></TR>
+            <TR><TD ALIGN="LEFT">quantity</TD></TR>
+            <TR><TD ALIGN="LEFT">created_at</TD></TR>
+        </TABLE>
+    >]
+
+    DRIVER_APPLICATIONS [label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+            <TR><TD ALIGN="CENTER"><B>DRIVER_APPLICATIONS</B></TD></TR>
+            <HR/>
+            <TR><TD ALIGN="LEFT"><B>id</B> (PK)</TD></TR>
+            <TR><TD ALIGN="LEFT"><B>user_id</B> (FK -&gt; users.id)</TD></TR>
+            <TR><TD ALIGN="LEFT">status (pending/approved/rejected)</TD></TR>
+            <TR><TD ALIGN="LEFT">license_info</TD></TR>
+            <TR><TD ALIGN="LEFT">created_at</TD></TR>
+            <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+        </TABLE>
+    >]
+
+    USERS -> TRIPS [label="creates as driver"]
+    USERS -> ORDERS [label="places as shopper"]
+    USERS -> DRIVER_APPLICATIONS [label="submits"]
+    TRIPS -> ITEMS [label="contains"]
+    TRIPS -> ORDERS [label="receives"]
+    ORDERS -> ORDER_ITEMS [label="has"]
+    ITEMS -> ORDER_ITEMS [label="claimed via"]
+}
